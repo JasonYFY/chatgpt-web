@@ -3,6 +3,7 @@ import type { PluginOption } from 'vite'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
+import { terser } from 'rollup-plugin-terser';
 
 function setupPlugins(env: ImportMetaEnv): PluginOption[] {
   return [
@@ -18,6 +19,7 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
         ],
       },
     }),
+		terser(), // 直接启用terser插件
   ]
 }
 
@@ -30,8 +32,8 @@ export default defineConfig((env) => {
         '@': path.resolve(process.cwd(), 'src'),
       },
     },
-    plugins: setupPlugins(viteEnv),
     server: {
+			webSocketServer: false,
       host: '0.0.0.0',
       port: 1002,
       open: false,
@@ -50,5 +52,6 @@ export default defineConfig((env) => {
         ignoreTryCatch: false,
       },
     },
+		plugins: setupPlugins(viteEnv),
   }
 })
