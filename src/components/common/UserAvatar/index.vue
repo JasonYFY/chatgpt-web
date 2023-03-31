@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { NAvatar } from 'naive-ui'
 import { useUserStore } from '@/store'
+import defaultAvatar from '@/assets/avatar.jpg'
 import { isString } from '@/utils/is'
 
 const userStore = useUserStore()
@@ -17,11 +18,11 @@ const userInfo = computed(() => userStore.userInfo)
           size="large"
           round
           :src="userInfo.avatar"
-          :fallback-src="avatar.jpg"
+          :fallback-src="defaultAvatar"
         />
       </template>
       <template v-else>
-        <NAvatar size="large" round :src="avatar.jpg" />
+        <NAvatar size="large" round :src="defaultAvatar" />
       </template>
     </div>
     <div class="flex-1 min-w-0 ml-2">
