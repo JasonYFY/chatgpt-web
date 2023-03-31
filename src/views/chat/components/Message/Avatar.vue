@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { NAvatar } from 'naive-ui'
 import { useUserStore } from '@/store'
 import { isString } from '@/utils/is'
-import defaultAvatar from 'virtual:/assets/avatar.jpg?filename=avatar.jpg';
+import defaultAvatar from '@/assets/avatar.jpg'
 
 interface Props {
   image?: boolean
