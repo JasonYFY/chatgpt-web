@@ -17,16 +17,16 @@ const userInfo = computed(() => userStore.userInfo)
           size="large"
           round
           :src="userInfo.avatar"
-          :fallback-src="require('@/avatar.jpg')"
+          :fallback-src="'@/avatar.jpg'"
         />
       </template>
       <template v-else>
-        <NAvatar size="large" round :src="require('@/avatar.jpg')" />
+        <NAvatar size="large" round :src="'@/avatar.jpg'" />
       </template>
     </div>
     <div class="flex-1 min-w-0 ml-2">
       <h2 class="overflow-hidden font-bold text-md text-ellipsis whitespace-nowrap">
-        {{ userInfo.name ?? 'ChenZhaoYu' }}
+        {{ userInfo.name ?? 'JasonYu' }}
       </h2>
       <p class="overflow-hidden text-xs text-gray-500 text-ellipsis whitespace-nowrap">
         <span
