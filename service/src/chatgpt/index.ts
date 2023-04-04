@@ -41,11 +41,11 @@ const accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
 
 // 为提高性能，预先计算好能预先计算好的
 // 该实现不支持中途切换 API 模型
-const nextKey = (() => {
+/*const nextKey = (() => {
 	const next = loadBalancer(accessTokens)
 	return () => (api as ChatGPTUnofficialProxyAPI).accessToken = next()
 
-})()
+})()*/
 const maxRetry: number = !isNaN(+process.env.MAX_RETRY) ? +process.env.MAX_RETRY : accessTokens.length
 const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RETRY_INTERVAL_MS : 1000;
 
