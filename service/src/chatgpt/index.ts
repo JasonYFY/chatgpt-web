@@ -46,7 +46,7 @@ const nextKey  = (clientIP: string) => {
 	let ipToken = next()
 	ipCache.set(clientIP, ipToken)
 	console.log('新ip保存下token:',ipToken)
-	return () => (api as ChatGPTUnofficialProxyAPI).accessToken = next()
+	return () => (api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
 
 }
 const maxRetry: number = !isNaN(+process.env.MAX_RETRY) ? +process.env.MAX_RETRY : accessTokens.length
