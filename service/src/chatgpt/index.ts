@@ -138,6 +138,8 @@ async function chatReplyProcess(options: RequestOptions) {
 					ipToken = loadBalancer(accessTokens)()
 					ipCache.set(clientIP, ipToken)
 					console.log('新的ip,保存下一个token:',ipToken)
+					//清空对话
+					options = {}
 				}
 
 				(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
