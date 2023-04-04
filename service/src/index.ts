@@ -24,13 +24,12 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 
   try {
     const { prompt, options = {}, systemMessage } = req.body as RequestProps
-
+		//获取客户端ip
 		const clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress
-		console.log('Client IP:', clientIP) // 打印客户端IP地址
-
     let firstChunk = true
     await chatReplyProcess({
       message: prompt,
+			clientIP: clientIP,
       lastContext: options,
       process: (chat: ChatMessage) => {
         res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)

@@ -5,7 +5,7 @@ import { ChatGPTAPI, ChatGPTUnofficialProxyAPI } from 'chatgpt'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import httpsProxyAgent from 'https-proxy-agent'
 import fetch from 'node-fetch'
-import { sendResponse } from '../utils'
+import { sendResponse,loadBalancer, parseKeys,sleep } from '../utils'
 import { isNotEmptyString } from '../utils/is'
 import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig } from '../types'
 import type { BalanceResponse, RequestOptions } from './types'
@@ -32,6 +32,18 @@ if (!isNotEmptyString(process.env.OPENAI_API_KEY) && !isNotEmptyString(process.e
   throw new Error('Missing OPENAI_API_KEY or OPENAI_ACCESS_TOKEN environment variable')
 
 let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
+
+const accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
+
+// 为提高性能，预先计算好能预先计算好的
+// 该实现不支持中途切换 API 模型
+const nextKey = (() => {
+	const next = loadBalancer(accessTokens)
+	return () => (api as ChatGPTUnofficialProxyAPI).accessToken = next()
+
+})()
+const maxRetry: number = !isNaN(+process.env.MAX_RETRY) ? +process.env.MAX_RETRY : accessTokens.length
+const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RETRY_INTERVAL_MS : 1000;
 
 (async () => {
   // More Info: https://github.com/transitive-bullshit/chatgpt-api
@@ -90,7 +102,7 @@ let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 })()
 
 async function chatReplyProcess(options: RequestOptions) {
-  const { message, lastContext, process, systemMessage } = options
+  const { message, lastContext, process, systemMessage,clientIP } = options
   try {
     let options: SendMessageOptions = { timeoutMs }
 
@@ -105,6 +117,27 @@ async function chatReplyProcess(options: RequestOptions) {
       else
         options = { ...lastContext }
     }
+
+		if (apiModel === 'ChatGPTUnofficialProxyAPI') {
+			console.log('Client IP:', clientIP) // 打印客户端IP地址
+			if (process)
+				options.onProgress = process
+
+			let retryCount = 0
+			let response: ChatMessage | void
+
+			while (!response && retryCount++ < maxRetry) {
+				nextKey()
+				response = await api.sendMessage(message, options).catch((error: any) => {
+					// 429 Too Many Requests
+					if (error.statusCode !== 429)
+						throw error
+				})
+				await sleep(retryIntervalMs)
+			}
+			return sendResponse({ type: 'Success', data: response })
+		}
+
 
     const response = await api.sendMessage(message, {
       ...options,
