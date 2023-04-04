@@ -41,14 +41,11 @@ const accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
 
 // 为提高性能，预先计算好能预先计算好的
 // 该实现不支持中途切换 API 模型
-const nextKey  = (clientIP: string) => {
+const nextKey = (() => {
 	const next = loadBalancer(accessTokens)
-	let ipToken = next()
-	ipCache.set(clientIP, ipToken)
-	console.log('新ip保存下token:',ipToken)
-	return () => (api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
+	return () => (api as ChatGPTUnofficialProxyAPI).accessToken = next()
 
-}
+})()
 const maxRetry: number = !isNaN(+process.env.MAX_RETRY) ? +process.env.MAX_RETRY : accessTokens.length
 const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RETRY_INTERVAL_MS : 1000;
 
@@ -143,19 +140,16 @@ async function chatReplyProcess(options: RequestOptions) {
 
 			console.log('Client IP:', clientIP) // 打印客户端IP地址
 
-			// 将客户端IP地址存储到LRUMap中
-			if (!ipToken) {
-				//没有在缓存里,获取一个新的保存
-				nextKey(clientIP)
-				/*ipToken = loadBalancer(accessTokens)()
-				ipCache.set(clientIP, ipToken)
-				console.log('新ip保存下token:',ipToken)*/
-			}
-			//重新赋值
-			//(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
 			while (!response && retryCount++ < maxRetry) {
-
-				// nextKey()
+				// 将客户端IP地址存储到LRUMap中
+				if (!ipToken) {
+					//没有在缓存里,获取一个新的保存
+					ipToken = loadBalancer(accessTokens)()
+					ipCache.set(clientIP, ipToken)
+					console.log('新ip保存下token:',ipToken)
+				}
+				//重新赋值
+				(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
 				response = await api.sendMessage(message, options).catch((error: any) => {
 					// 429 Too Many Requests
 					if (error.statusCode !== 429)
