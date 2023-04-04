@@ -14,7 +14,7 @@ import LRUMap from 'lru-cache'
 const { HttpsProxyAgent } = httpsProxyAgent
 
 // 创建一个LRUMap实例，设置最大容量为1000，过期时间为1小时
-const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 1000 })
+const ipCache = new LRUMap<string, string>({ max: 1000, ttl: 60 * 60 })
 
 dotenv.config()
 
@@ -115,34 +115,40 @@ async function chatReplyProcess(options: RequestOptions) {
         options.systemMessage = systemMessage
     }
 		console.log('打印出lastContext:',lastContext)
+
+		//查询ip缓存中是否有token
+		let ipToken = ipCache.get(clientIP);
     if (lastContext != null) {
       if (apiModel === 'ChatGPTAPI')
         options.parentMessageId = lastContext.parentMessageId
-      else
-        options = { ...lastContext }
+      else{
+				if (ipToken) {
+					//有token才赋值上下文
+					options = {...lastContext}
+				}
+			}
+
     }
 
 		if (apiModel === 'ChatGPTUnofficialProxyAPI') {
-			console.log('Client IP:', clientIP) // 打印客户端IP地址
+			//console.log('Client IP:', clientIP) // 打印客户端IP地址
 			if (process)
 				options.onProgress = process
 			console.log('打印出options:',options)
 			let retryCount = 0
 			let response: ChatMessage | void
 
+
+			// 将客户端IP地址存储到LRUMap中
+			if (!ipToken) {
+				//没有在缓存里,获取一个新的保存
+				ipToken = loadBalancer(accessTokens)()
+				ipCache.set(clientIP, ipToken)
+				console.log(`新的ip${clientIP},保存下一个token:${ipToken}`)
+			}
+			//重新赋值
+			(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
 			while (!response && retryCount++ < maxRetry) {
-				let ipToken = ipCache.get(clientIP);
-				// 将客户端IP地址存储到LRUMap中
-				if (!ipToken) {
-					//没有在缓存里,获取一个新的保存
-					ipToken = loadBalancer(accessTokens)()
-					ipCache.set(clientIP, ipToken)
-					console.log('新的ip,保存下一个token:',ipToken)
-
-				}
-
-
-				(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
 				// nextKey()
 				response = await api.sendMessage(message, options).catch((error: any) => {
 					// 429 Too Many Requests
