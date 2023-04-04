@@ -374,6 +374,10 @@ function handleDelete(index: number) {
   })
 }
 
+function quoteText(text: string) {
+	prompt.value = text
+}
+
 function handleClear() {
   if (loading.value)
     return
@@ -497,6 +501,7 @@ onUnmounted(() => {
                 :inversion="item.inversion"
                 :error="item.error"
                 :loading="item.loading"
+                @quote="quoteText(item.text)"
                 @regenerate="onRegenerate(index)"
                 @delete="handleDelete(index)"
               />

@@ -20,6 +20,7 @@ interface Props {
 interface Emit {
   (ev: 'regenerate'): void
   (ev: 'delete'): void
+  (ev: 'quote'): void
 }
 
 const props = defineProps<Props>()
@@ -38,6 +39,11 @@ const messageRef = ref<HTMLElement>()
 
 const options = computed(() => {
   const common = [
+  	{
+    label: t('chat.quote'),
+    key: 'quoteText',
+    icon: iconRender({ icon: 'ri-chat-quote-line' }),
+    },
     {
       label: t('chat.copy'),
       key: 'copyText',
@@ -69,8 +75,12 @@ function handleSelect(key: 'copyText' | 'delete' | 'toggleRenderType') {
     case 'toggleRenderType':
       asRawText.value = !asRawText.value
       return
+    case 'quoteText':
+			emit('quote')
+			return
     case 'delete':
       emit('delete')
+
   }
 }
 
