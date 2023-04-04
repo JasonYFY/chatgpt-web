@@ -67,7 +67,7 @@ const options = computed(() => {
   return common
 })
 
-function handleSelect(key: 'copyText' | 'delete' | 'toggleRenderType') {
+function handleSelect(key: 'copyText' | 'delete' | 'toggleRenderType' | 'quoteText') {
   switch (key) {
     case 'copyText':
       copyText({ text: props.text ?? '' })
