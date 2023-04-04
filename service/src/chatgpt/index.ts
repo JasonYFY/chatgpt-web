@@ -155,7 +155,7 @@ async function chatReplyProcess(options: RequestOptions) {
 					if (error.statusCode !== 429)
 						throw error
 					if (error.statusCode == 404){
-						console.log('报错了')
+						console.log('报错了404')
 						throw error
 					}
 
