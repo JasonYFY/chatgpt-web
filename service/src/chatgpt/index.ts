@@ -129,7 +129,7 @@ async function chatReplyProcess(options: RequestOptions) {
 
 			let retryCount = 0
 			let response: ChatMessage | void
-
+			console.log('打印出options:', options)
 			while (!response && retryCount++ < maxRetry) {
 				let ipToken = ipCache.get(clientIP);
 				// 将客户端IP地址存储到LRUMap中
@@ -138,9 +138,7 @@ async function chatReplyProcess(options: RequestOptions) {
 					ipToken = loadBalancer(accessTokens)()
 					ipCache.set(clientIP, ipToken)
 					console.log('新的ip,保存下一个token:',ipToken)
-
 				}
-				console.log('打印出options:',options)
 
 				(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
 				// nextKey()
