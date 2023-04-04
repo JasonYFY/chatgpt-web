@@ -218,6 +218,7 @@ async function fetchUsage() {
 		const useResponse = await fetch(urlUsage, { headers })
 		const usageData = await useResponse.json() as BalanceResponse
 		const usage = Math.round(usageData.total_usage) / 100
+		console.log(`每月使用量: ${usage}`);
 		return Promise.resolve(usage ? `$${usage}` : '-')
 	}
 	catch {
@@ -237,7 +238,7 @@ function formatDateUse(): string[] {
 
 async function chatConfig() {
   const balance = await fetchBalance()
-  const usage = await fetchUsage()()
+  const usage = await fetchUsage()
   const reverseProxy = process.env.API_REVERSE_PROXY ?? '-'
   const httpsProxy = (process.env.HTTPS_PROXY || process.env.ALL_PROXY) ?? '-'
   const socksProxy = (process.env.SOCKS_PROXY_HOST && process.env.SOCKS_PROXY_PORT)
