@@ -155,9 +155,6 @@ async function chatReplyProcess(options: RequestOptions) {
 					if (error.statusCode === 404){
 						console.log('报错了404',error)
 						console.log('报错了404，options：',options)
-						delete options.conversationId;
-						delete options.parentMessageId;
-						console.log('报错了404，options新对象：',options)
 					}else if (error.statusCode !== 429)
 						throw error
 
