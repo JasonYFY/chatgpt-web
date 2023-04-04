@@ -14,7 +14,7 @@ import LRUMap from 'lru-cache'
 const { HttpsProxyAgent } = httpsProxyAgent
 
 // 创建一个LRUMap实例，设置最大容量为1000，过期时间为1小时
-const ipCache = new LRUMap<string, string>({ max: 1000, ttl: 60 * 60 * 1000  })
+const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 1000  })
 
 dotenv.config()
 
