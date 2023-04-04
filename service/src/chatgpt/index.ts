@@ -124,8 +124,8 @@ async function chatReplyProcess(options: RequestOptions) {
 
 		if (apiModel === 'ChatGPTUnofficialProxyAPI') {
 			console.log('Client IP:', clientIP) // 打印客户端IP地址
-			/*if (process)
-				options.onProgress = process*/
+			if (process)
+				options.onProgress = process
 
 			let retryCount = 0
 			let response: ChatMessage | void
