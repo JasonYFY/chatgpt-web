@@ -114,7 +114,7 @@ async function chatReplyProcess(options: RequestOptions) {
       if (isNotEmptyString(systemMessage))
         options.systemMessage = systemMessage
     }
-
+		console.log('打印出lastContext:',lastContext)
     if (lastContext != null) {
       if (apiModel === 'ChatGPTAPI')
         options.parentMessageId = lastContext.parentMessageId
@@ -126,7 +126,7 @@ async function chatReplyProcess(options: RequestOptions) {
 			console.log('Client IP:', clientIP) // 打印客户端IP地址
 			if (process)
 				options.onProgress = process
-
+			console.log('打印出options:',options)
 			let retryCount = 0
 			let response: ChatMessage | void
 
@@ -140,7 +140,7 @@ async function chatReplyProcess(options: RequestOptions) {
 					console.log('新的ip,保存下一个token:',ipToken)
 
 				}
-				console.log('打印出options:',options)
+
 
 				(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
 				// nextKey()
