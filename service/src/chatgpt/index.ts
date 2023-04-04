@@ -125,16 +125,10 @@ async function chatReplyProcess(options: RequestOptions) {
 }
 
 async function fetchBalance() {
-
-
 	// 计算起始日期和结束日期
 	const now = new Date();
 	const startDate = new Date(now - 90 * 24 * 60 * 60 * 1000);
 	const endDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-
-	/*const config = await getCacheConfig();
-	const OPENAI_API_KEY = config.apiKey;
-	const OPENAI_API_BASE_URL = config.apiBaseUrl;*/
 
 	const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 	const OPENAI_API_BASE_URL = process.env.OPENAI_API_BASE_URL
@@ -176,14 +170,10 @@ async function fetchBalance() {
 
 		// 输出余额信息
 		console.log(`balance: ${balance.toFixed(3)}`);
-		console.log(`使用量1: ${totalUsage}`);
-		console.log(`使用量2: ${totalUsage.toFixed(3)}`);
+		console.log(`使用量: ${totalUsage.toFixed(3)}`);
 
 		return Promise.resolve(balance.toFixed(3))
 
-    /*const response = await axios.get(`${API_BASE_URL}/dashboard/billing/credit_grants`, { headers })
-    const balance = response.data.total_available ?? 0
-    return Promise.resolve(balance.toFixed(3))*/
   }
   catch {
     return Promise.resolve('-')
@@ -199,8 +189,55 @@ function formatDate(date) {
 	return `${year}-${month}-${day}`;
 }
 
+
+async function fetchUsage() {
+	// 计算起始日期和结束日期
+
+	const OPENAI_API_KEY = process.env.OPENAI_API_KEY
+	const OPENAI_API_BASE_URL = process.env.OPENAI_API_BASE_URL
+
+	if (!isNotEmptyString(OPENAI_API_KEY))
+		return Promise.resolve('-')
+
+	const API_BASE_URL = isNotEmptyString(OPENAI_API_BASE_URL)
+		? OPENAI_API_BASE_URL
+		: 'https://api.openai.com'
+
+	const [startDate, endDate] = formatDateUse()
+
+	// 每月使用量
+	const urlUsage = `${API_BASE_URL}/v1/dashboard/billing/usage?start_date=${startDate}&end_date=${endDate}`
+
+	const headers = {
+		'Authorization': `Bearer ${OPENAI_API_KEY}`,
+		'Content-Type': 'application/json',
+	}
+
+	try {
+		// 获取已使用量
+		const useResponse = await fetch(urlUsage, { headers })
+		const usageData = await useResponse.json() as BalanceResponse
+		const usage = Math.round(usageData.total_usage) / 100
+		return Promise.resolve(usage ? `$${usage}` : '-')
+	}
+	catch {
+		return Promise.resolve('-')
+	}
+}
+
+function formatDateUse(): string[] {
+	const today = new Date()
+	const year = today.getFullYear()
+	const month = today.getMonth() + 1
+	const lastDay = new Date(year, month, 0)
+	const formattedFirstDay = `${year}-${month.toString().padStart(2, '0')}-01`
+	const formattedLastDay = `${year}-${month.toString().padStart(2, '0')}-${lastDay.getDate().toString().padStart(2, '0')}`
+	return [formattedFirstDay, formattedLastDay]
+}
+
 async function chatConfig() {
   const balance = await fetchBalance()
+  const usage = await fetchUsage()()
   const reverseProxy = process.env.API_REVERSE_PROXY ?? '-'
   const httpsProxy = (process.env.HTTPS_PROXY || process.env.ALL_PROXY) ?? '-'
   const socksProxy = (process.env.SOCKS_PROXY_HOST && process.env.SOCKS_PROXY_PORT)
@@ -208,7 +245,7 @@ async function chatConfig() {
     : '-'
   return sendResponse<ModelConfig>({
     type: 'Success',
-    data: { apiModel, reverseProxy, timeoutMs, socksProxy, httpsProxy, balance },
+    data: { apiModel, reverseProxy, timeoutMs, socksProxy, httpsProxy, balance,usage },
   })
 }
 

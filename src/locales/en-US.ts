@@ -70,6 +70,7 @@ export default {
     socks: 'Socks',
     httpsProxy: 'HTTPS Proxy',
     balance: 'API Balance',
+		remain: 'remain',
     monthlyUsage: 'Monthly Usage',
   },
   store: {
