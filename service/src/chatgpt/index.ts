@@ -155,11 +155,11 @@ async function chatReplyProcess(options: RequestOptions) {
 					if (error.statusCode !== 429)
 						throw error
 					if (error.statusCode == 404){
-						console.log('报错了404')
+						console.log('报错了404',error)
 						throw error
 					}
-
 				})
+				console.log('报错了重新执行',retryCount)
 				await sleep(retryIntervalMs)
 			}
 			return sendResponse({ type: 'Success', data: response })
