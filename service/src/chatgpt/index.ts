@@ -9,8 +9,12 @@ import { sendResponse,loadBalancer, parseKeys,sleep } from '../utils'
 import { isNotEmptyString } from '../utils/is'
 import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig } from '../types'
 import type { BalanceResponse, RequestOptions } from './types'
+import LRUMap from 'lru-cache'
 
 const { HttpsProxyAgent } = httpsProxyAgent
+
+// 创建一个LRUMap实例，设置最大容量为1000，过期时间为1小时
+const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 1000 })
 
 dotenv.config()
 
@@ -127,7 +131,17 @@ async function chatReplyProcess(options: RequestOptions) {
 			let response: ChatMessage | void
 
 			while (!response && retryCount++ < maxRetry) {
-				nextKey()
+				let ipToken = ipCache.get(clientIP);
+				// 将客户端IP地址存储到LRUMap中
+				if (!ipToken) {
+					//没有在缓存里,获取一个新的保存
+					ipToken = loadBalancer(accessTokens)
+					ipCache.set(clientIP, ipToken)
+					console.log('新的ip,保存下一个token:',ipToken)
+				}
+
+				(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
+				// nextKey()
 				response = await api.sendMessage(message, options).catch((error: any) => {
 					// 429 Too Many Requests
 					if (error.statusCode !== 429)
