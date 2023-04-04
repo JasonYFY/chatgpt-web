@@ -154,8 +154,9 @@ async function chatReplyProcess(options: RequestOptions) {
 					// 429 Too Many Requests
 					if (error.statusCode !== 429)
 						throw error
-					if (error.statusCode == 404){
+					if (error.statusCode === 404){
 						console.log('报错了404',error)
+						console.log('报错了404，options：',options)
 						throw error
 					}
 				})
