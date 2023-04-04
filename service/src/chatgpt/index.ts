@@ -138,17 +138,18 @@ async function chatReplyProcess(options: RequestOptions) {
 			let retryCount = 0
 			let response: ChatMessage | void
 
+			console.log('Client IP:', clientIP) // 打印客户端IP地址
 
-			// 将客户端IP地址存储到LRUMap中
-			if (!ipToken) {
-				//没有在缓存里,获取一个新的保存
-				ipToken = loadBalancer(accessTokens)()
-				ipCache.set(clientIP, ipToken)
-				console.log(`新的ip${clientIP},保存下一个token:${ipToken}`)
-			}
-			//重新赋值
-			(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
 			while (!response && retryCount++ < maxRetry) {
+				// 将客户端IP地址存储到LRUMap中
+				if (!ipToken) {
+					//没有在缓存里,获取一个新的保存
+					ipToken = loadBalancer(accessTokens)()
+					ipCache.set(clientIP, ipToken)
+					console.log('新ip保存下token:',ipToken)
+				}
+				//重新赋值
+				(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
 				// nextKey()
 				response = await api.sendMessage(message, options).catch((error: any) => {
 					// 429 Too Many Requests
