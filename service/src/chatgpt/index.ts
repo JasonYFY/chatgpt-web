@@ -144,7 +144,7 @@ async function chatReplyProcess(options: RequestOptions) {
 				// 将客户端IP地址存储到LRUMap中
 				if (!ipToken) {
 					//没有在缓存里,获取一个新的保存
-					ipToken = loadBalancer(accessTokens)()
+					ipToken = loadBalancer(accessTokens)
 					ipCache.set(clientIP, ipToken)
 					console.log('新ip保存下token:',ipToken)
 				}
