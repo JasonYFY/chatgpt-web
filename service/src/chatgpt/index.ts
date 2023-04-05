@@ -38,6 +38,7 @@ if (!isNotEmptyString(process.env.OPENAI_API_KEY) && !isNotEmptyString(process.e
 let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 
 const accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
+const nextBalancer =  loadBalancer(accessTokens)
 
 // 为提高性能，预先计算好能预先计算好的
 // 该实现不支持中途切换 API 模型
@@ -144,7 +145,7 @@ async function chatReplyProcess(options: RequestOptions) {
 				// 将客户端IP地址存储到LRUMap中
 				if (!ipToken) {
 					//没有在缓存里,获取一个新的保存
-					ipToken = loadBalancer(accessTokens)
+					ipToken = nextBalancer()
 					ipCache.set(clientIP, ipToken)
 					console.log('新ip保存下token:',ipToken)
 				}
