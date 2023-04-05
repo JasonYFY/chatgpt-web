@@ -163,7 +163,7 @@ async function chatReplyProcess(options: RequestOptions) {
 						throw error
 
 				})
-				console.log('报错了重新执行',retryCount)
+				//console.log('报错了重新执行',retryCount)
 				await sleep(retryIntervalMs)
 			}
 			return sendResponse({ type: 'Success', data: response })
