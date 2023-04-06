@@ -14,7 +14,7 @@ import LRUMap from 'lru-cache'
 const { HttpsProxyAgent } = httpsProxyAgent
 
 // 创建一个LRUMap实例，设置最大容量为1000，过期时间为1小时
-const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 1000 })
+const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 1000  })
 
 dotenv.config()
 
@@ -38,14 +38,15 @@ if (!isNotEmptyString(process.env.OPENAI_API_KEY) && !isNotEmptyString(process.e
 let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 
 const accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
+const nextBalancer =  loadBalancer(accessTokens)
 
 // 为提高性能，预先计算好能预先计算好的
 // 该实现不支持中途切换 API 模型
-const nextKey = (() => {
+/*const nextKey = (() => {
 	const next = loadBalancer(accessTokens)
 	return () => (api as ChatGPTUnofficialProxyAPI).accessToken = next()
 
-})()
+})()*/
 const maxRetry: number = !isNaN(+process.env.MAX_RETRY) ? +process.env.MAX_RETRY : accessTokens.length
 const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RETRY_INTERVAL_MS : 1000;
 
@@ -114,39 +115,55 @@ async function chatReplyProcess(options: RequestOptions) {
       if (isNotEmptyString(systemMessage))
         options.systemMessage = systemMessage
     }
+		console.log('打印出lastContext:',lastContext)
 
+		//查询ip缓存中是否有token
+		let ipToken = ipCache.get(clientIP);
     if (lastContext != null) {
       if (apiModel === 'ChatGPTAPI')
         options.parentMessageId = lastContext.parentMessageId
-      else
-        options = { ...lastContext }
+      else{
+				if (ipToken) {
+					//有token才赋值上下文
+					options = {...lastContext}
+				}
+			}
+
     }
 
 		if (apiModel === 'ChatGPTUnofficialProxyAPI') {
-			console.log('Client IP:', clientIP) // 打印客户端IP地址
+			//console.log('Client IP:', clientIP) // 打印客户端IP地址
 			if (process)
 				options.onProgress = process
-
+			console.log('打印出options:',options)
 			let retryCount = 0
 			let response: ChatMessage | void
-			console.log('打印出options:', options)
+
+			console.log('Client IP:', clientIP) // 打印客户端IP地址
+
 			while (!response && retryCount++ < maxRetry) {
-				let ipToken = ipCache.get(clientIP);
 				// 将客户端IP地址存储到LRUMap中
 				if (!ipToken) {
 					//没有在缓存里,获取一个新的保存
-					ipToken = loadBalancer(accessTokens)()
+					ipToken = nextBalancer()
 					ipCache.set(clientIP, ipToken)
-					console.log('新的ip,保存下一个token:',ipToken)
+					console.log('新ip保存下token:',ipToken)
 				}
-
+				//重新赋值
 				(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
-				// nextKey()
 				response = await api.sendMessage(message, options).catch((error: any) => {
 					// 429 Too Many Requests
-					if (error.statusCode !== 429)
+					if (error.statusCode === 404){
+						console.log('报错了404',error)
+						console.log('报错了404，options：',options)
+						const { conversationId, parentMessageId, ...rest } = options;
+						options = { ...rest };
+						console.log('报错了404，options新对象：',options)
+					}else if (error.statusCode !== 429)
 						throw error
+
 				})
+				//console.log('报错了重新执行',retryCount)
 				await sleep(retryIntervalMs)
 			}
 			return sendResponse({ type: 'Success', data: response })
