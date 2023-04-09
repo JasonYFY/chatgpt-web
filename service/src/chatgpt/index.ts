@@ -9,7 +9,7 @@ import { sendResponse,loadBalancer, parseKeys,sleep } from '../utils'
 import { isNotEmptyString } from '../utils/is'
 import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig } from '../types'
 import LRUMap from 'lru-cache'
-import type { RequestOptions, SetProxyOptions, UsageResponse } from './types'
+import type { BalanceResponse,RequestOptions, SetProxyOptions, UsageResponse } from './types'
 
 const { HttpsProxyAgent } = httpsProxyAgent
 
@@ -190,9 +190,14 @@ async function chatReplyProcess(options: RequestOptions) {
   }
 }
 
-async function fetchUsage() {
-  const OPENAI_API_KEY = process.env.OPENAI_API_KEY
-  const OPENAI_API_BASE_URL = process.env.OPENAI_API_BASE_URL
+async function fetchBalance() {
+	// 计算起始日期和结束日期
+	const now = new Date();
+	const startDate = new Date(now - 90 * 24 * 60 * 60 * 1000);
+	const endDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+	const OPENAI_API_KEY = process.env.OPENAI_API_KEY
+	const OPENAI_API_BASE_URL = process.env.OPENAI_API_BASE_URL
 
   if (!isNotEmptyString(OPENAI_API_KEY))
     return Promise.resolve('-')
@@ -201,47 +206,105 @@ async function fetchUsage() {
     ? OPENAI_API_BASE_URL
     : 'https://api.openai.com'
 
-  const [startDate, endDate] = formatDate()
-
-  // 每月使用量
-  const urlUsage = `${API_BASE_URL}/v1/dashboard/billing/usage?start_date=${startDate}&end_date=${endDate}`
-
-  const headers = {
-    'Authorization': `Bearer ${OPENAI_API_KEY}`,
-    'Content-Type': 'application/json',
-  }
-
-  const options = {} as SetProxyOptions
-
-  setupProxy(options)
+	// 设置API请求URL和请求头
+	const urlSubscription = `${API_BASE_URL}/v1/dashboard/billing/subscription`; // 查是否订阅
+	const urlBalance = `${API_BASE_URL}/dashboard/billing/credit_grants`; // 查普通账单
+	const urlUsage = `${API_BASE_URL}/v1/dashboard/billing/usage?start_date=${formatDate(startDate)}&end_date=${formatDate(endDate)}`; // 查使用量
+	const headers = {
+		"Authorization": "Bearer " + OPENAI_API_KEY,
+		"Content-Type": "application/json"
+	};
 
   try {
-    // 获取已使用量
-    const useResponse = await options.fetch(urlUsage, { headers })
-    if (!useResponse.ok)
-      throw new Error('获取使用量失败')
-    const usageData = await useResponse.json() as UsageResponse
-    const usage = Math.round(usageData.total_usage) / 100
-    return Promise.resolve(usage ? `$${usage}` : '-')
+		// 获取API限额
+		let response = await fetch(urlSubscription, {headers});
+
+		if (!response.ok) {
+			console.log("您的账户已被封禁，请登录OpenAI进行查看。");
+			return;
+		}
+		const subscriptionData = await response.json();
+		const totalAmount = subscriptionData.hard_limit_usd;
+
+		// 获取已使用量
+		response = await fetch(urlUsage, {headers});
+		const usageData = await response.json();
+		const totalUsage = usageData.total_usage / 100;
+
+		// 计算剩余额度
+		const balance = totalAmount - totalUsage;
+
+		// 输出余额信息
+		console.log(`balance: ${balance.toFixed(3)}`);
+		console.log(`使用量: ${totalUsage.toFixed(3)}`);
+
+		return Promise.resolve(balance.toFixed(3))
+
   }
-  catch (error) {
-    global.console.log(error)
+  catch {
     return Promise.resolve('-')
   }
 }
 
-function formatDate(): string[] {
-  const today = new Date()
-  const year = today.getFullYear()
-  const month = today.getMonth() + 1
-  const lastDay = new Date(year, month, 0)
-  const formattedFirstDay = `${year}-${month.toString().padStart(2, '0')}-01`
-  const formattedLastDay = `${year}-${month.toString().padStart(2, '0')}-${lastDay.getDate().toString().padStart(2, '0')}`
-  return [formattedFirstDay, formattedLastDay]
+
+function formatDate(date) {
+	const year = date.getFullYear();
+	const month = (date.getMonth() + 1).toString().padStart(2, '0');
+	const day = date.getDate().toString().padStart(2, '0');
+
+	return `${year}-${month}-${day}`;
+}
+
+
+async function fetchUsage() {
+	// 计算起始日期和结束日期
+
+	const OPENAI_API_KEY = process.env.OPENAI_API_KEY
+	const OPENAI_API_BASE_URL = process.env.OPENAI_API_BASE_URL
+
+	if (!isNotEmptyString(OPENAI_API_KEY))
+		return Promise.resolve('-')
+
+	const API_BASE_URL = isNotEmptyString(OPENAI_API_BASE_URL)
+		? OPENAI_API_BASE_URL
+		: 'https://api.openai.com'
+
+	const [startDate, endDate] = formatDateUse()
+
+	// 每月使用量
+	const urlUsage = `${API_BASE_URL}/v1/dashboard/billing/usage?start_date=${startDate}&end_date=${endDate}`
+
+	const headers = {
+		'Authorization': `Bearer ${OPENAI_API_KEY}`,
+		'Content-Type': 'application/json',
+	}
+
+	try {
+		// 获取已使用量
+		const useResponse = await fetch(urlUsage, { headers })
+		const usageData = await useResponse.json() as BalanceResponse
+		const usage = Math.round(usageData.total_usage) / 100
+		console.log(`每月使用量: ${usage}`);
+		return Promise.resolve(usage ? `$${usage}` : '-')
+	}
+	catch {
+		return Promise.resolve('-')
+	}
+}
+
+function formatDateUse(): string[] {
+	const today = new Date()
+	const year = today.getFullYear()
+	const month = today.getMonth() + 1
+	const lastDay = new Date(year, month, 0)
+	const formattedFirstDay = `${year}-${month.toString().padStart(2, '0')}-01`
+	const formattedLastDay = `${year}-${month.toString().padStart(2, '0')}-${lastDay.getDate().toString().padStart(2, '0')}`
+	return [formattedFirstDay, formattedLastDay]
 }
 
 async function chatConfig() {
-  const usage = await fetchUsage()
+  const balance = await fetchBalance()
+  //const usage = await fetchUsage()
   const reverseProxy = process.env.API_REVERSE_PROXY ?? '-'
   const httpsProxy = (process.env.HTTPS_PROXY || process.env.ALL_PROXY) ?? '-'
   const socksProxy = (process.env.SOCKS_PROXY_HOST && process.env.SOCKS_PROXY_PORT)
@@ -249,7 +312,7 @@ async function chatConfig() {
     : '-'
   return sendResponse<ModelConfig>({
     type: 'Success',
-    data: { apiModel, reverseProxy, timeoutMs, socksProxy, httpsProxy, usage },
+    data: { apiModel, reverseProxy, timeoutMs, socksProxy, httpsProxy, balance },
   })
 }
 
