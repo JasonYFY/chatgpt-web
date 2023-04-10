@@ -127,7 +127,11 @@ async function chatReplyProcess(options: RequestOptions) {
       else{
 				if (ipToken) {
 					//有token才赋值上下文
-					options = {...lastContext}
+					if(lastContext && lastContext.conversationId && lastContext.parentMessageId){
+						// conversationId 和 parentMessageId 都存在时才赋值
+						options = {...lastContext}
+					}
+
 				}
 			}
 
