@@ -34,7 +34,7 @@
     "isomorphic-fetch": "^3.0.0",
     "node-fetch": "^3.3.0",
     "socks-proxy-agent": "^7.0.0",
-		"date-fns-tz": "v2.0.0"
+		"date-fns-tz": "v2.0.0",
 		"date-fns": "v2.0.0"
   },
   "devDependencies": {
