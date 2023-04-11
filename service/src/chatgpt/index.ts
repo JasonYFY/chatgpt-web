@@ -16,10 +16,8 @@ import { format } from 'date-fns-tz';
 const originalLog = console.log;
 
 console.log = (...args: any[]) => {
-	const chinaOffset = 8 * 60 * 60 * 1000; // 8 小时的毫秒数
 	const localTime = new Date();
-	const chinaTime = new Date(localTime.getTime() + chinaOffset);
-	const time = chinaTime.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+	const time = localTime.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
 	const message = args.map((arg) => (typeof arg === 'string' ? arg : JSON.stringify(arg))).join(' ');
 
 	originalLog(`[${time}] ${message}`);
