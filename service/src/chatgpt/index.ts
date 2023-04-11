@@ -10,6 +10,19 @@ import { isNotEmptyString } from '../utils/is'
 import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig } from '../types'
 import LRUMap from 'lru-cache'
 import type { BalanceResponse,RequestOptions, SetProxyOptions, UsageResponse } from './types'
+import { format } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
+
+const originalLog = console.log;
+
+console.log = (...args: any[]) => {
+	const time = format(new Date(), 'yyyy-MM-dd HH:mm:ss', { locale: zhCN });
+	const message = args.map((arg) => (typeof arg === 'string' ? arg : JSON.stringify(arg))).join(' ');
+
+	originalLog(`[${time}] ${message}`);
+};
+
+
 
 const { HttpsProxyAgent } = httpsProxyAgent
 
