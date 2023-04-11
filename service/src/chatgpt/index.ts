@@ -16,7 +16,8 @@ import { format } from 'date-fns-tz';
 const originalLog = console.log;
 
 console.log = (...args: any[]) => {
-	const time = format(new Date(), 'yyyy-MM-dd HH:mm:ss', { timeZone: 'Asia/Shanghai', locale: zhCN });
+	const date = new Date().toISOString();
+	const time = format(new Date(date), 'yyyy-MM-dd HH:mm:ss', { timeZone: 'Asia/Shanghai', locale: zhCN });
 	const message = args.map((arg) => (typeof arg === 'string' ? arg : JSON.stringify(arg))).join(' ');
 
 	originalLog(`[${time}] ${message}`);
