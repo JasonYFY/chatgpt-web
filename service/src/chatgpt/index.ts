@@ -172,7 +172,7 @@ async function chatReplyProcess(options: RequestOptions) {
 			return sendResponse({ type: 'Success', data: response })
 		}
 
-		console.log('后端接收到的消息：',message);
+		//console.log('后端接收到的消息：',message);
     const response = await api.sendMessage(message, {
       ...options,
       onProgress: (partialResponse) => {
