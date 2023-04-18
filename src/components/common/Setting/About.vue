@@ -61,7 +61,8 @@ onMounted(() => {
         -->
       </p>
       <p v-if="!isChatGPTAPI">
-        {{ $t("setting.reverseProxy") }}：{{ config?.reverseProxy ?? '-' }}
+        <!-- {{ $t("setting.reverseProxy") }}：{{ config?.reverseProxy ?? '-' }} -->
+        {{ $t("setting.reverseProxy") }}：-
       </p>
       <p>{{ $t("setting.timeout") }}：{{ config?.timeoutMs ?? '-' }}</p>
       <p>{{ $t("setting.socks") }}：{{ config?.socksProxy ?? '-' }}</p>
