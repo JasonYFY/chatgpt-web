@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { NSpin } from 'naive-ui'
 import { fetchChatConfig } from '@/api'
 import pkg from '@/../package.json'
-import { useAuthStore } from '@/store'
+import { useAuthStore, useUserStore } from '@/store'
 
 interface ConfigState {
   timeoutMs?: number
@@ -15,6 +15,7 @@ interface ConfigState {
   usage?: string
 }
 
+
 const authStore = useAuthStore()
 
 const loading = ref(false)
@@ -23,11 +24,20 @@ const config = ref<ConfigState>()
 
 const isChatGPTAPI = computed<boolean>(() => !!authStore.isChatGPTAPI)
 
+const userStore = useUserStore()
+const userInfo = computed(() => userStore.userInfo)
+const name = ref(userInfo.value.name ?? '')
+const showBalance = computed(() => {
+      return isChatGPTAPI.value && name.value === 'JasonYuMaster'
+    })
+
 async function fetchConfig() {
   try {
     loading.value = true
-    const { data } = await fetchChatConfig<ConfigState>()
-    config.value = data
+    if (showBalance.value) {
+			const { data } = await fetchChatConfig<ConfigState>()
+			config.value = data
+    }
   }
   finally {
     loading.value = false
@@ -47,12 +57,12 @@ onMounted(() => {
       </h2>
       <div class="p-2 space-y-2 rounded-md bg-neutral-100 dark:bg-neutral-700">
         <p>
-          此项目开源于Github
+          此项目开源于GitHub
           ，免费且基于 MIT 协议，没有任何形式的付费行为！
         </p>
       </div>
       <p>{{ $t("setting.api") }}：{{ config?.apiModel ?? '-' }}</p>
-      <p v-if="isChatGPTAPI">
+      <p v-if="showBalance">
         {{ $t("setting.balance") }}：{{ config?.balance ?? '-' }}
         <!--
         <span class="text-xs text-neutral-400">({{ $t('setting.remain') }})</span>
@@ -61,7 +71,8 @@ onMounted(() => {
         -->
       </p>
       <p v-if="!isChatGPTAPI">
-        {{ $t("setting.reverseProxy") }}：{{ config?.reverseProxy ?? '-' }}
+        <!-- {{ $t("setting.reverseProxy") }}：{{ config?.reverseProxy ?? '-' }} -->
+        {{ $t("setting.reverseProxy") }}：-
       </p>
       <p>{{ $t("setting.timeout") }}：{{ config?.timeoutMs ?? '-' }}</p>
       <p>{{ $t("setting.socks") }}：{{ config?.socksProxy ?? '-' }}</p>
