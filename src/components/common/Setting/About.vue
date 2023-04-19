@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { NSpin } from 'naive-ui'
 import { fetchChatConfig } from '@/api'
 import pkg from '@/../package.json'
-import { useAuthStore } from '@/store'
+import { useAuthStore, useUserStore } from '@/store'
 
 interface ConfigState {
   timeoutMs?: number
@@ -15,6 +15,7 @@ interface ConfigState {
   usage?: string
 }
 
+
 const authStore = useAuthStore()
 
 const loading = ref(false)
@@ -22,6 +23,13 @@ const loading = ref(false)
 const config = ref<ConfigState>()
 
 const isChatGPTAPI = computed<boolean>(() => !!authStore.isChatGPTAPI)
+
+const userStore = useUserStore()
+const userInfo = computed(() => userStore.userInfo)
+const name = ref(userInfo.value.name ?? '')
+const showBalance = computed(() => {
+      return isChatGPTAPI.value && name.value === 'JasonYuMaster'
+    })
 
 async function fetchConfig() {
   try {
@@ -52,7 +60,7 @@ onMounted(() => {
         </p>
       </div>
       <p>{{ $t("setting.api") }}：{{ config?.apiModel ?? '-' }}</p>
-      <p v-if="isChatGPTAPI">
+      <p v-if="showBalance">
         {{ $t("setting.balance") }}：{{ config?.balance ?? '-' }}
         <!--
         <span class="text-xs text-neutral-400">({{ $t('setting.remain') }})</span>
