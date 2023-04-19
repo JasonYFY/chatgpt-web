@@ -34,7 +34,7 @@ const showBalance = computed(() => {
 async function fetchConfig() {
   try {
     loading.value = true
-    if (showBalance) {
+    if (showBalance.value) {
 			const { data } = await fetchChatConfig<ConfigState>()
 			config.value = data
     }
