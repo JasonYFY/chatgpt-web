@@ -154,6 +154,7 @@ async function chatReplyProcess(options: RequestOptions) {
 				}
 				//重新赋值
 				(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
+				console.log('打印下api:',api)
 				response = await api.sendMessage(message, options).catch((error: any) => {
 					// 429 Too Many Requests
 					if (error.statusCode === 404){
