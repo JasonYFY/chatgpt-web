@@ -149,21 +149,30 @@ async function chatReplyProcess(options: RequestOptions) {
 
 			while (!response && retryCount++ < maxRetry) {
 				// 将客户端IP地址存储到LRUMap中
+				let ipToken;
+				let ipProxy;
 				if (!ipInfo) {
 					//没有在缓存里,获取一个新的保存
-					let ipToken = nextBalancer()
-					let ipProxy = nextProxy()
+					ipToken = nextBalancer()
+					ipProxy = nextProxy()
 					ipInfo = {
 						ipToken: ipToken,
 						ipProxy: ipProxy
 					}as IPInfo;
 					ipCache.set(clientIP, ipInfo)
 					console.log(`新ip保存下token:${ipToken},新的proxyUrl:${ipProxy}`);
+				}else{
+					ipToken = ipInfo.ipToken
+					ipProxy = ipInfo.ipProxy
+				}
+				//重新赋值
+				try{
+					(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
+					(api as ChatGPTUnofficialProxyAPI).apiReverseProxyUrl = ipProxy
+				}catch (e) {
+					console.log('打印下错误:',e)
 				}
 
-				//重新赋值
-				(api as ChatGPTUnofficialProxyAPI).accessToken = getToken(ipInfo)
-				(api as ChatGPTUnofficialProxyAPI).apiReverseProxyUrl = getProxy(ipInfo)
 				console.log('打印下api:',api)
 				response = await api.sendMessage(message, options).catch((error: any) => {
 					// 429 Too Many Requests
@@ -200,14 +209,6 @@ async function chatReplyProcess(options: RequestOptions) {
       return sendResponse({ type: 'Fail', message: ErrorCodeMessage[code] })
     return sendResponse({ type: 'Fail', message: error.message ?? 'Please check the back-end console' })
   }
-}
-
-const getToken = function getToken(ipInfo){
-	return ipInfo.ipToken
-}
-
-const getProxy = function getProxy(ipInfo){
-	return ipInfo.ipProxy
 }
 
 async function fetchBalance() {
