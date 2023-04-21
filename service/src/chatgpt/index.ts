@@ -120,7 +120,7 @@ async function chatReplyProcess(options: RequestOptions) {
 		console.log('打印出lastContext:',lastContext)
 
 		//查询ip缓存中是否有token
-		let ipInfo = ipCache.get(clientIP);
+		let ipInfo:IPInfo = ipCache.get(clientIP);
     if (lastContext != null) {
       if (apiModel === 'ChatGPTAPI')
         options.parentMessageId = lastContext.parentMessageId
@@ -158,7 +158,7 @@ async function chatReplyProcess(options: RequestOptions) {
 						ipProxy: ipProxy
 					};
 					ipCache.set(clientIP, ipInfo)
-					console.log('新ip保存下token:{},新的proxyUrl:{}',ipToken,ipProxy)
+					console.log(`新ip保存下token:${ipToken},新的proxyUrl:${ipProxy}`);
 				}
 				//重新赋值
 				(api as ChatGPTUnofficialProxyAPI).accessToken = ipInfo.ipToken
