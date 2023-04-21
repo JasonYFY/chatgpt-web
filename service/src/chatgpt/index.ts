@@ -202,11 +202,11 @@ async function chatReplyProcess(options: RequestOptions) {
   }
 }
 
-function getToken(ipInfo){
+const getToken = function getToken(ipInfo){
 	return ipInfo.ipToken
 }
 
-function getProxy(ipInfo){
+const getProxy = function getProxy(ipInfo){
 	return ipInfo.ipProxy
 }
 
