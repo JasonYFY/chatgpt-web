@@ -161,6 +161,7 @@ async function chatReplyProcess(options: RequestOptions) {
 					console.log(`新ip保存下token:${ipToken},新的proxyUrl:${ipProxy}`);
 				}
 				//重新赋值
+				console.log(typeof ipInfo);
 				(api as ChatGPTUnofficialProxyAPI).accessToken = ipInfo.ipToken
 				(api as ChatGPTUnofficialProxyAPI).apiReverseProxyUrl = ipInfo.ipProxy
 				console.log('打印下api:',api)
