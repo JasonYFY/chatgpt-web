@@ -156,7 +156,7 @@ async function chatReplyProcess(options: RequestOptions) {
 					ipInfo = {
 						ipToken: ipToken,
 						ipProxy: ipProxy
-					};
+					}as IPInfo;
 					ipCache.set(clientIP, ipInfo)
 					console.log(`新ip保存下token:${ipToken},新的proxyUrl:${ipProxy}`);
 				}
