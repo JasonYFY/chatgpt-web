@@ -163,7 +163,7 @@ async function chatReplyProcess(options: RequestOptions) {
 
 				//重新赋值
 				(api as ChatGPTUnofficialProxyAPI).accessToken = ipInfo.ipToken;
-				(api as ChatGPTUnofficialProxyAPI).apiReverseProxyUrl = ipInfo.ipProxy;
+				(api as ChatGPTUnofficialProxyAPI)._apiReverseProxyUrl = ipInfo.ipProxy;
 				console.log('打印下api:',api);
 				response = await api.sendMessage(message, options).catch((error: any) => {
 					// 429 Too Many Requests
