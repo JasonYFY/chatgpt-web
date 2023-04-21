@@ -149,31 +149,22 @@ async function chatReplyProcess(options: RequestOptions) {
 
 			while (!response && retryCount++ < maxRetry) {
 				// 将客户端IP地址存储到LRUMap中
-				let ipToken;
-				let ipProxy;
 				if (!ipInfo) {
 					//没有在缓存里,获取一个新的保存
-					ipToken = nextBalancer()
-					ipProxy = nextProxy()
+					let ipToken = nextBalancer()
+					let ipProxy = nextProxy()
 					ipInfo = {
 						ipToken: ipToken,
 						ipProxy: ipProxy
 					}as IPInfo;
 					ipCache.set(clientIP, ipInfo)
 					console.log(`新ip保存下token:${ipToken},新的proxyUrl:${ipProxy}`);
-				}else{
-					ipToken = ipInfo.ipToken
-					ipProxy = ipInfo.ipProxy
-				}
-				//重新赋值
-				try{
-					(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
-					(api as ChatGPTUnofficialProxyAPI).apiReverseProxyUrl = ipProxy
-				}catch (e) {
-					console.log('打印下错误:',e)
 				}
 
-				console.log('打印下api:',api)
+				//重新赋值
+				(api as ChatGPTUnofficialProxyAPI).accessToken = ipInfo.ipToken;
+				(api as ChatGPTUnofficialProxyAPI).apiReverseProxyUrl = ipInfo.ipProxy;
+				console.log('打印下api:',api);
 				response = await api.sendMessage(message, options).catch((error: any) => {
 					// 429 Too Many Requests
 					if (error.statusCode === 404){
