@@ -7,7 +7,7 @@ import httpsProxyAgent from 'https-proxy-agent'
 import fetch from 'node-fetch'
 import { sendResponse,loadBalancer, parseKeys,sleep } from '../utils'
 import { isNotEmptyString } from '../utils/is'
-import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig,IPInfo } from '../types'
+import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig } from '../types'
 import LRUMap from 'lru-cache'
 import type { BalanceResponse,RequestOptions, SetProxyOptions, UsageResponse } from './types'
 
@@ -26,7 +26,7 @@ console.log = (...args: any[]) => {
 const { HttpsProxyAgent } = httpsProxyAgent
 
 // 创建一个LRUMap实例，设置最大容量为1000，过期时间为12小时
-const ipCache = new LRUMap<string, IPInfo>({ max: 1000, maxAge: 60 * 60 * 24000  })
+const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 24000  })
 
 dotenv.config()
 
@@ -52,9 +52,6 @@ let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 
 const accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
 const nextBalancer =  loadBalancer(accessTokens)
-
-const proxys = parseKeys(process.env.API_REVERSE_PROXY)
-const nextProxy =  loadBalancer(proxys)
 
 const maxRetry: number = !isNaN(+process.env.MAX_RETRY) ? +process.env.MAX_RETRY : accessTokens.length
 const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RETRY_INTERVAL_MS : 1000;
@@ -95,7 +92,7 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
   else {
     const options: ChatGPTUnofficialProxyAPIOptions = {
       accessToken: process.env.OPENAI_ACCESS_TOKEN,
-      apiReverseProxyUrl: isNotEmptyString(process.env.API_REVERSE_PROXY) ? nextProxy() : 'https://bypass.churchless.tech/api/conversation',
+      apiReverseProxyUrl: isNotEmptyString(process.env.API_REVERSE_PROXY) ? process.env.API_REVERSE_PROXY : 'https://bypass.churchless.tech/api/conversation',
       model,
       debug: !disableDebug,
     }
@@ -120,12 +117,12 @@ async function chatReplyProcess(options: RequestOptions) {
 		console.log('打印出lastContext:',lastContext)
 
 		//查询ip缓存中是否有token
-		let ipInfo:IPInfo = ipCache.get(clientIP);
+		let ipToken = ipCache.get(clientIP);
     if (lastContext != null) {
       if (apiModel === 'ChatGPTAPI')
         options.parentMessageId = lastContext.parentMessageId
       else{
-				if (ipInfo) {
+				if (ipToken) {
 					//有token才赋值上下文
 					if(lastContext && lastContext.conversationId && lastContext.parentMessageId){
 						// conversationId 和 parentMessageId 都存在时才赋值
@@ -149,22 +146,15 @@ async function chatReplyProcess(options: RequestOptions) {
 
 			while (!response && retryCount++ < maxRetry) {
 				// 将客户端IP地址存储到LRUMap中
-				if (!ipInfo) {
+				if (!ipToken) {
 					//没有在缓存里,获取一个新的保存
-					let ipToken = nextBalancer()
-					let ipProxy = nextProxy()
-					ipInfo = {
-						ipToken: ipToken,
-						ipProxy: ipProxy
-					}as IPInfo;
-					ipCache.set(clientIP, ipInfo)
-					console.log(`新ip保存下token:${ipToken},新的proxyUrl:${ipProxy}`);
+					ipToken = nextBalancer();
+					ipCache.set(clientIP, ipToken);
+					console.log('新ip保存下token:',ipToken);
 				}
 
 				//重新赋值
-				(api as ChatGPTUnofficialProxyAPI).accessToken = ipInfo.ipToken;
-				(api as ChatGPTUnofficialProxyAPI)._apiReverseProxyUrl = ipInfo.ipProxy;
-				console.log('打印下api:',api);
+				(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken;
 				response = await api.sendMessage(message, options).catch((error: any) => {
 					// 429 Too Many Requests
 					if (error.statusCode === 404){
@@ -317,8 +307,7 @@ function formatDateUse(): string[] {
 async function chatConfig() {
   const balance = await fetchBalance()
   //const usage = await fetchUsage()
-  //const reverseProxy = process.env.API_REVERSE_PROXY ?? '-'
-	const reverseProxy = '-';
+  const reverseProxy = process.env.API_REVERSE_PROXY ?? '-'
   const httpsProxy = (process.env.HTTPS_PROXY || process.env.ALL_PROXY) ?? '-'
   const socksProxy = (process.env.SOCKS_PROXY_HOST && process.env.SOCKS_PROXY_PORT)
     ? (`${process.env.SOCKS_PROXY_HOST}:${process.env.SOCKS_PROXY_PORT}`)
