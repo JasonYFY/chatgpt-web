@@ -25,8 +25,8 @@ console.log = (...args: any[]) => {
 
 const { HttpsProxyAgent } = httpsProxyAgent
 
-// 创建一个LRUMap实例，设置最大容量为1000，过期时间为1小时
-const ipCache = new LRUMap<string, IPInfo>({ max: 1000, maxAge: 60 * 60 * 1000  })
+// 创建一个LRUMap实例，设置最大容量为1000，过期时间为12小时
+const ipCache = new LRUMap<string, IPInfo>({ max: 1000, maxAge: 60 * 60 * 24000  })
 
 dotenv.config()
 
