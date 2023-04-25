@@ -26,7 +26,7 @@ console.log = (...args: any[]) => {
 const { HttpsProxyAgent } = httpsProxyAgent
 
 // 创建一个LRUMap实例，设置最大容量为1000，过期时间为12小时
-const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 24000  })
+const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 12000  });
 
 dotenv.config()
 
@@ -142,7 +142,7 @@ async function chatReplyProcess(options: RequestOptions) {
 			let retryCount = 0
 			let response: ChatMessage | void
 
-			console.log('Client IP:', clientIP) // 打印客户端IP地址
+			console.log('Client IP:', clientIP); // 打印客户端IP地址
 
 			while (!response && retryCount++ < maxRetry) {
 				// 将客户端IP地址存储到LRUMap中
@@ -158,16 +158,17 @@ async function chatReplyProcess(options: RequestOptions) {
 				response = await api.sendMessage(message, options).catch((error: any) => {
 					// 429 Too Many Requests
 					if (error.statusCode === 404){
-						console.log('报错了404',error)
-						console.log('报错了404，options：',options)
+						console.log('报错了404',error);
+						console.log('报错了404，options：',options);
 						const { conversationId, parentMessageId, ...rest } = options;
 						options = { ...rest };
 						console.log('报错了404，options新对象：',options)
 					}else if (error.statusCode !== 429)
+						console.log('报错了，准备重新执行',error);
 						throw error
 
-				})
-				//console.log('报错了重新执行',retryCount)
+				});
+
 				await sleep(retryIntervalMs)
 			}
 			return sendResponse({ type: 'Success', data: response })
