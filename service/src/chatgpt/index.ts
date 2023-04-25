@@ -172,13 +172,16 @@ async function chatReplyProcess(options: RequestOptions) {
 					}else{
 						throw error
 					}
-					await sleep(retryIntervalMs);
 				});
-
+				if(!response){
+					console.log('开始等待');
+					await sleep(retryIntervalMs);
+				}
 			}
 			if(retry){
 				response = '请稍后再尝试！';
 			}
+			console.log('返回了。。。');
 			return sendResponse({ type: 'Success', data: response })
 		}
 
