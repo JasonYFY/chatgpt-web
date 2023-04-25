@@ -172,6 +172,7 @@ async function chatReplyProcess(options: RequestOptions) {
 					}
 				});
 				if(!response){
+					console.log('等待：',retryIntervalMs);
 					await sleep(retryIntervalMs);
 				}
 			}
