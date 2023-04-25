@@ -143,7 +143,6 @@ async function chatReplyProcess(options: RequestOptions) {
 			let response: ChatMessage | void
 
 			console.log('Client IP:', clientIP); // 打印客户端IP地址
-			let retry = false;
 			while (!response && retryCount++ < maxRetry) {
 				// 将客户端IP地址存储到LRUMap中
 				if (!ipToken) {
@@ -165,23 +164,17 @@ async function chatReplyProcess(options: RequestOptions) {
 						// 429 Too Many Requests
 						console.log('报错了429',error);
 						if(retryCount===maxRetry){
-							retry = true;
-						}else{
-							console.log('准备重新新执行retryCount：',retryCount);
+							throw new Error("多人使用中，请稍后再试！");
 						}
+						console.log('准备重新新执行retryCount：',retryCount);
 					}else{
 						throw error
 					}
 				});
 				if(!response){
-					console.log('开始等待');
 					await sleep(retryIntervalMs);
 				}
 			}
-			if(retry){
-				response = '请稍后再尝试！';
-			}
-			console.log('返回了。。。');
 			return sendResponse({ type: 'Success', data: response })
 		}
 
