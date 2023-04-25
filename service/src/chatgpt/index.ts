@@ -165,7 +165,7 @@ async function chatReplyProcess(options: RequestOptions) {
 						// 429 Too Many Requests
 						console.log('报错了429',error);
 						if(retryCount===maxRetry){
-							response = "请稍后再尝试！"
+							response = '请稍后再尝试！';
 						}else{
 							console.log('准备重新新执行retryCount：',retryCount);
 						}
