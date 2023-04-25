@@ -168,6 +168,7 @@ async function chatReplyProcess(options: RequestOptions) {
 						}
 						console.log('准备重新新执行retryCount：',retryCount);
 					}else{
+						console.log('未知错误',error);
 						throw error
 					}
 				});
