@@ -25,8 +25,8 @@ console.log = (...args: any[]) => {
 
 const { HttpsProxyAgent } = httpsProxyAgent
 
-// 创建一个LRUMap实例，设置最大容量为1000，过期时间为1小时
-const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 1000  })
+// 创建一个LRUMap实例，设置最大容量为1000，过期时间为12小时
+const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 12000  });
 
 dotenv.config()
 
@@ -54,7 +54,7 @@ const accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
 const nextBalancer =  loadBalancer(accessTokens)
 
 const maxRetry: number = !isNaN(+process.env.MAX_RETRY) ? +process.env.MAX_RETRY : accessTokens.length
-const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RETRY_INTERVAL_MS : 1000;
+const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RETRY_INTERVAL_MS : 2000;
 
 (async () => {
   // More Info: https://github.com/transitive-bullshit/chatgpt-api
@@ -92,7 +92,7 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
   else {
     const options: ChatGPTUnofficialProxyAPIOptions = {
       accessToken: process.env.OPENAI_ACCESS_TOKEN,
-      apiReverseProxyUrl: isNotEmptyString(process.env.API_REVERSE_PROXY) ? process.env.API_REVERSE_PROXY : 'https://bypass.churchless.tech/api/conversation',
+      apiReverseProxyUrl: isNotEmptyString(process.env.API_REVERSE_PROXY) ? process.env.API_REVERSE_PROXY : 'https://ai.fakeopen.com/api/conversation',
       model,
       debug: !disableDebug,
     }
@@ -142,32 +142,40 @@ async function chatReplyProcess(options: RequestOptions) {
 			let retryCount = 0
 			let response: ChatMessage | void
 
-			console.log('Client IP:', clientIP) // 打印客户端IP地址
-
+			console.log('Client IP:', clientIP); // 打印客户端IP地址
 			while (!response && retryCount++ < maxRetry) {
 				// 将客户端IP地址存储到LRUMap中
 				if (!ipToken) {
 					//没有在缓存里,获取一个新的保存
-					ipToken = nextBalancer()
-					ipCache.set(clientIP, ipToken)
-					console.log('新ip保存下token:',ipToken)
+					ipToken = nextBalancer();
+					ipCache.set(clientIP, ipToken);
+					console.log('新ip保存下token:',ipToken);
 				}
+
 				//重新赋值
-				(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken
+				(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken;
 				response = await api.sendMessage(message, options).catch((error: any) => {
-					// 429 Too Many Requests
 					if (error.statusCode === 404){
-						console.log('报错了404',error)
-						console.log('报错了404，options：',options)
+						console.log('报错了404',error);
 						const { conversationId, parentMessageId, ...rest } = options;
 						options = { ...rest };
-						console.log('报错了404，options新对象：',options)
-					}else if (error.statusCode !== 429)
+						console.log('准备重新新执行retryCount：',retryCount);
+					}else if (error.statusCode === 429){
+						// 429 Too Many Requests
+						console.log('报错了429',error);
+						if(retryCount===maxRetry){
+							throw new Error("多人使用中，请稍后再试！");
+						}
+						console.log('准备重新新执行retryCount：',retryCount);
+					}else{
+						console.log('未知错误',error);
 						throw error
-
-				})
-				//console.log('报错了重新执行',retryCount)
-				await sleep(retryIntervalMs)
+					}
+				});
+				if(!response){
+					console.log('等待：',retryIntervalMs);
+					await sleep(retryIntervalMs);
+				}
 			}
 			return sendResponse({ type: 'Success', data: response })
 		}

@@ -31,4 +31,9 @@ export interface ModelConfig {
   usage?: string
 }
 
+export interface IPInfo {
+	ipToken: string
+	ipProxy?: string
+}
+
 export type ApiModel = 'ChatGPTAPI' | 'ChatGPTUnofficialProxyAPI' | undefined
