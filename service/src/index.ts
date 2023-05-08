@@ -87,7 +87,8 @@ router.post('/verify', async (req, res) => {
 })
 
 router.post("/audio-chat-process", async (req, res) => {
-	const audio: FileUpload = req.files.audio as FileUpload;
+	console.info('打印请求：',req);
+	const audio: FileUpload = req.files.formData as FileUpload;
 	const prompt = await processAudioApi(audio, 100000);
 	res.setHeader('Content-type', 'application/octet-stream');
 	res.write(prompt);
