@@ -35,8 +35,11 @@
     "node-fetch": "^3.3.0",
     "socks-proxy-agent": "^7.0.0",
 		"date-fns-tz": "v2.0.0",
-		"date-fns": "v2.0.0"
-  },
+		"date-fns": "v2.0.0",
+		"openai": "^0.9.2",
+		"concurrent": "^1.0.0",
+		"fastify-multer": "^2.0.2"
+	},
   "devDependencies": {
     "@antfu/eslint-config": "^0.35.3",
     "@types/express": "^4.17.17",

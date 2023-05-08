@@ -5,6 +5,8 @@ import { chatConfig, chatReplyProcess, currentModel } from './chatgpt'
 import { auth } from './middleware/auth'
 import { limiter } from './middleware/limiter'
 import { isNotEmptyString } from './utils/is'
+import { processAudioApi  } from './utils/whisper_wapper'
+import { FileUpload } from 'express-fileupload';
 
 const app = express()
 const router = express.Router()
@@ -83,6 +85,14 @@ router.post('/verify', async (req, res) => {
     res.send({ status: 'Fail', message: error.message, data: null })
   }
 })
+
+router.post("/audio-chat-process", async (req, res) => {
+	const audio: FileUpload = req.files.audio as FileUpload;
+	const prompt = await processAudioApi(audio, 100000);
+	res.setHeader('Content-type', 'application/octet-stream');
+	res.write(prompt);
+});
+
 
 app.use('', router)
 app.use('/api', router)
