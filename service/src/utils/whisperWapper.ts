@@ -10,11 +10,7 @@ function uploadFileToStream(uploadFile: UploadFile) {
 	return stream;
 }
 
-async function processAudioApi(
-	audio: UploadFile,
-	timeout: number = 100000,
-	model: string = 'whisper-1'
-): Promise<string> {
+export async function processAudioApi(audio: UploadFile, timeout: number = 100000, model: string = 'whisper-1'): Promise<string> {
 	try {
 		const fileStream = uploadFileToStream(audio);
 
