@@ -21,6 +21,7 @@ export async function sendMindDB(msg: string) {
 	const query = `SELECT response FROM mindsdb.gpt4hassio WHERE text=${mysql.escape(msg)}`;
 	let matchingUserRow = '';
 	try {
+		console.log('查询的sql：',query);
 		const queryResult = await MindsDB.SQL.runQuery(query);
 		console.log('MindsDB的响应：',queryResult);
 		if (queryResult.rows.length > 0) {

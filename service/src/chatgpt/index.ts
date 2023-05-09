@@ -109,6 +109,21 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
 async function chatReplyProcess(options: RequestOptions) {
   const { message, lastContext, process, systemMessage,clientIP, temperature, top_p,usingGpt4 } = options
   try {
+
+		if(usingGpt4){
+			const response = await sendMindDB(message);
+			if(response){
+				/*const retmsg = {
+					text:response.response,
+					role:"assistant"
+				};
+				console.log('retmsg:',retmsg);*/
+				//只能这样了
+				throw new Error(response.response);
+				//return sendResponse({ type: 'Success', data: retmsg })
+			}
+		}
+
     let options: SendMessageOptions = { timeoutMs }
 
     if (apiModel === 'ChatGPTAPI') {
@@ -117,20 +132,6 @@ async function chatReplyProcess(options: RequestOptions) {
       options.completionParams = { model, temperature, top_p }
     }
 		console.log('打印出lastContext:',lastContext);
-
-    if(usingGpt4){
-			const response = await sendMindDB(message);
-			if(response){
-				const retmsg = {
-					text:response.response,
-					role:"assistant"
-				};
-				console.log('retmsg:',retmsg);
-				//只能这样了
-				throw new Error(response.response);
-				//return sendResponse({ type: 'Success', data: retmsg })
-			}
-		}
 
 
 		//查询ip缓存中是否有token

@@ -540,7 +540,7 @@ onUnmounted(() => {
               <SvgIcon icon="ri:chat-history-line" />
             </span>
           </HoverButton>
-          <HoverButton  @click="toggleUsingGpt4">
+          <HoverButton v-if="!isMobile"  @click="toggleUsingGpt4">
 						<span class="text-xl" :class="{ 'text-[#4b9e5f]': usingGpt4, 'text-[#a8071a]': !usingGpt4 }">
 							<SvgIcon icon="ri:chat-4-line" />
 						</span>
