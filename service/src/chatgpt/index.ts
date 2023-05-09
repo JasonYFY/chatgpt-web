@@ -185,6 +185,7 @@ async function chatReplyProcess(options: RequestOptions) {
 					await sleep(retryIntervalMs);
 				}
 			}
+			console.log('响应的消息：',response);
 			return sendResponse({ type: 'Success', data: response })
 		}
 
@@ -195,7 +196,7 @@ async function chatReplyProcess(options: RequestOptions) {
         process?.(partialResponse)
       },
     })
-		console.log('响应的消息：',response);
+
     return sendResponse({ type: 'Success', data: response })
   }
   catch (error: any) {
