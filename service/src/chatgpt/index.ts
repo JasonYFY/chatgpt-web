@@ -118,7 +118,7 @@ async function chatReplyProcess(options: RequestOptions) {
     }
 		console.log('打印出lastContext:',lastContext);
 
-    if(usingGpt4.value){
+    if(usingGpt4){
 			const response = await sendMindDB(message);
 			console.log('GPT4响应的数据：',response);
 		}
