@@ -18,7 +18,7 @@ export async function sendMindDB(msg: string) {
 
 	console.log('去问MindsDB：',msg);
 	var mysql = require('mysql');
-	const query = `SELECT * FROM my_db.customer_data WHERE user=${mysql.escape(msg)}`;
+	const query = `SELECT response FROM mindsdb.gpt4hassio WHERE text=${mysql.escape(msg)}`;
 	let matchingUserRow = '';
 	try {
 		const queryResult = await MindsDB.SQL.runQuery(query);
