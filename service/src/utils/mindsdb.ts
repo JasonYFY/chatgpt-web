@@ -3,8 +3,8 @@ import MindsDB from 'mindsdb-js-sdk';
 
 export function initMindDB(){
 	try {
-		console.info('连接MindsDB用户名：',process.env.MINDSDB_USER);
-		console.info('连接MindsDB密码：',process.env.MINDSDB_PASSWORD);
+		//console.info('连接MindsDB用户名：',process.env.MINDSDB_USER);
+		//console.info('连接MindsDB密码：',process.env.MINDSDB_PASSWORD);
 		MindsDB.connect({
 			user: process.env.MINDSDB_USER,
 			password: process.env.MINDSDB_PASSWORD
@@ -21,12 +21,17 @@ export async function sendMindDB(msg: string) {
 	const query = `SELECT response FROM mindsdb.gpt4hassio WHERE text=${mysql.escape(msg)}`;
 	let matchingUserRow = '';
 	try {
-		const queryResult = await MindsDB.SQL.runQuery(query);
+		/*const queryResult = await MindsDB.SQL.runQuery(query);
 		console.log('MindsDB的响应：',queryResult);
 		if (queryResult.rows.length > 0) {
 			matchingUserRow = queryResult.rows[0];
 			console.log('查询MindsDB的值：',matchingUserRow);
-		}
+		}*/
+
+		const result = await MindsDB.predict({ query });
+		console.log('MindsDB 的响应：', result);
+		matchingUserRow = result.data[0].response;
+		console.log('查询MindsDB的值：',matchingUserRow);
 	} catch (error) {
 		console.error('查询MindsDB报错了：',error);
 		throw error;
