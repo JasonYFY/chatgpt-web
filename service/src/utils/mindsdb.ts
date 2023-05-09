@@ -27,10 +27,10 @@ export async function sendMindDB(msg: string) {
 			matchingUserRow = queryResult.rows[0];
 			console.log('查询MindsDB的值：',matchingUserRow);
 		}
-	} catch (MindsDbError error) {
-		console.error('查询MindsDB报错了MindsDbError：',error);
-		throw error;
 	} catch (error) {
+		if (error instanceof MindsDbError) {
+			console.log('This is a type MindsDbError');
+		}
 		console.error('查询MindsDB报错了：',error);
 		throw error;
 	}
