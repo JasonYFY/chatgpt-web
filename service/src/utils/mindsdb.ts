@@ -21,17 +21,15 @@ export async function sendMindDB(msg: string) {
 	const query = `SELECT response FROM mindsdb.gpt4hassio WHERE text=${mysql.escape(msg)}`;
 	let matchingUserRow = '';
 	try {
-		/*const queryResult = await MindsDB.SQL.runQuery(query);
+		const queryResult = await MindsDB.SQL.runQuery(query);
 		console.log('MindsDB的响应：',queryResult);
 		if (queryResult.rows.length > 0) {
 			matchingUserRow = queryResult.rows[0];
 			console.log('查询MindsDB的值：',matchingUserRow);
-		}*/
-
-		const result = await MindsDB.predict({ query });
-		console.log('MindsDB 的响应：', result);
-		matchingUserRow = result.data[0].response;
-		console.log('查询MindsDB的值：',matchingUserRow);
+		}
+	} catch (MindsDbError error) {
+		console.error('查询MindsDB报错了MindsDbError：',error);
+		throw error;
 	} catch (error) {
 		console.error('查询MindsDB报错了：',error);
 		throw error;
