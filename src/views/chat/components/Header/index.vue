@@ -5,6 +5,7 @@ import { useAppStore, useChatStore,useAuthStore } from '@/store'
 
 interface Props {
   usingContext: boolean
+  usingGPT4: boolean
 }
 
 interface Emit {
