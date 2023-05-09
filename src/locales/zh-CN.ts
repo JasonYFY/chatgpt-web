@@ -45,7 +45,7 @@ export default {
     turnOnContext: '当前模式下, 发送消息会携带之前的聊天记录',
     turnOffContext: '当前模式下, 发送消息不会携带之前的聊天记录',
     turnOnGPT4: '当前模式下, 发送消息只会询问GPT4(目前响应较慢，耐心等待)',
-    turnOffGPT4: '当前模式下, 发送消息不会询问GPT4',
+    turnOffGPT4: '取消询问GPT4',
     deleteMessage: '删除消息',
     deleteMessageConfirm: '是否删除此消息?',
     deleteHistoryConfirm: '确定删除此记录?',

@@ -6,7 +6,7 @@ export function initMindDB(){
 		//console.info('连接MindsDB用户名：',process.env.MINDSDB_USER);
 		//console.info('连接MindsDB密码：',process.env.MINDSDB_PASSWORD);
 		const customAxios = axios.create({
-			timeout: 120000,
+			timeout: 180000,
 		});
 		MindsDB.connect({
 			user: process.env.MINDSDB_USER,

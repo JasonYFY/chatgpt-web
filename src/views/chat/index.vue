@@ -514,7 +514,7 @@ onUnmounted(() => {
                   <template #icon>
                     <SvgIcon icon="ri:stop-circle-line" />
                   </template>
-                  Stop Responding
+                  停止响应
                 </NButton>
               </div>
             </div>
