@@ -1,13 +1,17 @@
 import MindsDB from 'mindsdb-js-sdk';
-
+import axios from 'axios';
 
 export function initMindDB(){
 	try {
 		//console.info('连接MindsDB用户名：',process.env.MINDSDB_USER);
 		//console.info('连接MindsDB密码：',process.env.MINDSDB_PASSWORD);
+		const customAxios = axios.create({
+			timeout: 120000,
+		});
 		MindsDB.connect({
 			user: process.env.MINDSDB_USER,
-			password: process.env.MINDSDB_PASSWORD
+			password: process.env.MINDSDB_PASSWORD,
+			httpClient:customAxios
 		});
 	} catch(error) {
 		console.error('连接MindsDB报错了：',error);
@@ -21,7 +25,7 @@ export async function sendMindDB(msg: string) {
 	const query = `SELECT response FROM mindsdb.gpt4hassio WHERE text=${mysql.escape(msg)}`;
 	let matchingUserRow = '';
 	try {
-		console.log('查询的sql：',query);
+		//console.log('查询的sql：',query);
 		const queryResult = await MindsDB.SQL.runQuery(query);
 		console.log('MindsDB的响应：',queryResult);
 		if (queryResult.rows.length > 0) {
@@ -29,9 +33,6 @@ export async function sendMindDB(msg: string) {
 			console.log('查询MindsDB的值：',matchingUserRow);
 		}
 	} catch (error) {
-		if (error instanceof MindsDbError) {
-			console.log('This is a type MindsDbError');
-		}
 		console.error('查询MindsDB报错了：',error);
 		throw error;
 	}
