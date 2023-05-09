@@ -33,6 +33,7 @@ export function fetchChatAPIProcess<T = any>(
   let data: Record<string, any> = {
     prompt: params.prompt,
     options: params.options,
+		usingGpt4:settingStore.usingGpt4
   }
 
   if (authStore.isChatGPTAPI) {
@@ -40,8 +41,7 @@ export function fetchChatAPIProcess<T = any>(
       ...data,
       systemMessage: settingStore.systemMessage,
       temperature: settingStore.temperature,
-      top_p: settingStore.top_p,
-			usingGpt4:settingStore.usingGpt4
+      top_p: settingStore.top_p
     }
   }
 
