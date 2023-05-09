@@ -541,8 +541,8 @@ onUnmounted(() => {
             </span>
           </HoverButton>
           <HoverButton v-if="!isMobile"  @click="toggleUsingGpt4">
-						<span class="text-xl" :class="{ 'text-[#4b9e5f]': usingGpt4, 'text-[#a8071a]': !usingGpt4 }">
-							<SvgIcon icon="ri:chat-4-line" />
+						<span class="text-xl" :class="{ 'text-[#4b9e5f]': usingGpt4, 'text-[#444951]': !usingGpt4 }">
+							<SvgIcon icon="ri:chat-follow-up-line" />
 						</span>
 					</HoverButton>
           <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
