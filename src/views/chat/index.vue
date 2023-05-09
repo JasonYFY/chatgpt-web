@@ -8,7 +8,7 @@ import html2canvas from 'html2canvas'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
 import { useChat } from './hooks/useChat'
-import { useUsingContext } from './hooks/useUsingContext'
+import { useUsingContext,useUsingGPT4 } from './hooks/useUsingContext'
 import HeaderComponent from './components/Header/index.vue'
 import { HoverButton, SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
@@ -30,6 +30,7 @@ const { isMobile } = useBasicLayout()
 const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex } = useChat()
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 const { usingContext, toggleUsingContext } = useUsingContext()
+const { usingGPT4, toggleUsingGPT4 } = useUsingGPT4()
 
 const { uuid } = route.params as { uuid: string }
 
@@ -476,8 +477,10 @@ onUnmounted(() => {
     <HeaderComponent
       v-if="isMobile"
       :using-context="usingContext"
+      :using-gpt4="usingGPT4"
       @export="handleExport"
       @toggle-using-context="toggleUsingContext"
+      @toggle-using-gpt4="toggleUsingGPT4"
     />
     <main class="flex-1 overflow-hidden">
       <div id="scrollRef" ref="scrollRef" class="h-full overflow-hidden overflow-y-auto">
@@ -537,6 +540,11 @@ onUnmounted(() => {
               <SvgIcon icon="ri:chat-history-line" />
             </span>
           </HoverButton>
+          <HoverButton  @click="toggleUsingGPT4">
+						<span class="text-xl" :class="{ 'text-[#4b9e5f]': usingGPT4, 'text-[#a8071a]': !usingGPT4 }">
+							<SvgIcon icon="ri:ri-chat-4-line" />
+						</span>
+					</HoverButton>
           <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
             <template #default="{ handleInput, handleBlur, handleFocus }">
               <NInput
