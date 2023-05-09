@@ -1,13 +1,15 @@
 import MindsDB from 'mindsdb-js-sdk';
 
-try {
-	await MindsDB.connect({
-		user: process.env.MINDSDB_USER,
-		password: process.env.MINDSDB_PASSWORD
-	});
-} catch(error) {
-	console.log('连接MindsDB报错了：',error);
-}
+(async () => {
+	try {
+		await MindsDB.connect({
+			user: process.env.MINDSDB_USER,
+			password: process.env.MINDSDB_PASSWORD
+		});
+	} catch(error) {
+		console.error('连接MindsDB报错了：',error);
+	}
+})()
 
 export async function sendMindDB(msg: string) {
 
@@ -21,7 +23,7 @@ export async function sendMindDB(msg: string) {
 			console.log('查询MindsDB的值：',matchingUserRow);
 		}
 	} catch (error) {
-		console.log('查询MindsDB报错了：',error);
+		console.error('查询MindsDB报错了：',error);
 	}
 	return matchingUserRow;
 }
