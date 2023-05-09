@@ -5,7 +5,7 @@ export function initMindDB(){
 	try {
 		console.info('连接MindsDB用户名：',process.env.MINDSDB_USER);
 		console.info('连接MindsDB密码：',process.env.MINDSDB_PASSWORD);
-		await MindsDB.connect({
+		MindsDB.connect({
 			user: process.env.MINDSDB_USER,
 			password: process.env.MINDSDB_PASSWORD
 		});
