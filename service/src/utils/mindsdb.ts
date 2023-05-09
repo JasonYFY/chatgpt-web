@@ -1,7 +1,10 @@
 import MindsDB from 'mindsdb-js-sdk';
 
-(async () => {
+
+export function initMindDB(){
 	try {
+		console.info('连接MindsDB用户名：',process.env.MINDSDB_USER);
+		console.info('连接MindsDB密码：',process.env.MINDSDB_PASSWORD);
 		await MindsDB.connect({
 			user: process.env.MINDSDB_USER,
 			password: process.env.MINDSDB_PASSWORD
@@ -9,7 +12,7 @@ import MindsDB from 'mindsdb-js-sdk';
 	} catch(error) {
 		console.error('连接MindsDB报错了：',error);
 	}
-})()
+}
 
 export async function sendMindDB(msg: string) {
 

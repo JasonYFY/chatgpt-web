@@ -10,7 +10,7 @@ import { isNotEmptyString } from '../utils/is'
 import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig } from '../types'
 import LRUMap from 'lru-cache'
 import type { BalanceResponse,RequestOptions, SetProxyOptions, UsageResponse } from './types'
-import {sendMindDB} from "../utils/mindsdb";
+import {initMindDB, sendMindDB} from "../utils/mindsdb";
 
 const originalLog = console.log;
 
@@ -59,7 +59,8 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
 
 (async () => {
   // More Info: https://github.com/transitive-bullshit/chatgpt-api
-
+	//初始化mindDb
+	initMindDB();
   if (isNotEmptyString(process.env.OPENAI_API_KEY)) {
     const OPENAI_API_BASE_URL = process.env.OPENAI_API_BASE_URL
 
