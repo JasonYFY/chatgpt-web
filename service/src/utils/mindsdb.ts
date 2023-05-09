@@ -29,6 +29,7 @@ export async function sendMindDB(msg: string) {
 		}
 	} catch (error) {
 		console.error('查询MindsDB报错了：',error);
+		throw error;
 	}
 	return matchingUserRow;
 }

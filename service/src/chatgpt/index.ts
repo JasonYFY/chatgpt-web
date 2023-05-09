@@ -125,7 +125,9 @@ async function chatReplyProcess(options: RequestOptions) {
 					text:response.response,
 					role:"assistant"
 				};
-				return sendResponse({ type: 'Success', data: retmsg })
+				//只能这样了
+				throw new Error(response.response);
+				//return sendResponse({ type: 'Success', data: retmsg })
 			}
 		}
 
