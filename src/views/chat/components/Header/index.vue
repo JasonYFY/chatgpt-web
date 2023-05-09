@@ -79,7 +79,7 @@ function toggleUsingGpt4() {
         </HoverButton>
         <HoverButton  @click="toggleUsingGpt4">
 					<span class="text-xl" :class="{ 'text-[#4b9e5f]': usingGpt4, 'text-[#a8071a]': !usingGpt4 }">
-						<SvgIcon icon="ri:ri-chat-4-line" />
+						<SvgIcon icon="ri:chat-4-line" />
 					</span>
 				</HoverButton>
         <HoverButton @click="handleExport">

@@ -3,10 +3,10 @@ import { useMessage } from 'naive-ui'
 import { t } from '@/locales'
 import { useChatStore,useSettingStore } from '@/store'
 
-const ms = useMessage();
+
 
 export function useUsingContext() {
-
+	const ms = useMessage();
 	const chatStore = useChatStore();
   const usingContext = computed<boolean>(() => chatStore.usingContext);
 
@@ -25,6 +25,7 @@ export function useUsingContext() {
 }
 
 export function useUsingGpt4() {
+	const ms = useMessage();
 	const settingStore = useSettingStore();
 	const usingGpt4 = computed<boolean>(() => settingStore.usingGpt4);
 
