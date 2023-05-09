@@ -5,13 +5,13 @@ import { useAppStore, useChatStore,useAuthStore } from '@/store'
 
 interface Props {
   usingContext: boolean
-  usingGPT4: boolean
+  usingGpt4: boolean
 }
 
 interface Emit {
   (ev: 'export'): void
   (ev: 'toggleUsingContext'): void
-  (ev: 'toggleUsingGPT4'): void
+  (ev: 'toggleUsingGpt4'): void
 }
 
 defineProps<Props>()
@@ -46,8 +46,8 @@ function toggleUsingContext() {
   emit('toggleUsingContext')
 }
 
-function toggleUsingGPT4() {
-  emit('toggleUsingGPT4')
+function toggleUsingGpt4() {
+  emit('toggleUsingGpt4')
 }
 </script>
 
@@ -77,8 +77,8 @@ function toggleUsingGPT4() {
             <SvgIcon icon="ri:chat-history-line" />
           </span>
         </HoverButton>
-        <HoverButton  @click="toggleUsingGPT4">
-					<span class="text-xl" :class="{ 'text-[#4b9e5f]': usingGPT4, 'text-[#a8071a]': !usingGPT4 }">
+        <HoverButton  @click="toggleUsingGpt4">
+					<span class="text-xl" :class="{ 'text-[#4b9e5f]': usingGpt4, 'text-[#a8071a]': !usingGpt4 }">
 						<SvgIcon icon="ri:ri-chat-4-line" />
 					</span>
 				</HoverButton>

@@ -24,20 +24,20 @@ export function useUsingContext() {
   }
 }
 
-export function useUsingGPT4() {
+export function useUsingGpt4() {
 	const settingStore = useSettingStore();
-	const usingGPT4 = computed<boolean>(() => settingStore.usingGPT4);
+	const usingGpt4 = computed<boolean>(() => settingStore.usingGpt4);
 
-	function toggleUsingGPT4() {
-		settingStore.usingGPT4 = !usingGPT4.value;
-		if (usingGPT4.value)
+	function toggleUsingGpt4() {
+		settingStore.usingGpt4 = !usingGpt4.value;
+		if (usingGpt4.value)
 			ms.success(t('chat.turnOnGPT4'));
 		else
 			ms.warning(t('chat.turnOffGPT4'));
 	}
 
 	return {
-		usingGPT4,
-		toggleUsingGPT4,
+		usingGpt4,
+		toggleUsingGpt4,
 	}
 }
