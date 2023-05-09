@@ -107,7 +107,7 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
 })()
 
 async function chatReplyProcess(options: RequestOptions) {
-  const { message, lastContext, process, systemMessage,clientIP, temperature, top_p } = options
+  const { message, lastContext, process, systemMessage,clientIP, temperature, top_p,usingGpt4 } = options
   try {
     let options: SendMessageOptions = { timeoutMs }
 
@@ -118,7 +118,11 @@ async function chatReplyProcess(options: RequestOptions) {
     }
 		console.log('打印出lastContext:',lastContext);
 
-		sendMindDB(message);
+    if(usingGpt4.value){
+			const response = await sendMindDB(message);
+			console.log('GPT4响应的数据：',response);
+		}
+
 
 		//查询ip缓存中是否有token
 		let ipToken = ipCache.get(clientIP);
@@ -191,7 +195,7 @@ async function chatReplyProcess(options: RequestOptions) {
         process?.(partialResponse)
       },
     })
-
+		console.log('响应的消息：',response);
     return sendResponse({ type: 'Success', data: response })
   }
   catch (error: any) {
