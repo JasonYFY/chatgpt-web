@@ -10,6 +10,7 @@ import { isNotEmptyString } from '../utils/is'
 import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig } from '../types'
 import LRUMap from 'lru-cache'
 import type { BalanceResponse,RequestOptions, SetProxyOptions, UsageResponse } from './types'
+import {sendMindDB} from "../utils/mindsdb";
 
 const originalLog = console.log;
 
@@ -114,7 +115,9 @@ async function chatReplyProcess(options: RequestOptions) {
         options.systemMessage = systemMessage
       options.completionParams = { model, temperature, top_p }
     }
-		console.log('打印出lastContext:',lastContext)
+		console.log('打印出lastContext:',lastContext);
+
+		sendMindDB(message);
 
 		//查询ip缓存中是否有token
 		let ipToken = ipCache.get(clientIP);
