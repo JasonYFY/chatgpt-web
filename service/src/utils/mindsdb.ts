@@ -30,7 +30,7 @@ export async function sendMindDB(msg: string) {
 		console.log('MindsDB的响应：',queryResult);
 		if (queryResult.rows.length > 0) {
 			matchingUserRow = queryResult.rows[0];
-			console.log('查询MindsDB的值：',matchingUserRow);
+			//console.log('查询MindsDB的值：',matchingUserRow);
 		}
 	} catch (error) {
 		console.error('查询MindsDB报错了：',error);
