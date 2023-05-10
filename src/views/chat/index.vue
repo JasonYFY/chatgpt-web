@@ -192,7 +192,7 @@ async function onConversation() {
       +uuid,
       dataSources.value.length - 1,
       {
-        dateTime: new Date().toLocaleString(),
+        dateTime: (usingGpt4.value?'GPT4：':'')+new Date().toLocaleString(),
         text: errorMessage,
         inversion: false,
         error: true,
@@ -304,7 +304,7 @@ async function onRegenerate(index: number) {
       +uuid,
       index,
       {
-        dateTime: new Date().toLocaleString(),
+        dateTime: (usingGpt4.value?'GPT4：':'')+new Date().toLocaleString(),
         text: errorMessage,
         inversion: false,
         error: true,
