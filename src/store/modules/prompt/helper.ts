@@ -12,7 +12,9 @@ export interface PromptStore {
 
 export function getLocalPromptList(): PromptStore {
   const promptStore: PromptStore | undefined = ss.get(LOCAL_NAME)
-  return promptStore ?? { promptList: ChatGPTPromptTemplateList }
+
+  // @ts-ignore
+	return promptStore ?? { promptList: ChatGPTPromptTemplateList }
 }
 
 export function setLocalPromptList(promptStore: PromptStore): void {
