@@ -239,7 +239,7 @@ async function onRegenerate(index: number) {
     +uuid,
     index,
     {
-      dateTime: new Date().toLocaleString(),
+      dateTime: (usingGpt4.value?'GPT4：':'')+new Date().toLocaleString(),
       text: '',
       inversion: false,
       error: false,
