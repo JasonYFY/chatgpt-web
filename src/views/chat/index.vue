@@ -64,8 +64,9 @@ function handleSubmit() {
 async function onConversation() {
   let message = prompt.value
 
-  if (loading.value)
+  if (loading.value){
     return
+  }
 
   if (!message || message.trim() === '')
     return
@@ -85,7 +86,10 @@ async function onConversation() {
   )
   scrollToBottom()
 
-  loading.value = true
+
+  if (!usingGpt4.value){
+  	loading.value = true
+  }
   prompt.value = ''
 
   let options: Chat.ConversationRequest = {}
@@ -93,11 +97,11 @@ async function onConversation() {
 
   if (lastContext && usingContext.value)
     options = { ...lastContext }
-
+	const isGpt4 =  usingGpt4.value;
   addChat(
     +uuid,
     {
-      dateTime: new Date().toLocaleString(),
+      dateTime: (isGpt4?'GPT4：':'')+new Date().toLocaleString(),
       text: '',
       loading: true,
       inversion: false,
@@ -107,10 +111,12 @@ async function onConversation() {
     },
   )
   scrollToBottom()
+	let indexTemp = dataSources.value.length - 1;
 
   try {
     let lastText = ''
     const fetchChatAPIOnce = async () => {
+    	indexTemp = dataSources.value.length - 1;
       await fetchChatAPIProcess<Chat.ConversationResponse>({
         prompt: message,
         options,
@@ -127,7 +133,7 @@ async function onConversation() {
             const data = JSON.parse(chunk)
             updateChat(
               +uuid,
-              dataSources.value.length - 1,
+              indexTemp,
               {
                 dateTime: new Date().toLocaleString(),
                 text: lastText + (data.text ?? ''),
@@ -153,7 +159,7 @@ async function onConversation() {
           }
         },
       })
-      updateChatSome(+uuid, dataSources.value.length - 1, { loading: false })
+      updateChatSome(+uuid, indexTemp, { loading: false })
     }
 
     await fetchChatAPIOnce()
@@ -164,7 +170,7 @@ async function onConversation() {
     if (error.message === 'canceled') {
       updateChatSome(
         +uuid,
-        dataSources.value.length - 1,
+        indexTemp,
         {
           loading: false,
         },
@@ -173,12 +179,12 @@ async function onConversation() {
       return
     }
 
-    const currentChat = getChatByUuidAndIndex(+uuid, dataSources.value.length - 1)
+    const currentChat = getChatByUuidAndIndex(+uuid, indexTemp)
 
     if (currentChat?.text && currentChat.text !== '') {
       updateChatSome(
         +uuid,
-        dataSources.value.length - 1,
+        indexTemp,
         {
           text: `${currentChat.text}\n[${errorMessage}]`,
           error: false,
@@ -190,9 +196,9 @@ async function onConversation() {
 
     updateChat(
       +uuid,
-      dataSources.value.length - 1,
+      indexTemp,
       {
-        dateTime: (usingGpt4.value?'GPT4：':'')+new Date().toLocaleString(),
+        dateTime: (isGpt4?'GPT4：':'')+new Date().toLocaleString(),
         text: errorMessage,
         inversion: false,
         error: true,
@@ -204,7 +210,9 @@ async function onConversation() {
     scrollToBottomIfAtBottom()
   }
   finally {
-    loading.value = false
+  	if(!isGpt4){
+    	loading.value = false
+    }
   }
 }
 
@@ -223,7 +231,9 @@ async function onRegenerate(index: number) {
   if (requestOptions.options)
     options = { ...requestOptions.options }
 
-  loading.value = true
+  if (!usingGpt4.value){
+    	loading.value = true
+  }
 
   updateChat(
     +uuid,
@@ -315,7 +325,9 @@ async function onRegenerate(index: number) {
     )
   }
   finally {
-    loading.value = false
+  	if (!usingGpt4.value){
+    	loading.value = false
+    }
   }
 }
 
