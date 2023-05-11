@@ -10,6 +10,7 @@ import { isNotEmptyString } from '../utils/is'
 import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig } from '../types'
 import LRUMap from 'lru-cache'
 import type { BalanceResponse,RequestOptions, SetProxyOptions, UsageResponse } from './types'
+import {initMindDB, sendMindDB} from "../utils/mindsdb";
 
 const originalLog = console.log;
 
@@ -58,7 +59,8 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
 
 (async () => {
   // More Info: https://github.com/transitive-bullshit/chatgpt-api
-
+	//初始化mindDb
+	initMindDB();
   if (isNotEmptyString(process.env.OPENAI_API_KEY)) {
     const OPENAI_API_BASE_URL = process.env.OPENAI_API_BASE_URL
 
@@ -105,8 +107,23 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
 })()
 
 async function chatReplyProcess(options: RequestOptions) {
-  const { message, lastContext, process, systemMessage,clientIP, temperature, top_p } = options
+  const { message, lastContext, process, systemMessage,clientIP, temperature, top_p,usingGpt4 } = options
   try {
+
+		if(usingGpt4){
+			const response = await sendMindDB(message);
+			if(response){
+				/*const retmsg = {
+					text:response.response,
+					role:"assistant"
+				};
+				console.log('retmsg:',retmsg);*/
+				//只能这样了
+				throw new Error(response.response);
+				//return sendResponse({ type: 'Success', data: retmsg })
+			}
+		}
+
     let options: SendMessageOptions = { timeoutMs }
 
     if (apiModel === 'ChatGPTAPI') {
@@ -114,7 +131,8 @@ async function chatReplyProcess(options: RequestOptions) {
         options.systemMessage = systemMessage
       options.completionParams = { model, temperature, top_p }
     }
-		console.log('打印出lastContext:',lastContext)
+		console.log('打印出lastContext:',lastContext);
+
 
 		//查询ip缓存中是否有token
 		let ipToken = ipCache.get(clientIP);
@@ -177,6 +195,7 @@ async function chatReplyProcess(options: RequestOptions) {
 					await sleep(retryIntervalMs);
 				}
 			}
+			//console.log('响应的消息：',response);
 			return sendResponse({ type: 'Success', data: response })
 		}
 

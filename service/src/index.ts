@@ -22,7 +22,7 @@ app.all('*', (_, res, next) => {
 router.post('/chat-process', [auth, limiter], async (req, res) => {
   res.setHeader('Content-type', 'application/octet-stream')
   try {
-    const { prompt, options = {}, systemMessage, temperature, top_p } = req.body as RequestProps
+    const { prompt, options = {}, systemMessage, temperature, top_p,usingGpt4 } = req.body as RequestProps
 		//获取客户端ip
 		const clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress
 		let firstChunk = true
@@ -37,6 +37,7 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
       systemMessage,
       temperature,
       top_p,
+			usingGpt4,
     })
   }
   catch (error) {
@@ -83,6 +84,8 @@ router.post('/verify', async (req, res) => {
     res.send({ status: 'Fail', message: error.message, data: null })
   }
 })
+
+
 
 app.use('', router)
 app.use('/api', router)

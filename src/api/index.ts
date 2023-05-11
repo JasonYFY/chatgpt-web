@@ -33,6 +33,7 @@ export function fetchChatAPIProcess<T = any>(
   let data: Record<string, any> = {
     prompt: params.prompt,
     options: params.options,
+		usingGpt4:settingStore.usingGpt4
   }
 
   if (authStore.isChatGPTAPI) {
@@ -40,9 +41,11 @@ export function fetchChatAPIProcess<T = any>(
       ...data,
       systemMessage: settingStore.systemMessage,
       temperature: settingStore.temperature,
-      top_p: settingStore.top_p,
+      top_p: settingStore.top_p
     }
   }
+
+	console.info("是否使用了GPT4:",settingStore.usingGpt4);
 
   return post<T>({
     url: '/chat-process',
