@@ -22,7 +22,8 @@ export function fetchChatConfig<T = any>() {
 
 export function fetchChatAPIProcess<T = any>(
   params: {
-    prompt: string
+    prompt: string,
+		usingGpt4:boolean
     options?: { conversationId?: string; parentMessageId?: string }
     signal?: GenericAbortSignal
     onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void },
@@ -33,7 +34,7 @@ export function fetchChatAPIProcess<T = any>(
   let data: Record<string, any> = {
     prompt: params.prompt,
     options: params.options,
-		usingGpt4:settingStore.usingGpt4
+		usingGpt4:params.usingGpt4
   }
 
   if (authStore.isChatGPTAPI) {
@@ -45,7 +46,7 @@ export function fetchChatAPIProcess<T = any>(
     }
   }
 
-	console.info("是否使用了GPT4:",settingStore.usingGpt4);
+	console.info("是否使用了GPT4:",params.usingGpt4);
 
   return post<T>({
     url: '/chat-process',

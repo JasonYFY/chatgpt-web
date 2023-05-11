@@ -61,33 +61,38 @@ function handleSubmit() {
   onConversation()
 }
 
-async function onConversation() {
+async function onConversation(isGpt4:boolean=usingGpt4.value) {
   let message = prompt.value
 
   if (loading.value){
     return
   }
+	if(isGpt4){
+		onConversation(false);
+	}
 
   if (!message || message.trim() === '')
     return
 
   controller = new AbortController()
 
-  addChat(
-    +uuid,
-    {
-      dateTime: new Date().toLocaleString(),
-      text: message,
-      inversion: true,
-      error: false,
-      conversationOptions: null,
-      requestOptions: { prompt: message, options: null },
-    },
-  )
-  scrollToBottom()
+	if(!isGpt4){
+		addChat(
+			+uuid,
+			{
+				dateTime: new Date().toLocaleString(),
+				text: message,
+				inversion: true,
+				error: false,
+				conversationOptions: null,
+				requestOptions: { prompt: message, options: null },
+			},
+		)
+		scrollToBottom()
+  }
 
 
-  if (!usingGpt4.value){
+  if (!isGpt4){
   	loading.value = true
   }
   prompt.value = ''
@@ -97,11 +102,11 @@ async function onConversation() {
 
   if (lastContext && usingContext.value)
     options = { ...lastContext }
-	const isGpt4 =  usingGpt4.value;
+
   addChat(
     +uuid,
     {
-      dateTime: (isGpt4?'GPT4：':'')+new Date().toLocaleString(),
+      dateTime: isGpt4?'等待GPT4回答...':new Date().toLocaleString(),
       text: '',
       loading: true,
       inversion: false,
@@ -119,6 +124,7 @@ async function onConversation() {
     	indexTemp = dataSources.value.length - 1;
       await fetchChatAPIProcess<Chat.ConversationResponse>({
         prompt: message,
+        usingGpt4:isGpt4,
         options,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
