@@ -23,7 +23,7 @@ export function fetchChatConfig<T = any>() {
 export function fetchChatAPIProcess<T = any>(
   params: {
     prompt: string,
-		usingGpt4:boolean
+		usingGpt4:boolean,
     options?: { conversationId?: string; parentMessageId?: string }
     signal?: GenericAbortSignal
     onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void },
