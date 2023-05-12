@@ -223,7 +223,9 @@ async function onConversation(isGpt4:boolean=usingGpt4.value) {
 }
 
 async function onRegenerate(index: number,dateTime:string) {
-  if (loading.value)
+	const regExp = /^GPT4/
+  const isGpt4 = regExp.test(dateTime)
+  if (loading.value && !isGpt4)
     return
 
   controller = new AbortController()
@@ -237,8 +239,6 @@ async function onRegenerate(index: number,dateTime:string) {
   if (requestOptions.options)
     options = { ...requestOptions.options }
 
-  const regExp = /^GPT4/
-  const isGpt4 = regExp.test(dateTime)
   if (!isGpt4){
     	loading.value = true
   }
