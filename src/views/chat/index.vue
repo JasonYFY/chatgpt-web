@@ -222,7 +222,7 @@ async function onConversation(isGpt4:boolean=usingGpt4.value) {
   }
 }
 
-async function onRegenerate(index: number) {
+async function onRegenerate(index: number,dateTime:string) {
   if (loading.value)
     return
 
@@ -237,7 +237,9 @@ async function onRegenerate(index: number) {
   if (requestOptions.options)
     options = { ...requestOptions.options }
 
-  if (!usingGpt4.value){
+  const regExp = /^GPT4/
+  const isGpt4 = regExp.test(dateTime)
+  if (!isGpt4){
     	loading.value = true
   }
 
@@ -245,7 +247,7 @@ async function onRegenerate(index: number) {
     +uuid,
     index,
     {
-      dateTime: (usingGpt4.value?'GPT4：':'')+new Date().toLocaleString(),
+      dateTime: isGpt4?'等待GPT4回答...': new Date().toLocaleString(),
       text: '',
       inversion: false,
       error: false,
@@ -260,6 +262,7 @@ async function onRegenerate(index: number) {
     const fetchChatAPIOnce = async () => {
       await fetchChatAPIProcess<Chat.ConversationResponse>({
         prompt: message,
+        usingGpt4:isGpt4,
         options,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
@@ -320,7 +323,7 @@ async function onRegenerate(index: number) {
       +uuid,
       index,
       {
-        dateTime: (usingGpt4.value?'GPT4：':'')+new Date().toLocaleString(),
+        dateTime: (isGpt4?'GPT4：':'')+new Date().toLocaleString(),
         text: errorMessage,
         inversion: false,
         error: true,
@@ -331,7 +334,7 @@ async function onRegenerate(index: number) {
     )
   }
   finally {
-  	if (!usingGpt4.value){
+  	if (!isGpt4){
     	loading.value = false
     }
   }
@@ -524,7 +527,7 @@ onUnmounted(() => {
                 :error="item.error"
                 :loading="item.loading"
                 @quote="quoteText(item.text)"
-                @regenerate="onRegenerate(index)"
+                @regenerate="onRegenerate(index,item.dateTime)"
                 @delete="handleDelete(index)"
               />
               <div class="sticky bottom-0 left-0 flex justify-center">
