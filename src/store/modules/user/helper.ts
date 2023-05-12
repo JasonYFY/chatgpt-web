@@ -15,7 +15,7 @@ export interface UserState {
 export function defaultSetting(): UserState {
   return {
     userInfo: {
-      avatar: 'https://chat.jasonyu.v6.navy/avatar.jpg',
+      avatar: 'https://cdn.jsdelivr.net/gh/JasonYFY/CDN/images/avatar.jpg',
       name: 'JasonYu',
       description: 'Start Chat',
     },
