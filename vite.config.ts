@@ -3,11 +3,26 @@ import type { PluginOption } from 'vite'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
-import { terser } from 'rollup-plugin-terser';
+import importToCDN from 'vite-plugin-cdn-import'
 
 function setupPlugins(env: ImportMetaEnv): PluginOption[] {
   return [
     vue(),
+		importToCDN({
+			modules: [
+				{
+					name:"katex",
+					var:"katex",
+					path:"https://unpkg.com/katex@0.16.4",
+					css:"https://unpkg.com/katex/dist/katex.css"
+				},
+				{
+					name:"html2canvas",
+					var:"html2canvas",
+					path:"https://unpkg.com/html2canvas@1.4.1",
+				},
+			]
+		}),
     env.VITE_GLOB_APP_PWA === 'true' && VitePWA({
       injectRegister: 'auto',
       manifest: {
@@ -19,7 +34,6 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
         ],
       },
     }),
-		terser(), // 直接启用terser插件
   ]
 }
 
