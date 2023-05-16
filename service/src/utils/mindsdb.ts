@@ -21,20 +21,19 @@ export function initMindDB(){
 export async function sendMindDB(msg: string) {
 
 	console.log('去问MindsDB：',msg);
-	var mysql = require('mysql');
-	const query = `SELECT response FROM mindsdb.gpt4hassio WHERE text=${mysql.escape(msg)}`;
 	//若有sql语句，则需单引号替换成双引号才行
-	let newQuery = query.replace(/'/g, '"');
-	console.log('MindsDB的SQL：',newQuery);
+	let newMsg = msg.replace(/'/g, '"');
+	var mysql = require('mysql');
+	const query = `SELECT response FROM mindsdb.gpt4hassio WHERE text=${mysql.escape(newMsg)}`;
+	console.log('MindsDB的SQL：',query);
 	let matchingUserRow = '';
 	try {
-		const queryResult = await MindsDB.SQL.runQuery(newQuery);
+		const queryResult = await MindsDB.SQL.runQuery(query);
 		console.log('MindsDB的响应：',queryResult);
 		if (queryResult.rows.length > 0) {
 			matchingUserRow = queryResult.rows[0];
 			//console.log('查询MindsDB的值：',matchingUserRow);
-		}
-		if(queryResult.error_message){
+		}else if(queryResult.error_message){
 			matchingUserRow = queryResult.error_message;
 		}
 	} catch (error) {
