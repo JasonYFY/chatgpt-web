@@ -113,11 +113,6 @@ async function chatReplyProcess(options: RequestOptions) {
 		if(usingGpt4){
 			const response = await sendMindDB(message);
 			if(response){
-				/*const retmsg = {
-					text:response.response,
-					role:"assistant"
-				};
-				console.log('retmsg:',retmsg);*/
 				//只能这样了
 				throw new Error(response.response);
 				//return sendResponse({ type: 'Success', data: retmsg })
