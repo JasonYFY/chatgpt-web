@@ -11,7 +11,6 @@ interface Props {
 interface Emit {
   (ev: 'export'): void
   (ev: 'toggleUsingContext'): void
-  (ev: 'toggleUsingGpt4'): void
 }
 
 defineProps<Props>()
@@ -46,9 +45,6 @@ function toggleUsingContext() {
   emit('toggleUsingContext')
 }
 
-function toggleUsingGpt4() {
-  emit('toggleUsingGpt4')
-}
 </script>
 
 <template>
