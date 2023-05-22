@@ -7,7 +7,7 @@ import httpsProxyAgent from 'https-proxy-agent'
 import fetch from 'node-fetch'
 import { sendResponse,loadBalancer, parseKeys,sleep } from '../utils'
 import { isNotEmptyString } from '../utils/is'
-import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig } from '../types'
+import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig,JWT } from '../types'
 import LRUMap from 'lru-cache'
 import type { BalanceResponse,RequestOptions, SetProxyOptions, UsageResponse } from './types'
 import {initMindDB, sendMindDB} from "../utils/mindsdb";
@@ -279,42 +279,6 @@ function formatDate(date) {
 }
 
 
-async function fetchUsage() {
-	// 计算起始日期和结束日期
-
-	const OPENAI_API_KEY = process.env.OPENAI_API_KEY
-	const OPENAI_API_BASE_URL = process.env.OPENAI_API_BASE_URL
-
-	if (!isNotEmptyString(OPENAI_API_KEY))
-		return Promise.resolve('-')
-
-	const API_BASE_URL = isNotEmptyString(OPENAI_API_BASE_URL)
-		? OPENAI_API_BASE_URL
-		: 'https://api.openai.com'
-
-	const [startDate, endDate] = formatDateUse()
-
-	// 每月使用量
-	const urlUsage = `${API_BASE_URL}/v1/dashboard/billing/usage?start_date=${startDate}&end_date=${endDate}`
-
-	const headers = {
-		'Authorization': `Bearer ${OPENAI_API_KEY}`,
-		'Content-Type': 'application/json',
-	}
-
-	try {
-		// 获取已使用量
-		const useResponse = await fetch(urlUsage, { headers })
-		const usageData = await useResponse.json() as BalanceResponse
-		const usage = Math.round(usageData.total_usage) / 100
-		console.log(`每月使用量: ${usage}`);
-		return Promise.resolve(usage ? `$${usage}` : '-')
-	}
-	catch {
-		return Promise.resolve('-')
-	}
-}
-
 function formatDateUse(): string[] {
 	const today = new Date()
 	const year = today.getFullYear()
@@ -325,17 +289,37 @@ function formatDateUse(): string[] {
 	return [formattedFirstDay, formattedLastDay]
 }
 
-async function chatConfig() {
-  const balance = await fetchBalance()
-  //const usage = await fetchUsage()
+async function chatConfig(clientIP: string) {
+	let balance = '-';
+	if (apiModel === 'ChatGPTAPI'){
+		balance = await fetchBalance();
+	}
   const reverseProxy = process.env.API_REVERSE_PROXY ?? '-'
   const httpsProxy = (process.env.HTTPS_PROXY || process.env.ALL_PROXY) ?? '-'
   const socksProxy = (process.env.SOCKS_PROXY_HOST && process.env.SOCKS_PROXY_PORT)
     ? (`${process.env.SOCKS_PROXY_HOST}:${process.env.SOCKS_PROXY_PORT}`)
-    : '-'
+    : '-';
+
+	let accessTokenExpirationTime = '-'
+	if (apiModel === 'ChatGPTUnofficialProxyAPI' && process.env.OPENAI_ACCESS_TOKEN) {
+		try {
+			//查询ip缓存中是否有token
+			let ipToken = ipCache.get(clientIP);
+			if(ipToken){
+				//没有，则默认看第一个accessToken
+				ipToken = accessTokens[0]
+			}
+			const jwt = jwt_decode(ipToken) as JWT
+			if (jwt.exp)
+				accessTokenExpirationTime = dayjs.unix(jwt.exp).format('YYYY-MM-DD HH:mm:ss')
+		}
+		catch (error) {
+			console.warn('[jwt_decode]', error)
+		}
+	}
   return sendResponse<ModelConfig>({
     type: 'Success',
-    data: { apiModel, reverseProxy, timeoutMs, socksProxy, httpsProxy, balance },
+    data: { apiModel, reverseProxy, timeoutMs, socksProxy, httpsProxy, balance,accessTokenExpirationTime },
   })
 }
 

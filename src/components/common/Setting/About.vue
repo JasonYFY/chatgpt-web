@@ -13,6 +13,7 @@ interface ConfigState {
   httpsProxy?: string
   balance?: string
   usage?: string
+  accessTokenExpirationTime?: string
 }
 
 
@@ -74,6 +75,9 @@ onMounted(() => {
         <!-- {{ $t("setting.reverseProxy") }}：{{ config?.reverseProxy ?? '-' }} -->
         {{ $t("setting.reverseProxy") }}：-
       </p>
+      <p v-if="!isChatGPTAPI">
+				{{ $t("setting.accessTokenExpirationTime") }}：{{ config?.accessTokenExpirationTime ?? '-' }}
+			</p>
       <p>{{ $t("setting.timeout") }}：{{ config?.timeoutMs ?? '-' }}</p>
       <p>{{ $t("setting.socks") }}：{{ config?.socksProxy ?? '-' }}</p>
       <p>{{ $t("setting.httpsProxy") }}：{{ config?.httpsProxy ?? '-' }}</p>

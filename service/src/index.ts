@@ -50,7 +50,9 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 
 router.post('/config', auth, async (req, res) => {
   try {
-    const response = await chatConfig()
+		//获取客户端ip
+		const clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+    const response = await chatConfig(clientIP)
     res.send(response)
   }
   catch (error) {
