@@ -29,7 +29,7 @@ const userStore = useUserStore()
 const userInfo = computed(() => userStore.userInfo)
 const name = ref(userInfo.value.name ?? '')
 const showBalance = computed(() => {
-      return isChatGPTAPI.value && name.value === 'JasonYuMaster'
+      return name.value === 'JasonYuMaster'
     })
 
 async function fetchConfig() {
@@ -63,7 +63,7 @@ onMounted(() => {
         </p>
       </div>
       <p>{{ $t("setting.api") }}：{{ config?.apiModel ?? '-' }}</p>
-      <p v-if="showBalance">
+      <p v-if="isChatGPTAPI">
         {{ $t("setting.balance") }}：{{ config?.balance ?? '-' }}
         <!--
         <span class="text-xs text-neutral-400">({{ $t('setting.remain') }})</span>
