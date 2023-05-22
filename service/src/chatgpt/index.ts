@@ -7,7 +7,9 @@ import httpsProxyAgent from 'https-proxy-agent'
 import fetch from 'node-fetch'
 import { sendResponse,loadBalancer, parseKeys,sleep } from '../utils'
 import { isNotEmptyString } from '../utils/is'
-import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig } from '../types'
+import jwt_decode from 'jwt-decode'
+import dayjs from 'dayjs'
+import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig,JWT } from '../types'
 import LRUMap from 'lru-cache'
 import type { BalanceResponse,RequestOptions, SetProxyOptions, UsageResponse } from './types'
 import {initMindDB, sendMindDB} from "../utils/mindsdb";
@@ -60,7 +62,7 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
 (async () => {
   // More Info: https://github.com/transitive-bullshit/chatgpt-api
 	//初始化mindDb
-	initMindDB();
+	//initMindDB();
   if (isNotEmptyString(process.env.OPENAI_API_KEY)) {
     const OPENAI_API_BASE_URL = process.env.OPENAI_API_BASE_URL
 
@@ -113,11 +115,6 @@ async function chatReplyProcess(options: RequestOptions) {
 		if(usingGpt4){
 			const response = await sendMindDB(message);
 			if(response){
-				/*const retmsg = {
-					text:response.response,
-					role:"assistant"
-				};
-				console.log('retmsg:',retmsg);*/
 				//只能这样了
 				throw new Error(response.response);
 				//return sendResponse({ type: 'Success', data: retmsg })
@@ -284,42 +281,6 @@ function formatDate(date) {
 }
 
 
-async function fetchUsage() {
-	// 计算起始日期和结束日期
-
-	const OPENAI_API_KEY = process.env.OPENAI_API_KEY
-	const OPENAI_API_BASE_URL = process.env.OPENAI_API_BASE_URL
-
-	if (!isNotEmptyString(OPENAI_API_KEY))
-		return Promise.resolve('-')
-
-	const API_BASE_URL = isNotEmptyString(OPENAI_API_BASE_URL)
-		? OPENAI_API_BASE_URL
-		: 'https://api.openai.com'
-
-	const [startDate, endDate] = formatDateUse()
-
-	// 每月使用量
-	const urlUsage = `${API_BASE_URL}/v1/dashboard/billing/usage?start_date=${startDate}&end_date=${endDate}`
-
-	const headers = {
-		'Authorization': `Bearer ${OPENAI_API_KEY}`,
-		'Content-Type': 'application/json',
-	}
-
-	try {
-		// 获取已使用量
-		const useResponse = await fetch(urlUsage, { headers })
-		const usageData = await useResponse.json() as BalanceResponse
-		const usage = Math.round(usageData.total_usage) / 100
-		console.log(`每月使用量: ${usage}`);
-		return Promise.resolve(usage ? `$${usage}` : '-')
-	}
-	catch {
-		return Promise.resolve('-')
-	}
-}
-
 function formatDateUse(): string[] {
 	const today = new Date()
 	const year = today.getFullYear()
@@ -331,16 +292,37 @@ function formatDateUse(): string[] {
 }
 
 async function chatConfig() {
-  const balance = await fetchBalance()
-  //const usage = await fetchUsage()
+	let balance = '-';
+	if (apiModel === 'ChatGPTAPI'){
+		balance = await fetchBalance();
+	}
   const reverseProxy = process.env.API_REVERSE_PROXY ?? '-'
   const httpsProxy = (process.env.HTTPS_PROXY || process.env.ALL_PROXY) ?? '-'
   const socksProxy = (process.env.SOCKS_PROXY_HOST && process.env.SOCKS_PROXY_PORT)
     ? (`${process.env.SOCKS_PROXY_HOST}:${process.env.SOCKS_PROXY_PORT}`)
-    : '-'
+    : '-';
+
+	let accessTokenExpirationTime = ''
+	if (apiModel === 'ChatGPTUnofficialProxyAPI' && process.env.OPENAI_ACCESS_TOKEN) {
+		try {
+
+			for (let i = 0; i < accessTokens.length; i++) {
+				const jwt = jwt_decode(accessTokens[i]) as JWT
+				console.log(jwt);
+				if (jwt.exp){
+					accessTokenExpirationTime += dayjs.unix(jwt.exp).format('YYYY-MM-DD HH:mm:ss');
+					if(i<accessTokens.length-1)
+						accessTokenExpirationTime+=',';
+				}
+			}
+		}
+		catch (error) {
+			console.warn('[jwt_decode]', error)
+		}
+	}
   return sendResponse<ModelConfig>({
     type: 'Success',
-    data: { apiModel, reverseProxy, timeoutMs, socksProxy, httpsProxy, balance },
+    data: { apiModel, reverseProxy, timeoutMs, socksProxy, httpsProxy, balance,accessTokenExpirationTime },
   })
 }
 

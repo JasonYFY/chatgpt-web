@@ -74,6 +74,7 @@ export default {
     balance: 'API Balance',
 		remain: 'remain',
     monthlyUsage: 'Monthly Usage',
+		accessTokenExpirationTime: 'Expiration Time',
   },
   store: {
     siderButton: 'Prompt Store',

@@ -44,7 +44,7 @@ export default {
     usingContext: '上下文模式',
     turnOnContext: '当前模式下, 发送消息会携带之前的聊天记录',
     turnOffContext: '当前模式下, 发送消息不会携带之前的聊天记录',
-    turnOnGPT4: '当前模式下, 发送消息只会询问GPT4(目前响应较慢，耐心等待)',
+    turnOnGPT4: '当前模式下, 发送消息会同时询问GPT4(目前响应较慢，耐心等待)',
     turnOffGPT4: '取消询问GPT4',
     deleteMessage: '删除消息',
     deleteMessageConfirm: '是否删除此消息?',
@@ -76,6 +76,7 @@ export default {
     balance: 'API余额',
     remain: '余额',
     monthlyUsage: '本月使用量',
+		accessTokenExpirationTime: '过期时间',
   },
   store: {
     siderButton: '提示词商店',

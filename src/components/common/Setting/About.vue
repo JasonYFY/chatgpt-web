@@ -13,6 +13,7 @@ interface ConfigState {
   httpsProxy?: string
   balance?: string
   usage?: string
+  accessTokenExpirationTime?: string
 }
 
 
@@ -28,7 +29,7 @@ const userStore = useUserStore()
 const userInfo = computed(() => userStore.userInfo)
 const name = ref(userInfo.value.name ?? '')
 const showBalance = computed(() => {
-      return isChatGPTAPI.value && name.value === 'JasonYuMaster'
+      return name.value === 'JasonYuMaster'
     })
 
 async function fetchConfig() {
@@ -62,7 +63,7 @@ onMounted(() => {
         </p>
       </div>
       <p>{{ $t("setting.api") }}：{{ config?.apiModel ?? '-' }}</p>
-      <p v-if="showBalance">
+      <p v-if="isChatGPTAPI">
         {{ $t("setting.balance") }}：{{ config?.balance ?? '-' }}
         <!--
         <span class="text-xs text-neutral-400">({{ $t('setting.remain') }})</span>
@@ -74,6 +75,9 @@ onMounted(() => {
         <!-- {{ $t("setting.reverseProxy") }}：{{ config?.reverseProxy ?? '-' }} -->
         {{ $t("setting.reverseProxy") }}：-
       </p>
+      <p v-if="!isChatGPTAPI">
+				{{ $t("setting.accessTokenExpirationTime") }}：{{ config?.accessTokenExpirationTime ?? '-' }}
+			</p>
       <p>{{ $t("setting.timeout") }}：{{ config?.timeoutMs ?? '-' }}</p>
       <p>{{ $t("setting.socks") }}：{{ config?.socksProxy ?? '-' }}</p>
       <p>{{ $t("setting.httpsProxy") }}：{{ config?.httpsProxy ?? '-' }}</p>

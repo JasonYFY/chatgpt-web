@@ -30,11 +30,29 @@ export interface ModelConfig {
   socksProxy?: string
   httpsProxy?: string
   usage?: string
+	accessTokenExpirationTime?: string
 }
 
 export interface IPInfo {
 	ipToken: string
 	ipProxy?: string
+}
+
+export interface JWT {
+	'https://api.openai.com/profile': {
+		'email': string
+		'email_verified': boolean
+	}
+	'https://api.openai.com/auth': {
+		'user_id': string
+	}
+	'iss': string
+	'sub': string
+	'aud': []
+	'iat': number
+	'exp': number
+	'azp': string
+	'scope': string
 }
 
 export type ApiModel = 'ChatGPTAPI' | 'ChatGPTUnofficialProxyAPI' | undefined

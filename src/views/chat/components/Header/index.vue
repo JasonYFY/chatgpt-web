@@ -11,7 +11,6 @@ interface Props {
 interface Emit {
   (ev: 'export'): void
   (ev: 'toggleUsingContext'): void
-  (ev: 'toggleUsingGpt4'): void
 }
 
 defineProps<Props>()
@@ -46,9 +45,6 @@ function toggleUsingContext() {
   emit('toggleUsingContext')
 }
 
-function toggleUsingGpt4() {
-  emit('toggleUsingGpt4')
-}
 </script>
 
 <template>
@@ -77,11 +73,11 @@ function toggleUsingGpt4() {
             <SvgIcon icon="ri:chat-history-line" />
           </span>
         </HoverButton>
-        <HoverButton  @click="toggleUsingGpt4">
+        <!-- <HoverButton  @click="toggleUsingGpt4">
 					<span class="text-xl" :class="{ 'text-[#4b9e5f]': usingGpt4, 'text-[#444951]': !usingGpt4 }">
 						<SvgIcon icon="ri:chat-follow-up-line" />
 					</span>
-				</HoverButton>
+				</HoverButton> -->
         <HoverButton @click="handleExport">
           <span class="text-xl text-[#4f555e] dark:text-white">
             <SvgIcon icon="ri:download-2-line" />

@@ -74,6 +74,7 @@ export default {
     balance: 'API Credit 餘額',
 		remain: '余額',
     monthlyUsage: '本月使用量',
+		accessTokenExpirationTime: '过期時間',
   },
   store: {
     siderButton: '提示詞商店',

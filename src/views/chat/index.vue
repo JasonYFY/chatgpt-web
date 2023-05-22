@@ -61,33 +61,38 @@ function handleSubmit() {
   onConversation()
 }
 
-async function onConversation() {
+async function onConversation(isGpt4:boolean=usingGpt4.value) {
   let message = prompt.value
 
   if (loading.value){
     return
   }
+	if(isGpt4){
+		onConversation(false);
+	}
 
   if (!message || message.trim() === '')
     return
 
   controller = new AbortController()
 
-  addChat(
-    +uuid,
-    {
-      dateTime: new Date().toLocaleString(),
-      text: message,
-      inversion: true,
-      error: false,
-      conversationOptions: null,
-      requestOptions: { prompt: message, options: null },
-    },
-  )
-  scrollToBottom()
+	if(!isGpt4){
+		addChat(
+			+uuid,
+			{
+				dateTime: new Date().toLocaleString(),
+				text: message,
+				inversion: true,
+				error: false,
+				conversationOptions: null,
+				requestOptions: { prompt: message, options: null },
+			},
+		)
+		scrollToBottom()
+  }
 
 
-  if (!usingGpt4.value){
+  if (!isGpt4){
   	loading.value = true
   }
   prompt.value = ''
@@ -97,11 +102,11 @@ async function onConversation() {
 
   if (lastContext && usingContext.value)
     options = { ...lastContext }
-	const isGpt4 =  usingGpt4.value;
+
   addChat(
     +uuid,
     {
-      dateTime: (isGpt4?'GPT4：':'')+new Date().toLocaleString(),
+      dateTime: isGpt4?'等待GPT4回答...':new Date().toLocaleString(),
       text: '',
       loading: true,
       inversion: false,
@@ -119,6 +124,7 @@ async function onConversation() {
     	indexTemp = dataSources.value.length - 1;
       await fetchChatAPIProcess<Chat.ConversationResponse>({
         prompt: message,
+        usingGpt4:isGpt4,
         options,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
@@ -216,8 +222,10 @@ async function onConversation() {
   }
 }
 
-async function onRegenerate(index: number) {
-  if (loading.value)
+async function onRegenerate(index: number,dateTime:string) {
+	const regExp = /^GPT4/
+  const isGpt4 = regExp.test(dateTime)
+  if (loading.value && !isGpt4)
     return
 
   controller = new AbortController()
@@ -231,7 +239,7 @@ async function onRegenerate(index: number) {
   if (requestOptions.options)
     options = { ...requestOptions.options }
 
-  if (!usingGpt4.value){
+  if (!isGpt4){
     	loading.value = true
   }
 
@@ -239,7 +247,7 @@ async function onRegenerate(index: number) {
     +uuid,
     index,
     {
-      dateTime: (usingGpt4.value?'GPT4：':'')+new Date().toLocaleString(),
+      dateTime: isGpt4?'等待GPT4回答...': new Date().toLocaleString(),
       text: '',
       inversion: false,
       error: false,
@@ -254,6 +262,7 @@ async function onRegenerate(index: number) {
     const fetchChatAPIOnce = async () => {
       await fetchChatAPIProcess<Chat.ConversationResponse>({
         prompt: message,
+        usingGpt4:isGpt4,
         options,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
@@ -314,7 +323,7 @@ async function onRegenerate(index: number) {
       +uuid,
       index,
       {
-        dateTime: (usingGpt4.value?'GPT4：':'')+new Date().toLocaleString(),
+        dateTime: (isGpt4?'GPT4：':'')+new Date().toLocaleString(),
         text: errorMessage,
         inversion: false,
         error: true,
@@ -325,7 +334,7 @@ async function onRegenerate(index: number) {
     )
   }
   finally {
-  	if (!usingGpt4.value){
+  	if (!isGpt4){
     	loading.value = false
     }
   }
@@ -518,7 +527,7 @@ onUnmounted(() => {
                 :error="item.error"
                 :loading="item.loading"
                 @quote="quoteText(item.text)"
-                @regenerate="onRegenerate(index)"
+                @regenerate="onRegenerate(index,item.dateTime)"
                 @delete="handleDelete(index)"
               />
               <div class="sticky bottom-0 left-0 flex justify-center">
@@ -552,11 +561,11 @@ onUnmounted(() => {
               <SvgIcon icon="ri:chat-history-line" />
             </span>
           </HoverButton>
-          <HoverButton v-if="!isMobile"  @click="toggleUsingGpt4">
+          <!-- <HoverButton v-if="!isMobile"  @click="toggleUsingGpt4">
 						<span class="text-xl" :class="{ 'text-[#4b9e5f]': usingGpt4, 'text-[#444951]': !usingGpt4 }">
 							<SvgIcon icon="ri:chat-follow-up-line" />
 						</span>
-					</HoverButton>
+					</HoverButton> -->
           <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
             <template #default="{ handleInput, handleBlur, handleFocus }">
               <NInput
