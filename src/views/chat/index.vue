@@ -561,11 +561,11 @@ onUnmounted(() => {
               <SvgIcon icon="ri:chat-history-line" />
             </span>
           </HoverButton>
-          <HoverButton v-if="!isMobile"  @click="toggleUsingGpt4">
+          <!-- <HoverButton v-if="!isMobile"  @click="toggleUsingGpt4">
 						<span class="text-xl" :class="{ 'text-[#4b9e5f]': usingGpt4, 'text-[#444951]': !usingGpt4 }">
 							<SvgIcon icon="ri:chat-follow-up-line" />
 						</span>
-					</HoverButton>
+					</HoverButton> -->
           <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
             <template #default="{ handleInput, handleBlur, handleFocus }">
               <NInput
