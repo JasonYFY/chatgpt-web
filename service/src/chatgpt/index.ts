@@ -308,6 +308,7 @@ async function chatConfig() {
 
 			for (let i = 0; i < accessTokens.length; i++) {
 				const jwt = jwt_decode(accessTokens[i]) as JWT
+				console.log(jwt);
 				if (jwt.exp){
 					accessTokenExpirationTime += dayjs.unix(jwt.exp).format('YYYY-MM-DD HH:mm:ss');
 					if(i<accessTokens.length-1)
