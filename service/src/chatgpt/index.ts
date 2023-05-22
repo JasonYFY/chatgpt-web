@@ -8,6 +8,7 @@ import fetch from 'node-fetch'
 import { sendResponse,loadBalancer, parseKeys,sleep } from '../utils'
 import { isNotEmptyString } from '../utils/is'
 import jwt_decode from 'jwt-decode'
+import dayjs from 'dayjs'
 import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig,JWT } from '../types'
 import LRUMap from 'lru-cache'
 import type { BalanceResponse,RequestOptions, SetProxyOptions, UsageResponse } from './types'
@@ -290,7 +291,7 @@ function formatDateUse(): string[] {
 	return [formattedFirstDay, formattedLastDay]
 }
 
-async function chatConfig(clientIP: string) {
+async function chatConfig() {
 	let balance = '-';
 	if (apiModel === 'ChatGPTAPI'){
 		balance = await fetchBalance();
@@ -301,18 +302,18 @@ async function chatConfig(clientIP: string) {
     ? (`${process.env.SOCKS_PROXY_HOST}:${process.env.SOCKS_PROXY_PORT}`)
     : '-';
 
-	let accessTokenExpirationTime = '-'
+	let accessTokenExpirationTime = ''
 	if (apiModel === 'ChatGPTUnofficialProxyAPI' && process.env.OPENAI_ACCESS_TOKEN) {
 		try {
-			//查询ip缓存中是否有token
-			let ipToken = ipCache.get(clientIP);
-			if(ipToken){
-				//没有，则默认看第一个accessToken
-				ipToken = accessTokens[0]
+
+			for (let i = 0; i < accessTokens.length; i++) {
+				const jwt = jwt_decode(accessTokens[i]) as JWT
+				if (jwt.exp){
+					accessTokenExpirationTime += dayjs.unix(jwt.exp).format('YYYY-MM-DD HH:mm:ss');
+					if(i<accessTokens.length-1)
+						accessTokenExpirationTime+=',';
+				}
 			}
-			const jwt = jwt_decode(ipToken) as JWT
-			if (jwt.exp)
-				accessTokenExpirationTime = dayjs.unix(jwt.exp).format('YYYY-MM-DD HH:mm:ss')
 		}
 		catch (error) {
 			console.warn('[jwt_decode]', error)
