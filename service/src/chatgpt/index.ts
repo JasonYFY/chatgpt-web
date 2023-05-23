@@ -58,7 +58,7 @@ const accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
 const nextBalancer =  loadBalancer(accessTokens)
 
 const maxRetry: number = !isNaN(+process.env.MAX_RETRY) ? +process.env.MAX_RETRY : accessTokens.length+5;
-const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RETRY_INTERVAL_MS : 2000;
+const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RETRY_INTERVAL_MS : 1000;
 
 (async () => {
   // More Info: https://github.com/transitive-bullshit/chatgpt-api
