@@ -39,7 +39,9 @@
 		"mindsdb-js-sdk": "v2.2.1",
 		"mysql": "v2.18.1",
 		"dayjs": "^1.11.7",
-		"jwt-decode": "^3.1.2"
+		"jwt-decode": "^3.1.2",
+		"node-cron": "^3.0.2",
+		"fs": "^0.0.1-security"
 	},
   "devDependencies": {
     "@antfu/eslint-config": "^0.35.3",

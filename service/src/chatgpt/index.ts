@@ -11,8 +11,8 @@ import jwt_decode from 'jwt-decode'
 import dayjs from 'dayjs'
 import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig,JWT } from '../types'
 import LRUMap from 'lru-cache'
-import type { BalanceResponse,RequestOptions, SetProxyOptions, UsageResponse } from './types'
-import {initMindDB, sendMindDB} from "../utils/mindsdb";
+import type { RequestOptions, SetProxyOptions, UsageResponse } from './types'
+import {initCron} from "../utils/checkCron";
 
 const originalLog = console.log;
 
@@ -30,6 +30,7 @@ const { HttpsProxyAgent } = httpsProxyAgent
 
 // 创建一个LRUMap实例，设置最大容量为1000，过期时间为12小时
 const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 12000  });
+export { ipCache };
 
 dotenv.config()
 
@@ -94,6 +95,8 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
     apiModel = 'ChatGPTAPI'
   }
   else {
+		//启动定时任务
+		initCron();
     const options: ChatGPTUnofficialProxyAPIOptions = {
       accessToken: process.env.OPENAI_ACCESS_TOKEN,
       apiReverseProxyUrl: isNotEmptyString(process.env.API_REVERSE_PROXY) ? process.env.API_REVERSE_PROXY : 'https://ai.fakeopen.com/api/conversation',
@@ -113,12 +116,12 @@ async function chatReplyProcess(options: RequestOptions) {
   try {
 
 		if(usingGpt4){
-			const response = await sendMindDB(message);
+			/*const response = await sendMindDB(message);
 			if(response){
 				//只能这样了
 				throw new Error(response.response);
 				//return sendResponse({ type: 'Success', data: retmsg })
-			}
+			}*/
 		}
 
     let options: SendMessageOptions = { timeoutMs }
