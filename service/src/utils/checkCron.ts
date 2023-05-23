@@ -18,15 +18,18 @@ const userInfoMap = new Map<string, object>();
 
 
 export async function initCron(){
-	console.log('启动定时任务,schedule:',schedule);
 	try {
-		//获取登录用户的json数组，并转化成map集合
-		const userInfoArray = parseJsonString(process.env.TOKEN_USER_INFO);
-		userInfoArray.forEach((userInfo: any) => {
-			const username = userInfo.username;
-			userInfoMap.set(username, userInfo);
-		});
-		cron.schedule(schedule, checkTokenExpires);
+		if(isNotEmptyString(process.env.TOKEN_USER_INFO)){
+			console.log('启动定时任务,schedule:',schedule);
+			//获取登录用户的json数组，并转化成map集合
+			const userInfoArray = parseJsonString(process.env.TOKEN_USER_INFO);
+			userInfoArray.forEach((userInfo: any) => {
+				const username = userInfo.username;
+				userInfoMap.set(username, userInfo);
+			});
+			cron.schedule(schedule, checkTokenExpires);
+		}
+
 	} catch(error) {
 		console.error('定时任务报错了：',error);
 	}
