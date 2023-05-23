@@ -48,11 +48,11 @@ async function checkTokenExpires() {
 			if (currentDate >= expirationTime) {
 				const email = jwt["https://api.openai.com/profile"].email;
 				console.log('准备过期了，email:',email,',过期时间:',dayjs.unix(jwt.exp).format('YYYY-MM-DD HH:mm:ss'));
-				console.log('userInfoMap:',...userInfoMap);
+				//console.log('userInfoMap:',...userInfoMap);
 				//取出参数
 				const userInfo = userInfoMap.get(email);
 				if(userInfo){
-					console.log('准备登录获取token,userInfo:',userInfo);
+					//console.log('准备登录获取token,userInfo:',userInfo);
 					const resp = await postData(loginUrl, userInfo);
 					console.log('响应参数：',resp);
 					if(resp.accessToken){
