@@ -131,8 +131,6 @@ async function chatReplyProcess(options: RequestOptions) {
         options.systemMessage = systemMessage
       options.completionParams = { model, temperature, top_p }
     }
-		console.log('打印出lastContext:',lastContext);
-
 
 		//查询ip缓存中是否有token
 		let ipToken = ipCache.get(clientIP);
@@ -156,7 +154,6 @@ async function chatReplyProcess(options: RequestOptions) {
 			//console.log('Client IP:', clientIP) // 打印客户端IP地址
 			if (process)
 				options.onProgress = process
-			console.log('打印出options:',options)
 			let retryCount = 0
 			let response: ChatMessage | void
 
