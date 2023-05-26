@@ -46,7 +46,7 @@ export function fetchChatAPIProcess<T = any>(
     }
   }
 
-	console.info("是否使用了GPT4:",params.usingGpt4);
+	//console.info("是否使用了GPT4:",params.usingGpt4);
 
   return post<T>({
     url: '/chat-process',
