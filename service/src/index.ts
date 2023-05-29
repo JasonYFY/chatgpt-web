@@ -25,7 +25,7 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
     const { prompt, options = {}, systemMessage, temperature, top_p,usingGpt4 } = req.body as RequestProps
 		console.log('x-forwarded-for的信息：',req.headers['x-forwarded-for'])
 		console.log('socket.remoteAddress的信息：',req.socket.remoteAddress)
-		console.log('connection.remoteAddress的信息：',req.connection.remoteAddress)
+		console.log('X-Real-IP的信息：',req.headers['x-real-ip'])
 		console.log('req.ip的信息：',req.ip)
 
 		//获取客户端ip
