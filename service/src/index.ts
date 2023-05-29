@@ -23,6 +23,9 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
   res.setHeader('Content-type', 'application/octet-stream')
   try {
     const { prompt, options = {}, systemMessage, temperature, top_p,usingGpt4 } = req.body as RequestProps
+		console.log('x-forwarded-for的信息：',req.headers['x-forwarded-for'])
+		console.log('socket.remoteAddress的信息：',req.socket.remoteAddress)
+
 		//获取客户端ip
 		const clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress
 		let firstChunk = true
