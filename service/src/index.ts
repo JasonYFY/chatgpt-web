@@ -23,8 +23,13 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
   res.setHeader('Content-type', 'application/octet-stream')
   try {
     const { prompt, options = {}, systemMessage, temperature, top_p,usingGpt4 } = req.body as RequestProps
+
 		//获取客户端ip
-		const clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+		let clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+		if(clientIP){
+			//改造下，由于获取不了真实ip,所以需加上用户代理信息（包含了用户代理信息，它提供了关于客户端使用的浏览器、操作系统和设备的详细信息）作为key
+			clientIP = clientIP+req.headers['user-agent'];
+		}
 		let firstChunk = true
     await chatReplyProcess({
       message: prompt,
