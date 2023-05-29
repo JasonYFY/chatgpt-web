@@ -41,9 +41,6 @@ const prompt = ref<string>('')
 const loading = ref<boolean>(false)
 const inputRef = ref<Ref | null>(null)
 
-//判断是否是GPTAPI模式
-const authStore = useAuthStore()
-const isChatGPTAPI = computed<boolean>(() => !!authStore.isChatGPTAPI)
 
 // 添加PromptStore
 const promptStore = usePromptStore()
@@ -556,7 +553,7 @@ onUnmounted(() => {
               <SvgIcon icon="ri:download-2-line" />
             </span>
           </HoverButton>
-          <HoverButton v-if="!isMobile && isChatGPTAPI" @click="toggleUsingContext">
+          <HoverButton v-if="!isMobile" @click="toggleUsingContext">
             <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
               <SvgIcon icon="ri:chat-history-line" />
             </span>
