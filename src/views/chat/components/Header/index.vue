@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, nextTick } from 'vue'
 import { HoverButton, SvgIcon } from '@/components/common'
-import { useAppStore, useChatStore,useAuthStore } from '@/store'
+import { useAppStore, useChatStore } from '@/store'
 
 interface Props {
   usingContext: boolean
