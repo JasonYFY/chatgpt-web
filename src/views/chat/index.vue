@@ -510,7 +510,10 @@ onUnmounted(() => {
           <template v-if="!dataSources.length">
             <div class="flex items-center justify-center mt-4 text-center text-neutral-300">
               <SvgIcon icon="ri:bubble-chart-fill" class="mr-2 text-3xl" />
-              <span>Hello~</span>
+              <span style="text-align: left;">
+								<p>1.此网站对接ChatGPT,知识截止于2021年9月</p>
+								<p>2.想体验实时知识和画图，可以访问<a href="https://newbing.jasonyu.v6.navy" target="_blank">https://newbing.jasonyu.v6.navy</a></p>
+							</span>
             </div>
           </template>
           <template v-else>
