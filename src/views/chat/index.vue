@@ -158,6 +158,7 @@ async function onConversation(isGpt4:boolean=usingGpt4.value) {
             scrollToBottomIfAtBottom()
           }
           catch (error) {
+          	console.log('报错了',error);
             //
           }
         },
@@ -294,7 +295,8 @@ async function onRegenerate(index: number,dateTime:string) {
             }
           }
           catch (error) {
-            //
+          	console.log('报错：',error);
+
           }
         },
       })
