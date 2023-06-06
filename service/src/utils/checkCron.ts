@@ -4,7 +4,7 @@ import jwt_decode from 'jwt-decode'
 import dayjs from 'dayjs'
 import {parseKeys} from './index'
 import {JWT} from "../types";
-import {ipCache} from "../chatgpt";
+import {ipCache,accessTokens} from "../chatgpt";
 import fetch from 'node-fetch';
 import {updateEnvFile} from "./operateEnv";
 import * as dotenv from 'dotenv'
@@ -39,7 +39,6 @@ export async function initCron(){
 
 async function checkTokenExpires() {
 	console.log('定时任务开始--检查token是否快过期');
-	const accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN);
 	const currentDate = getCurrentDate();
 	for (let i = 0; i < accessTokens.length; i++) {
 		const jwt = jwt_decode(accessTokens[i]) as JWT;
@@ -63,6 +62,8 @@ async function checkTokenExpires() {
 						updateEnvFile('OPENAI_ACCESS_TOKEN',process.env.OPENAI_ACCESS_TOKEN);
 						//清空ipCache
 						ipCache.clear();
+						//重新赋值
+						accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
 					}
 
 				}

@@ -30,7 +30,7 @@ const { HttpsProxyAgent } = httpsProxyAgent
 
 // 创建一个LRUMap实例，设置最大容量为1000，过期时间为12小时
 const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 12000  });
-export { ipCache };
+
 
 dotenv.config()
 
@@ -54,8 +54,9 @@ if (!isNotEmptyString(process.env.OPENAI_API_KEY) && !isNotEmptyString(process.e
 
 let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 
-const accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
+let accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
 const nextBalancer =  loadBalancer(accessTokens)
+export { ipCache,accessTokens };
 
 const maxRetry: number = !isNaN(+process.env.MAX_RETRY) ? +process.env.MAX_RETRY : accessTokens.length+5;
 const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RETRY_INTERVAL_MS : 1000;
