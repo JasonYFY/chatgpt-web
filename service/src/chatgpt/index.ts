@@ -191,7 +191,7 @@ async function chatReplyProcess(options: RequestOptions) {
 							retryNextToken = true;
 						}
 						if(retryCount===maxRetry){
-							throw new Error("多人使用中，请稍后再试！");
+							throw new Error("多人使用中，请稍后再试！（或可新建聊天再试）");
 						}
 						console.log('准备重新新执行retryCount：',retryCount);
 					}else if (error.statusCode === 401){
