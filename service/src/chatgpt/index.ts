@@ -57,6 +57,10 @@ let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 let accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
 const nextBalancer =  loadBalancer(accessTokens)
 export { ipCache,accessTokens };
+export function setAccessTokens(newTokens) {
+	accessTokens = newTokens;
+}
+
 
 const maxRetry: number = !isNaN(+process.env.MAX_RETRY) ? +process.env.MAX_RETRY : accessTokens.length+1;
 const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RETRY_INTERVAL_MS : 1000;
