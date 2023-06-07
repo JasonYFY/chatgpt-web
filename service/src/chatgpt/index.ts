@@ -159,13 +159,16 @@ async function chatReplyProcess(options: RequestOptions) {
 			let response: ChatMessage | void
 
 			console.log('Client IP:', clientIP); // 打印客户端IP地址
+
+			//定义重试时是否需要重新获取token
+			let retryNextToken = false;
 			while (!response && retryCount++ < maxRetry) {
 				// 将客户端IP地址存储到LRUMap中
-				if (!ipToken) {
+				if (!ipToken || retryNextToken) {
 					//没有在缓存里,获取一个新的保存
 					ipToken = nextBalancer();
 					ipCache.set(clientIP, ipToken);
-					console.log('新ip保存下token');
+					console.log('新ip保存下token。(是否为重新获取：',retryNextToken);
 				}
 
 				//重新赋值
@@ -179,10 +182,18 @@ async function chatReplyProcess(options: RequestOptions) {
 					}else if (error.statusCode === 429){
 						// 429 Too Many Requests
 						console.log('报错了429',error);
+						if(!lastContext || !lastContext.conversationId || !lastContext.parentMessageId){
+							console.log('没有上下文关联，重试时可重新获取token');
+							retryNextToken = true;
+						}
 						if(retryCount===maxRetry){
 							throw new Error("多人使用中，请稍后再试！");
 						}
 						console.log('准备重新新执行retryCount：',retryCount);
+					}else if (error.statusCode === 401){
+						console.log('报错了401',error);
+						//401是由于token过期了，所以需要换一个
+						retryNextToken = true;
 					}else{
 						console.log('未知错误',error);
 						throw error
