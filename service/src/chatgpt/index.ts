@@ -29,7 +29,7 @@ console.log = (...args: any[]) => {
 const { HttpsProxyAgent } = httpsProxyAgent
 
 // 创建一个LRUMap实例，设置最大容量为1000，过期时间为12小时
-const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 12000  });
+const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 6000  });
 
 
 dotenv.config()
@@ -173,6 +173,7 @@ async function chatReplyProcess(options: RequestOptions) {
 					ipToken = nextBalancer();
 					ipCache.set(clientIP, ipToken);
 					console.log('新ip保存下token。(是否为重新获取：',retryNextToken);
+					retryNextToken = false;
 				}
 
 				//重新赋值
