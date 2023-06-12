@@ -29,7 +29,7 @@ console.log = (...args: any[]) => {
 const { HttpsProxyAgent } = httpsProxyAgent
 
 // 创建一个LRUMap实例，设置最大容量为1000，过期时间为12小时
-const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 12000  });
+const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 6000  });
 
 
 dotenv.config()
@@ -57,8 +57,12 @@ let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 let accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
 const nextBalancer =  loadBalancer(accessTokens)
 export { ipCache,accessTokens };
+export function setAccessTokens(newTokens) {
+	accessTokens = newTokens;
+}
 
-const maxRetry: number = !isNaN(+process.env.MAX_RETRY) ? +process.env.MAX_RETRY : accessTokens.length+5;
+
+const maxRetry: number = !isNaN(+process.env.MAX_RETRY) ? +process.env.MAX_RETRY : accessTokens.length+1;
 const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RETRY_INTERVAL_MS : 1000;
 
 (async () => {
@@ -159,13 +163,17 @@ async function chatReplyProcess(options: RequestOptions) {
 			let response: ChatMessage | void
 
 			console.log('Client IP:', clientIP); // 打印客户端IP地址
+
+			//定义重试时是否需要重新获取token
+			let retryNextToken = false;
 			while (!response && retryCount++ < maxRetry) {
 				// 将客户端IP地址存储到LRUMap中
-				if (!ipToken) {
+				if (!ipToken || retryNextToken) {
 					//没有在缓存里,获取一个新的保存
 					ipToken = nextBalancer();
 					ipCache.set(clientIP, ipToken);
-					console.log('新ip保存下token');
+					console.log('新ip保存下token。(是否为重新获取：',retryNextToken);
+					retryNextToken = false;
 				}
 
 				//重新赋值
@@ -179,10 +187,18 @@ async function chatReplyProcess(options: RequestOptions) {
 					}else if (error.statusCode === 429){
 						// 429 Too Many Requests
 						console.log('报错了429',error);
+						if(!lastContext || !lastContext.conversationId || !lastContext.parentMessageId){
+							console.log('没有上下文关联，重试时可重新获取token');
+							retryNextToken = true;
+						}
 						if(retryCount===maxRetry){
-							throw new Error("多人使用中，请稍后再试！");
+							throw new Error("多人使用中，请稍后再试！（或可新建聊天再试）");
 						}
 						console.log('准备重新新执行retryCount：',retryCount);
+					}else if (error.statusCode === 401){
+						console.log('报错了401',error);
+						//401是由于token过期了，所以需要换一个
+						retryNextToken = true;
 					}else{
 						console.log('未知错误',error);
 						throw error

@@ -4,7 +4,7 @@ import jwt_decode from 'jwt-decode'
 import dayjs from 'dayjs'
 import {parseKeys} from './index'
 import {JWT} from "../types";
-import {ipCache,accessTokens} from "../chatgpt";
+import {ipCache,accessTokens,setAccessTokens} from "../chatgpt";
 import fetch from 'node-fetch';
 import {updateEnvFile} from "./operateEnv";
 import * as dotenv from 'dotenv'
@@ -63,7 +63,7 @@ async function checkTokenExpires() {
 						//清空ipCache
 						ipCache.clear();
 						//重新赋值
-						accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
+						setAccessTokens(parseKeys(process.env.OPENAI_ACCESS_TOKEN));
 					}
 
 				}
