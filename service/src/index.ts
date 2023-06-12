@@ -5,7 +5,6 @@ import { chatConfig, chatReplyProcess, currentModel } from './chatgpt'
 import { auth } from './middleware/auth'
 import { limiter } from './middleware/limiter'
 import { isNotEmptyString } from './utils/is'
-import {Auth0} from "./utils/accessTokenAuth";
 
 const app = express()
 const router = express.Router()
@@ -91,32 +90,6 @@ router.post('/verify', async (req, res) => {
   }
 })
 
-
-router.post('/getAccessToken', async (req, res) => {
-	try {
-		const { username,password } = req.body as { username: string,password:string }
-		console.log('getAccessToken接口的参数:', req.body);
-		if (username&&password){
-			const auth0 = new Auth0('yifangyu_jason@163.com', 'Yfy.159177');
-			auth0.auth()
-				.then((accessToken: string) => {
-					// 身份验证成功，可以使用访问令牌进行后续操作
-					console.log('Access Token:', accessToken);
-					// 在这里执行其他操作...
-				})
-				.catch((error: Error) => {
-					// 身份验证失败，处理错误
-					console.error('Authentication Error:', error.message);
-				});
-			res.send({ status: 'Success', message: 'successfully', data: null })
-		}else{
-			res.send({ status: 'Fail', message: 'no params', data: null })
-		}
-	}
-	catch (error) {
-		res.send({ status: 'Fail', message: error.message, data: null })
-	}
-})
 
 
 app.use('', router)
