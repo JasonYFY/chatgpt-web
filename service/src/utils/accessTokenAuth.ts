@@ -28,7 +28,7 @@ export class Auth0 {
 				}
 				: null,
 			verify: true,
-			timeout: 100,
+			timeout: 5000,
 		};
 		this.access_token = null;
 		this.expires = null;
@@ -69,6 +69,33 @@ export class Auth0 {
 			Referer: 'https://ios.chat.openai.com/',
 		};
 
+		try {
+			const resp = this.session.get(url, { headers, ...this.req_kwargs });
+			console.log('resp:',resp);
+			if (resp.status === 200) {
+				const urlParams = querystring.parseUrl(resp.url).query;
+				const state = urlParams.state as string;
+				return '';
+				//return this.partFour(code_verifier, state);
+			} else {
+				throw new Error('Error requesting login URL.');
+			}
+		} catch (error) {
+			if (error instanceof IndexError) {
+				throw new Error('Rate limit hit.');
+			} else {
+				throw new Error('Error requesting login URL.');
+			}
+		}
+	}
+
+
+	/*private partThree(code_verifier: string, url: string): string {
+		const headers = {
+			'User-Agent': this.user_agent,
+			Referer: 'https://ios.chat.openai.com/',
+		};
+
 		return this.session
 			.get(url, { headers, ...this.req_kwargs })
 			.then((resp: any) => {
@@ -85,7 +112,7 @@ export class Auth0 {
 				console.log('error:',e);
 				throw new Error('Error requesting login URL.');
 			});
-	}
+	}*/
 
 	private partFour(code_verifier: string, state: string): string {
 		const url = 'https://auth0.openai.com/u/login/identifier?state=' + state;
