@@ -5,6 +5,7 @@ import { chatConfig, chatReplyProcess, currentModel } from './chatgpt'
 import { auth } from './middleware/auth'
 import { limiter } from './middleware/limiter'
 import { isNotEmptyString } from './utils/is'
+import {apiContextCache, extractLastAssistantContent, extractLastUserContent} from "./chatgpt/apiToToken";
 
 const app = express()
 const router = express.Router()
@@ -88,6 +89,95 @@ router.post('/verify', async (req, res) => {
   catch (error) {
     res.send({ status: 'Fail', message: error.message, data: null })
   }
+})
+
+router.post('/chat/completions', [ auth, limiter], async (req, res) => {
+	const headers: { [key: string]: string } = {
+		'Cache-Control': 'no-cache',
+		'Connection': 'keep-alive',
+		'Content-Type': 'text/event-stream',
+		'Access-Control-Allow-Origin': '*',
+	}
+
+	res.writeHead(200, headers)
+
+	try {
+		//获取请求的用户
+		let user = req.headers['user'] || req.socket.remoteAddress;
+
+		const { model, messages, max_tokens, temperature, stream } = req.body;
+		//获取询问的内容,取最后一个角色为user的用户内容
+		const msg = extractLastUserContent(messages);
+		console.log('询问的内容：',msg)
+
+		//记录上一次输出的内容
+		let previousContent = '';
+		//判断是否第一次返回
+		let firstChunk = true;
+		//记录最后一次输出的信息
+		let preInfo;
+		//需要输出一个换行
+		res.write(`data:\n\n`);
+
+		const lastInfo = apiContextCache.get(user);
+		if(msg.trim()==="继续"){
+			//console.log('body的信息：',messages)
+			let lastAssContext = extractLastAssistantContent(messages);
+			//console.log('上一次响应的内容：',lastAssContext);
+			console.log('上一次回答的信息：',lastInfo);
+			if(lastInfo){
+				lastAssContext = lastAssContext.replace(/\n \(还有剩余结果，请回复【继续】查看！\)/, '');
+				//console.log('上一次响应的内容(替换后)：',lastAssContext);
+				const remainContext = lastInfo.text.replace(lastAssContext,'');
+				const chunkData = `{"choices": [{"delta": {"content": ${JSON.stringify(remainContext)}}}]}`;
+				console.log('响应的剩余的信息：', chunkData);
+				res.write(`data: ${chunkData}\n\n`);
+				return;
+			}
+		}
+
+		let lastContext;
+		if(lastInfo){
+			let lastAssContext = extractLastAssistantContent(messages);
+			if(lastAssContext){
+				//请求的信息有连续提问信息时，才用原来的会话id
+				lastContext = {conversationId:lastInfo.conversationId,parentMessageId:lastInfo.id}
+			}
+		}
+		//console.log('请求的lastContext：', lastContext);
+		await chatReplyProcess({
+			message: msg,
+			clientIP: user,
+			lastContext: lastContext,
+			process: (chat: ChatMessage) => {
+				if(!firstChunk){
+					//console.log('chat响应的信息：',chat)
+					if(chat.text.length>previousContent.length){
+						let currentContent = chat.text.substring(previousContent.length);
+						previousContent = chat.text;
+						const chunkData = `{"choices": [{"delta": {"content": ${JSON.stringify(currentContent)}}}]}`;
+						//console.log('响应的信息：', chunkData);
+						res.write(`data: ${chunkData}\n\n`);
+					}
+				}else{
+					//第一次会输出提问的内容，所以废弃掉
+					firstChunk = false;
+				}
+				preInfo = chat;
+			}
+		})
+		//保存下输出的内容，用于中断后可“继续”回复后续内容
+		apiContextCache.set(user,preInfo);
+		console.log('响应结束,总的输出内容：',preInfo)
+
+	}
+	catch (error) {
+		console.error('chat/completions报错了：',error);
+		const errorData = `{"choices": [{"delta": {"content": ${JSON.stringify(error)}}}]}`;
+		res.write(`data: ${errorData}\n\n`);
+	}finally {
+		res.end()
+	}
 })
 
 
