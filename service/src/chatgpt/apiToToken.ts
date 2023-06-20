@@ -31,4 +31,13 @@ export function extractLastAssistantContent(messages: Message[]): string | undef
 	return undefined;
 }
 
+export function extractSystemContent(messages: Message[]): string | undefined {
+	for (let i = 0 ; i <= messages.length - 1; i++) {
+		if (messages[i].role === 'system') {
+			return messages[i].content;
+		}
+	}
+	return undefined;
+}
+
 

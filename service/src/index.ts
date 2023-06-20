@@ -5,7 +5,12 @@ import { chatConfig, chatReplyProcess, currentModel } from './chatgpt'
 import { auth } from './middleware/auth'
 import { limiter } from './middleware/limiter'
 import { isNotEmptyString } from './utils/is'
-import {apiContextCache, extractLastAssistantContent, extractLastUserContent} from "./chatgpt/apiToToken";
+import {
+	apiContextCache,
+	extractLastAssistantContent,
+	extractLastUserContent,
+	extractSystemContent
+} from "./chatgpt/apiToToken";
 
 const app = express()
 const router = express.Router()
@@ -105,10 +110,12 @@ router.post('/chat/completions', [ auth, limiter], async (req, res) => {
 		//获取请求的用户
 		let user = req.headers['user'] || req.socket.remoteAddress;
 
-		const { model, messages, max_tokens, temperature, stream } = req.body;
+		const {messages} = req.body;
 		//获取询问的内容,取最后一个角色为user的用户内容
 		const msg = extractLastUserContent(messages);
-		console.log('询问的内容：',msg)
+		//console.log('询问的内容：',msg)
+		const sysMsg = extractSystemContent(messages);
+		//console.log('sys的信息：',sysMsg)
 
 		//记录上一次输出的内容
 		let previousContent = '';
@@ -146,7 +153,7 @@ router.post('/chat/completions', [ auth, limiter], async (req, res) => {
 		}
 		//console.log('请求的lastContext：', lastContext);
 		await chatReplyProcess({
-			message: msg,
+			message: sysMsg+msg,
 			clientIP: user,
 			lastContext: lastContext,
 			process: (chat: ChatMessage) => {
@@ -168,7 +175,7 @@ router.post('/chat/completions', [ auth, limiter], async (req, res) => {
 		})
 		//保存下输出的内容，用于中断后可“继续”回复后续内容
 		apiContextCache.set(user,preInfo);
-		console.log('响应结束,总的输出内容：',preInfo)
+		//console.log('响应结束,总的输出内容：',preInfo)
 
 	}
 	catch (error) {
