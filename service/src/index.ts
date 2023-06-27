@@ -37,18 +37,30 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 			clientIP = clientIP+req.headers['user-agent'];
 		}
 		let firstChunk = true
+		//记录上一次输出的内容
+		let previousContent = '';
     await chatReplyProcess({
       message: prompt,
 			clientIP: clientIP,
       lastContext: options,
       process: (chat: ChatMessage) => {
-        res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
-        firstChunk = false
+				console.log('chat响应的信息：',chat)
+				if(!firstChunk){
+					if(chat.text.length>previousContent.length){
+						let currentContent = chat.text.substring(previousContent.length);
+						previousContent = chat.text;
+						chat.text = currentContent;
+						//console.log('chat响应的信息：',chat)
+						res.write(`\n${JSON.stringify(chat)}`)
+					}
+				}else{
+					//第一次会输出提问的内容，所以废弃掉
+					firstChunk = false;
+				}
       },
       systemMessage,
       temperature,
       top_p,
-			usingGpt4,
     })
   }
   catch (error) {
