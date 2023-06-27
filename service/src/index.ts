@@ -28,7 +28,7 @@ app.all('*', (_, res, next) => {
 router.post('/chat-process', [auth, limiter], async (req, res) => {
   res.setHeader('Content-type', 'application/octet-stream')
   try {
-    const { prompt, options = {}, systemMessage, temperature, top_p,usingGpt4 } = req.body as RequestProps
+    const { prompt, options = {}, systemMessage, temperature, top_p } = req.body as RequestProps
 
 		//获取客户端ip
 		let clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress
@@ -44,17 +44,17 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 			clientIP: clientIP,
       lastContext: options,
       process: (chat: ChatMessage) => {
-				console.log('chat响应的信息：',chat)
-				if(!firstChunk){
-					if(chat.text.length>previousContent.length){
-						let currentContent = chat.text.substring(previousContent.length);
-						previousContent = chat.text;
-						chat.text = currentContent;
-						//console.log('chat响应的信息：',chat)
-						res.write(`\n${JSON.stringify(chat)}`)
-					}
-				}else{
-					//第一次会输出提问的内容，所以废弃掉
+				//console.log('chat响应的信息：',chat)
+				if(chat.text===prompt){
+					//console.log('chat响应的信息是提问的问题',prompt)
+					return;
+				}
+				if(chat.text.length>previousContent.length){
+					let currentContent = chat.text.substring(previousContent.length);
+					previousContent = chat.text;
+					chat.text = currentContent;
+					//console.log('chat响应的信息：',chat)
+					res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
 					firstChunk = false;
 				}
       },
@@ -169,17 +169,17 @@ router.post('/chat/completions', [ auth, limiter], async (req, res) => {
 			clientIP: user,
 			lastContext: lastContext,
 			process: (chat: ChatMessage) => {
-				if(!firstChunk){
-					//console.log('chat响应的信息：',chat)
-					if(chat.text.length>previousContent.length){
-						let currentContent = chat.text.substring(previousContent.length);
-						previousContent = chat.text;
-						const chunkData = `{"choices": [{"delta": {"content": ${JSON.stringify(currentContent)}}}]}`;
-						//console.log('响应的信息：', chunkData);
-						res.write(`data: ${chunkData}\n\n`);
-					}
-				}else{
-					//第一次会输出提问的内容，所以废弃掉
+				if(chat.text===sysMsg+msg){
+					//console.log('chat响应的信息是提问的问题',prompt)
+					return;
+				}
+				//console.log('chat响应的信息：',chat)
+				if(chat.text.length>previousContent.length){
+					let currentContent = chat.text.substring(previousContent.length);
+					previousContent = chat.text;
+					const chunkData = `{"choices": [{"delta": {"content": ${JSON.stringify(currentContent)}}}]}`;
+					//console.log('响应的信息：', chunkData);
+					res.write(`data: ${chunkData}\n\n`);
 					firstChunk = false;
 				}
 				preInfo = chat;
