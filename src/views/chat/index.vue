@@ -57,6 +57,26 @@ dataSources.value.forEach((item, index) => {
 function handleSubmit() {
   onConversation()
 }
+function parseResponseText(responseText:any) {
+  // 将字符串按行拆分
+	const lines = responseText.split('\n');
+	// 获取最后一行的文本内容
+	const lastLine = lines[lines.length - 1];
+	const lastLineObject = JSON.parse(lastLine); // 将最后一行解析为对象
+
+	// 将所有行的文本内容合并在一起
+	let combinedText = '';
+	for (let i = 0; i < lines.length; i++) {
+		const line = lines[i];
+		if(line.trim() === '') continue;
+		const obj = JSON.parse(line);
+		combinedText += obj.text;
+	}
+
+	// 更新最后一行对象的 text 属性
+	lastLineObject.text = combinedText;
+	return lastLineObject;
+}
 
 async function onConversation(isGpt4:boolean=usingGpt4.value) {
   let message = prompt.value
@@ -127,13 +147,8 @@ async function onConversation(isGpt4:boolean=usingGpt4.value) {
         onDownloadProgress: ({ event }) => {
           const xhr = event.target
           const { responseText } = xhr
-          // Always process the final line
-          const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
-          let chunk = responseText
-          if (lastIndex !== -1)
-            chunk = responseText.substring(lastIndex)
           try {
-            const data = JSON.parse(chunk)
+            const data = parseResponseText(responseText)
             updateChat(
               +uuid,
               indexTemp,
@@ -266,13 +281,8 @@ async function onRegenerate(index: number,dateTime:string) {
         onDownloadProgress: ({ event }) => {
           const xhr = event.target
           const { responseText } = xhr
-          // Always process the final line
-          const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
-          let chunk = responseText
-          if (lastIndex !== -1)
-            chunk = responseText.substring(lastIndex)
           try {
-            const data = JSON.parse(chunk)
+            const data = parseResponseText(responseText)
             updateChat(
               +uuid,
               index,
