@@ -184,6 +184,7 @@ async function onConversation(isGpt4:boolean=usingGpt4.value) {
     await fetchChatAPIOnce()
   }
   catch (error: any) {
+  	console.log('报错了',error);
     const errorMessage = error?.message ?? t('common.wrong')
 
     if (error.message === 'canceled') {
