@@ -57,7 +57,7 @@ dataSources.value.forEach((item, index) => {
 function handleSubmit() {
   onConversation()
 }
-function parseResponseText(responseText) {
+function parseResponseText(responseText:any) {
   // 将字符串按行拆分
 	const lines = responseText.split('\n');
 	// 获取最后一行的文本内容
