@@ -19,7 +19,7 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
 				{
 					name:"html2canvas",
 					var:"html2canvas",
-					path:"https://unpkg.com/html2canvas@1.4.1",
+					path:"https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.js",
 				},
 			]
 		}),
