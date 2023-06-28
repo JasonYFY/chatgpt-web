@@ -5,7 +5,7 @@ import General from './General.vue'
 import Advanced from './Advanced.vue'
 import About from './About.vue'
 import donate from './donate.vue'
-import { useAuthStore } from '@/store'
+import { useAuthStore,useUserStore } from '@/store'
 import { SvgIcon } from '@/components/common'
 
 interface Props {
@@ -35,6 +35,9 @@ const show = computed({
   },
 })
 
+const userStore = useUserStore()
+const userInfo = computed(() => userStore.userInfo)
+const name = ref(userInfo.value.name ?? '')
 const showBalance = computed(() => {
 		return name.value === 'JasonYuMaster'
 })

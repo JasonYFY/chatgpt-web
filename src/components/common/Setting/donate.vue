@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { computed, onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { NSpin } from 'naive-ui'
 const loading = ref(false)
 </script>
