@@ -25,6 +25,9 @@ function http<T = any>(
   const successHandler = (res: AxiosResponse<Response<T>>) => {
     const authStore = useAuthStore()
 
+		if(res.data.status==='Fail'){
+			return Promise.reject(res.data)
+		}
     if (res.data.status === 'Success' || res.status===200 || typeof res.data === 'string')
       return res.data
 

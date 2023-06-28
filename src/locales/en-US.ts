@@ -56,6 +56,7 @@ export default {
     general: 'General',
     advanced: 'Advanced',
     config: 'Config',
+		donate: 'Donate',
     avatarLink: 'Avatar Link',
     name: 'Name',
     description: 'Description',

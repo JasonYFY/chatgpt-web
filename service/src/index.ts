@@ -45,7 +45,7 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
       lastContext: options,
       process: (chat: ChatMessage) => {
 				//console.log('chat响应的信息：',chat)
-				if(chat.text===prompt){
+				if(firstChunk && chat.text===prompt){
 					//console.log('chat响应的信息是提问的问题',prompt)
 					return;
 				}
@@ -169,7 +169,7 @@ router.post('/chat/completions', [ auth, limiter], async (req, res) => {
 			clientIP: user,
 			lastContext: lastContext,
 			process: (chat: ChatMessage) => {
-				if(chat.text===sysMsg+msg){
+				if(firstChunk && chat.text===sysMsg+msg){
 					//console.log('chat响应的信息是提问的问题',prompt)
 					return;
 				}

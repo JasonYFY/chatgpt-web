@@ -29,8 +29,8 @@ const userStore = useUserStore()
 const userInfo = computed(() => userStore.userInfo)
 const name = ref(userInfo.value.name ?? '')
 const showBalance = computed(() => {
-      return name.value === 'JasonYuMaster'
-    })
+		return name.value === 'JasonYuMaster'
+})
 
 async function fetchConfig() {
   try {
