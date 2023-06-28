@@ -4,6 +4,7 @@ import { NModal, NTabPane, NTabs } from 'naive-ui'
 import General from './General.vue'
 import Advanced from './Advanced.vue'
 import About from './About.vue'
+import donate from './donate.vue'
 import { useAuthStore } from '@/store'
 import { SvgIcon } from '@/components/common'
 
@@ -33,6 +34,10 @@ const show = computed({
     emit('update:visible', visible)
   },
 })
+
+const showBalance = computed(() => {
+		return name.value === 'JasonYuMaster'
+})
 </script>
 
 <template>
@@ -57,13 +62,20 @@ const show = computed({
             <Advanced />
           </div>
         </NTabPane>
-        <NTabPane name="Config" tab="Config">
+        <NTabPane v-if="showBalance" name="Config" tab="Config">
           <template #tab>
             <SvgIcon class="text-lg" icon="ri:list-settings-line" />
             <span class="ml-2">{{ $t('setting.config') }}</span>
           </template>
           <About />
         </NTabPane>
+        <NTabPane name="donate" tab="donate">
+					<template #tab>
+						<SvgIcon class="text-lg" icon="ri:hand-heart-line" />
+						<span class="ml-2">{{ $t('setting.donate') }}</span>
+					</template>
+					<donate />
+				</NTabPane>
       </NTabs>
     </div>
   </NModal>
