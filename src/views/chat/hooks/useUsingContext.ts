@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import { useMessage } from 'naive-ui'
 import { t } from '@/locales'
-import { useChatStore,useSettingStore } from '@/store'
+import { useChatStore } from '@/store'
 
 
 
@@ -24,21 +24,3 @@ export function useUsingContext() {
   }
 }
 
-export function useUsingGpt4() {
-	const ms = useMessage();
-	const settingStore = useSettingStore();
-	const usingGpt4 = computed<boolean>(() => settingStore.usingGpt4);
-
-	function toggleUsingGpt4() {
-		settingStore.usingGpt4 = !usingGpt4.value;
-		if (usingGpt4.value)
-			ms.success(t('chat.turnOnGPT4'));
-		else
-			ms.warning(t('chat.turnOffGPT4'));
-	}
-
-	return {
-		usingGpt4,
-		toggleUsingGpt4,
-	}
-}
