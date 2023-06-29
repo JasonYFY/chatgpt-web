@@ -29,7 +29,7 @@ console.log = (...args: any[]) => {
 const { HttpsProxyAgent } = httpsProxyAgent
 
 // 创建一个LRUMap实例，设置最大容量为1000，过期时间为6小时
-const ipCache = new LRUMap<string, string>({ max: 1000, maxAge: 60 * 60 * 6000  });
+const ipCache = new LRUMap<string, string>({ max: 1000, ttl: 1000 * 60 * 60 * 6});
 
 
 dotenv.config()
@@ -63,7 +63,7 @@ export function setAccessTokens(newTokens) {
 
 
 const maxRetry: number = !isNaN(+process.env.MAX_RETRY) ? +process.env.MAX_RETRY : accessTokens.length+1;
-const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RETRY_INTERVAL_MS : 1000;
+const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RETRY_INTERVAL_MS : 500;
 
 (async () => {
   // More Info: https://github.com/transitive-bullshit/chatgpt-api

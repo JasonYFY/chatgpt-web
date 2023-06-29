@@ -6,7 +6,7 @@ import {ChatMessage} from "chatgpt";
 
 
 // 创建一个LRUMap实例，设置最大容量为1000，过期时间为1小时 用于保存上一次输出的内容
-export const apiContextCache = new LRUMap<string, ChatMessage>({ max: 1000, maxAge: 10 * 60 * 6000  });
+export const apiContextCache = new LRUMap<string, ChatMessage>({ max: 1000, ttl: 1000 * 60 * 60  });
 
 export interface Message {
 	role: string;
