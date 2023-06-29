@@ -8,7 +8,7 @@ import html2canvas from 'html2canvas'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
 import { useChat } from './hooks/useChat'
-import { useUsingContext,useUsingGpt4 } from './hooks/useUsingContext'
+import { useUsingContext } from './hooks/useUsingContext'
 import HeaderComponent from './components/Header/index.vue'
 import { HoverButton, SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
@@ -30,7 +30,6 @@ const { isMobile } = useBasicLayout()
 const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex } = useChat()
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 const { usingContext, toggleUsingContext } = useUsingContext()
-const { usingGpt4, toggleUsingGpt4 } = useUsingGpt4()
 
 const { uuid } = route.params as { uuid: string }
 
@@ -84,40 +83,33 @@ function parseResponseText(responseText:any) {
 	return lastLineObject;
 }
 
-async function onConversation(isGpt4:boolean=usingGpt4.value) {
+async function onConversation() {
   let message = prompt.value
 
   if (loading.value){
     return
   }
-	if(isGpt4){
-		onConversation(false);
-	}
 
   if (!message || message.trim() === '')
     return
 
   controller = new AbortController()
 
-	if(!isGpt4){
-		addChat(
-			+uuid,
-			{
-				dateTime: new Date().toLocaleString(),
-				text: message,
-				inversion: true,
-				error: false,
-				conversationOptions: null,
-				requestOptions: { prompt: message, options: null },
-			},
-		)
-		scrollToBottom()
-  }
+	addChat(
+		+uuid,
+		{
+			dateTime: new Date().toLocaleString(),
+			text: message,
+			inversion: true,
+			error: false,
+			conversationOptions: null,
+			requestOptions: { prompt: message, options: null },
+		},
+	)
+	scrollToBottom()
 
 
-  if (!isGpt4){
-  	loading.value = true
-  }
+  loading.value = true
   prompt.value = ''
 
   let options: Chat.ConversationRequest = {}
@@ -129,7 +121,7 @@ async function onConversation(isGpt4:boolean=usingGpt4.value) {
   addChat(
     +uuid,
     {
-      dateTime: isGpt4?'等待GPT4回答...':new Date().toLocaleString(),
+      dateTime: new Date().toLocaleString(),
       text: '',
       loading: true,
       inversion: false,
@@ -147,7 +139,6 @@ async function onConversation(isGpt4:boolean=usingGpt4.value) {
     	indexTemp = dataSources.value.length - 1;
       await fetchChatAPIProcess<Chat.ConversationResponse>({
         prompt: message,
-        usingGpt4:isGpt4,
         options,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
@@ -224,7 +215,7 @@ async function onConversation(isGpt4:boolean=usingGpt4.value) {
       +uuid,
       indexTemp,
       {
-        dateTime: (isGpt4?'GPT4：':'')+new Date().toLocaleString(),
+        dateTime: new Date().toLocaleString(),
         text: errorMessage,
         inversion: false,
         error: true,
@@ -236,16 +227,12 @@ async function onConversation(isGpt4:boolean=usingGpt4.value) {
     scrollToBottomIfAtBottom()
   }
   finally {
-  	if(!isGpt4){
-    	loading.value = false
-    }
+    loading.value = false
   }
 }
 
 async function onRegenerate(index: number,dateTime:string) {
-	const regExp = /^GPT4/
-  const isGpt4 = regExp.test(dateTime)
-  if (loading.value && !isGpt4)
+  if (loading.value)
     return
 
   controller = new AbortController()
@@ -259,15 +246,12 @@ async function onRegenerate(index: number,dateTime:string) {
   if (requestOptions.options)
     options = { ...requestOptions.options }
 
-  if (!isGpt4){
-    	loading.value = true
-  }
 
   updateChat(
     +uuid,
     index,
     {
-      dateTime: isGpt4?'等待GPT4回答...': new Date().toLocaleString(),
+      dateTime: new Date().toLocaleString(),
       text: '',
       inversion: false,
       error: false,
@@ -282,7 +266,6 @@ async function onRegenerate(index: number,dateTime:string) {
     const fetchChatAPIOnce = async () => {
       await fetchChatAPIProcess<Chat.ConversationResponse>({
         prompt: message,
-        usingGpt4:isGpt4,
         options,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
@@ -339,7 +322,7 @@ async function onRegenerate(index: number,dateTime:string) {
       +uuid,
       index,
       {
-        dateTime: (isGpt4?'GPT4：':'')+new Date().toLocaleString(),
+        dateTime: new Date().toLocaleString(),
         text: errorMessage,
         inversion: false,
         error: true,
@@ -350,9 +333,7 @@ async function onRegenerate(index: number,dateTime:string) {
     )
   }
   finally {
-  	if (!isGpt4){
-    	loading.value = false
-    }
+    loading.value = false
   }
 }
 
@@ -514,10 +495,8 @@ onUnmounted(() => {
     <HeaderComponent
       v-if="isMobile"
       :using-context="usingContext"
-      :using-gpt4="usingGpt4"
       @export="handleExport"
       @toggle-using-context="toggleUsingContext"
-      @toggle-using-gpt4="toggleUsingGpt4"
     />
     <main class="flex-1 overflow-hidden">
       <div id="scrollRef" ref="scrollRef" class="h-full overflow-hidden overflow-y-auto">
@@ -580,11 +559,6 @@ onUnmounted(() => {
               <SvgIcon icon="ri:chat-history-line" />
             </span>
           </HoverButton>
-          <!-- <HoverButton v-if="!isMobile"  @click="toggleUsingGpt4">
-						<span class="text-xl" :class="{ 'text-[#4b9e5f]': usingGpt4, 'text-[#444951]': !usingGpt4 }">
-							<SvgIcon icon="ri:chat-follow-up-line" />
-						</span>
-					</HoverButton> -->
           <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
             <template #default="{ handleInput, handleBlur, handleFocus }">
               <NInput
