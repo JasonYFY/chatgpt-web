@@ -497,7 +497,6 @@ onUnmounted(() => {
       :using-context="usingContext"
       @export="handleExport"
       @toggle-using-context="toggleUsingContext"
-      @toggle-using-gpt4="toggleUsingGpt4"
     />
     <main class="flex-1 overflow-hidden">
       <div id="scrollRef" ref="scrollRef" class="h-full overflow-hidden overflow-y-auto">
