@@ -181,7 +181,7 @@ async function onConversation() {
     await fetchChatAPIOnce()
   }
   catch (error: any) {
-  	console.log('报错了',error);
+
     const errorMessage = error?.message ?? t('common.wrong')
 
     if (error.message === 'canceled') {
@@ -195,7 +195,7 @@ async function onConversation() {
       scrollToBottomIfAtBottom()
       return
     }
-
+		console.log('报错了',error);
     const currentChat = getChatByUuidAndIndex(+uuid, indexTemp)
 
     if (currentChat?.text && currentChat.text !== '') {
