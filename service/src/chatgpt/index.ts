@@ -1,7 +1,10 @@
 import * as dotenv from 'dotenv'
 import 'isomorphic-fetch'
-import type { ChatGPTAPIOptions, ChatMessage, SendMessageOptions } from 'chatgpt'
-import { ChatGPTAPI, ChatGPTUnofficialProxyAPI } from 'chatgpt'
+// import type { ChatGPTAPIOptions, ChatMessage, SendMessageOptions } from 'chatgpt'
+// import { ChatGPTAPI, ChatGPTUnofficialProxyAPI } from 'chatgpt'
+import type { ChatGPTAPIOptions, ChatMessage, SendMessageOptions } from '../chatgptProxy'
+import { ChatGPTAPI,ChatGPTUnofficialProxyAPI } from '../chatgptProxy'
+
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import httpsProxyAgent from 'https-proxy-agent'
 import fetch from 'node-fetch'
@@ -117,18 +120,15 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
 })()
 
 async function chatReplyProcess(options: RequestOptions) {
-  const { message, lastContext, process, systemMessage,clientIP, temperature, top_p,usingGpt4 } = options
+  const { message, lastContext, process, systemMessage,clientIP, temperature, top_p } = options
   try {
-
-		if(usingGpt4 !== undefined && !usingGpt4){
-			throw new Error('为确保正常使用，请清除浏览器缓存并刷新页面（Ctrl+F5）。我们进行了更新优化，未执行此操作可能导致无法正常使用。感谢您的配合！');
-		}
 
     let options: SendMessageOptions = { timeoutMs }
 
+		if (isNotEmptyString(systemMessage))
+			options.systemMessage = systemMessage
+
     if (apiModel === 'ChatGPTAPI') {
-      if (isNotEmptyString(systemMessage))
-        options.systemMessage = systemMessage
       options.completionParams = { model, temperature, top_p }
     }
 

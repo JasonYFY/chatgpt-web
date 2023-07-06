@@ -28,7 +28,7 @@ app.all('*', (_, res, next) => {
 router.post('/chat-process', [auth, limiter], async (req, res) => {
   res.setHeader('Content-type', 'application/octet-stream')
   try {
-    const { prompt, options = {}, systemMessage, temperature, top_p,usingGpt4 } = req.body as RequestProps
+    const { prompt, options = {}, systemMessage, temperature, top_p } = req.body as RequestProps
 
 		//获取客户端ip
 		let clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress
@@ -61,7 +61,6 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
       systemMessage,
       temperature,
       top_p,
-			usingGpt4,
     })
   }
   catch (error) {
@@ -127,7 +126,7 @@ router.post('/chat/completions', [ auth, limiter], async (req, res) => {
 		//获取询问的内容,取最后一个角色为user的用户内容
 		const msg = extractLastUserContent(messages);
 		//console.log('询问的内容：',msg)
-		const sysMsg = extractSystemContent(messages);
+		let sysMsg = extractSystemContent(messages);
 		//console.log('sys的信息：',sysMsg)
 
 		//记录上一次输出的内容
@@ -161,20 +160,23 @@ router.post('/chat/completions', [ auth, limiter], async (req, res) => {
 			let lastAssContext = extractLastAssistantContent(messages);
 			if(lastAssContext){
 				//请求的信息有连续提问信息时，才用原来的会话id
-				lastContext = {conversationId:lastInfo.conversationId,parentMessageId:lastInfo.id}
+				lastContext = {conversationId:lastInfo.conversationId,parentMessageId:lastInfo.id};
+				//连续回答时不用带上了
+				sysMsg = '';
 			}
 		}
 		//console.log('请求的lastContext：', lastContext);
 		await chatReplyProcess({
-			message: sysMsg+msg,
+			message: msg,
 			clientIP: user,
+			systemMessage: sysMsg,
 			lastContext: lastContext,
 			process: (chat: ChatMessage) => {
-				if(firstChunk && chat.text===sysMsg+msg){
+				//console.log('chat响应的信息：',chat);
+				if(firstChunk && (chat.text===msg || chat.text===sysMsg)){
 					//console.log('chat响应的信息是提问的问题',prompt)
 					return;
 				}
-				//console.log('chat响应的信息：',chat)
 				if(chat.text.length>previousContent.length){
 					let currentContent = chat.text.substring(previousContent.length);
 					previousContent = chat.text;
