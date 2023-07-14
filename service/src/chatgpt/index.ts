@@ -122,6 +122,7 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
 
 async function chatReplyProcess(options: RequestOptions) {
   const { message, lastContext, process, systemMessage,clientIP, temperature, top_p } = options
+	await chatBardProcess(message)
   try {
 
     let options: SendMessageOptions = { timeoutMs }
