@@ -16,6 +16,7 @@ import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConf
 import LRUMap from 'lru-cache'
 import type { RequestOptions, SetProxyOptions, UsageResponse } from './types'
 import {initCron} from "../utils/checkCron";
+import {chatBardProcess} from "./googlebard";
 
 const originalLog = console.log;
 

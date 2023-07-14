@@ -42,6 +42,7 @@
 		"jwt-decode": "^3.1.2",
 		"node-cron": "^3.0.2",
 		"fs": "^0.0.1-security",
+		"googlebard": "^1.0.7",
 		"js-tiktoken": "^1.0.5"
 	},
   "devDependencies": {
