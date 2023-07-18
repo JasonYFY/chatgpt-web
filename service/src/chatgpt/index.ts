@@ -55,10 +55,11 @@ if (!isNotEmptyString(process.env.OPENAI_API_KEY) && !isNotEmptyString(process.e
 let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 
 let accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
-const nextBalancer =  loadBalancer(accessTokens)
+let nextBalancer =  loadBalancer(accessTokens)
 export { ipCache,accessTokens };
 export function setAccessTokens(newTokens) {
 	accessTokens = newTokens;
+	nextBalancer =  loadBalancer(accessTokens);
 }
 
 
