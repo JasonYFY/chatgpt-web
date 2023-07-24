@@ -510,7 +510,7 @@ onUnmounted(() => {
               <SvgIcon icon="ri:bubble-chart-fill" class="mr-2 text-3xl" />
               <span style="text-align: left;">
 								<p>1.此网站对接ChatGPT,知识截止于2021年9月</p>
-								<p>2.想体验实时知识和画图，可以访问<a href="https://newbing.jasonyu.v6.navy" target="_blank">https://newbing.jasonyu.v6.navy</a></p>
+								<p>2.想体验实时知识和画图，可以访问<a href="https://newbing.jasonyu.eu.org" target="_blank">https://newbing.jasonyu.eu.org</a></p>
 							</span>
             </div>
           </template>
