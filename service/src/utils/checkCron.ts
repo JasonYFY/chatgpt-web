@@ -13,6 +13,7 @@ dotenv.config();
 // 设定定时任务的执行规律
 const schedule = isNotEmptyString(process.env.TOKEN_CHECK) ? process.env.TOKEN_CHECK : '0 0 * * *';
 const loginUrl = isNotEmptyString(process.env.TOKEN_LOGIN_URL) ? process.env.TOKEN_LOGIN_URL : 'http://127.0.0.1:8080/chatgpt/login';
+const loginUrlOfMicros = isNotEmptyString(process.env.TOKEN_LOGIN_MICROS_URL) ? process.env.TOKEN_LOGIN_MICROS_URL : 'http://127.0.0.1:8082/getTokenOfOpenAi';
 //定义用户登录信息的map
 const userInfoMap = new Map<string, object>();
 
@@ -51,13 +52,25 @@ async function checkTokenExpires() {
 				//取出参数
 				const userInfo = userInfoMap.get(email);
 				if(userInfo){
-					//console.log('准备登录获取token,userInfo:',userInfo);
-					const resp = await postData(loginUrl, userInfo);
-					console.log('响应参数：',resp);
-					if(resp.accessToken){
+					var accessToken;
+					if(userInfo.type){
+						console.log('[微软方式]准备登录获取token,username:',email);
+						const resp = await postData(loginUrlOfMicros, userInfo);
+						console.log('响应参数：',resp);
+						if(!resp || resp.status!=='success'){
+							console.error('[微软方式] 报错：',resp.message)
+						}
+						accessToken = resp.data;
+					}else{
+						//console.log('准备登录获取token,userInfo:',userInfo);
+						const resp = await postData(loginUrl, userInfo);
+						console.log('响应参数：',resp);
+						accessToken = resp.accessToken;
+					}
+					if(accessToken){
 						//替换配置文件的内容
 						let openaiaccesstoken = process.env.OPENAI_ACCESS_TOKEN;
-						process.env.OPENAI_ACCESS_TOKEN = openaiaccesstoken.replace(accessTokens[i],resp.accessToken);
+						process.env.OPENAI_ACCESS_TOKEN = openaiaccesstoken.replace(accessTokens[i],accessToken);
 						console.log('更改后的OPENAI_ACCESS_TOKEN：',process.env.OPENAI_ACCESS_TOKEN);
 						updateEnvFile('OPENAI_ACCESS_TOKEN',process.env.OPENAI_ACCESS_TOKEN);
 						//清空ipCache

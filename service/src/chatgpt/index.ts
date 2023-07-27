@@ -121,10 +121,6 @@ async function chatReplyProcess(options: RequestOptions) {
   const { message, lastContext, process, systemMessage,clientIP, temperature, top_p,usingGpt4 } = options
   try {
 
-		if(usingGpt4 !== undefined && !usingGpt4){
-			throw new Error('为确保正常使用，请清除浏览器缓存并刷新页面（Ctrl+F5）。我们进行了更新优化，未执行此操作可能导致无法正常使用。感谢您的配合！');
-		}
-
     let options: SendMessageOptions = { timeoutMs }
 
     if (apiModel === 'ChatGPTAPI') {

@@ -198,7 +198,7 @@ async function onConversation() {
 		console.log('报错了',error);
     const currentChat = getChatByUuidAndIndex(+uuid, indexTemp)
 
-    if (currentChat?.text && currentChat.text !== '') {
+    if (currentChat?.text && currentChat.text !== '' && currentChat.text !== 'undefined') {
       updateChatSome(
         +uuid,
         indexTemp,
