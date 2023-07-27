@@ -40,13 +40,13 @@ export async function initCron(){
 
 async function checkTokenExpires() {
 	console.log('定时任务开始--检查token是否快过期');
-	//提前一天去检查更新
-	const currentDatePlusOneDay = getCurrentDatePlusOneDay();
+	//提前两天去检查更新
+	const currentDatePlusTwoDay = getCurrentDatePlusTwoDay();
 	for (let i = 0; i < accessTokens.length; i++) {
 		const jwt = jwt_decode(accessTokens[i]) as JWT;
 		if (jwt.exp) {
 			const expirationTime = dayjs.unix(jwt.exp).format('YYYY-MM-DD');
-			if (currentDatePlusOneDay >= expirationTime) {
+			if (currentDatePlusTwoDay >= expirationTime) {
 				const email = jwt["https://api.openai.com/profile"].email;
 				console.log('准备过期了，email:',email,',过期时间:',dayjs.unix(jwt.exp).format('YYYY-MM-DD HH:mm:ss'));
 				//console.log('userInfoMap:',...userInfoMap);
@@ -91,8 +91,8 @@ function getCurrentDate(): string {
 	return dayjs().format('YYYY-MM-DD');
 }
 
-function getCurrentDatePlusOneDay(): string {
-	const nextDay = dayjs().add(1, 'day');
+function getCurrentDatePlusTwoDay(): string {
+	const nextDay = dayjs().add(2, 'day');
 	return nextDay.format('YYYY-MM-DD');
 }
 
