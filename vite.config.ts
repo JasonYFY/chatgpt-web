@@ -13,13 +13,13 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
 				{
 					name:"katex",
 					var:"katex",
-					path:"https://unpkg.com/katex@0.16.4",
-					css:"https://unpkg.com/katex/dist/katex.css"
+					path:"https://lib.baomitu.com/KaTeX/0.16.4/katex.js",
+					css:"https://lib.baomitu.com/KaTeX/0.16.4/katex.css"
 				},
 				{
 					name:"html2canvas",
 					var:"html2canvas",
-					path:"https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.js",
+					path:"https://github.elemecdn.com/html2canvas@1.4.1/dist/html2canvas.js",
 				},
 			]
 		}),
