@@ -19,7 +19,7 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
 				{
 					name:"html2canvas",
 					var:"html2canvas",
-					path:"https://github.elemecdn.com/html2canvas@1.4.1/dist/html2canvas.js",
+					path:"https://lib.baomitu.com/html2canvas/1.4.1/html2canvas.js",
 				},
 			]
 		}),
