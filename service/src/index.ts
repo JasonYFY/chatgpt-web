@@ -205,6 +205,7 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 		//获取请求的用户
 		let userip = req.socket.remoteAddress;
 		console.log('请求的用户ip：',userip);
+		console.log('请求的内容：',req.body);
 		const {messages} = req.body;
 		//获取询问的内容,取最后一个角色为user的用户内容
 		const msg = extractLastUserContent(messages);
@@ -212,10 +213,6 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 		const sysMsg = extractSystemContent(messages);
 		//console.log('sys的信息：',sysMsg)
 
-		//记录上一次输出的内容
-		let previousContent = '';
-		//判断是否第一次返回
-		let firstChunk = true;
 		//记录最后一次输出的信息
 		let preInfo;
 
@@ -231,7 +228,7 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 		}
 		//console.log('请求的lastContext：', lastContext);
 		await chatReplyProcess({
-			message: sysMsg+':'+msg,
+			message: sysMsg + ':' + msg,
 			clientIP: userip,
 			lastContext: lastContext,
 			process: (chat: ChatMessage) => {
@@ -240,9 +237,9 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 		})
 		//保存下输出的内容，用于中断后可“继续”回复后续内容
 		apiContextCache.set(userip,preInfo);
-		const errorData = `{"choices": [{"message": {"content": ${JSON.stringify(preInfo.text)}}}]}`;
-		console.log('响应结束,总的输出内容：',preInfo)
-		res.send(errorData)
+		const data = `{"choices": [{"message": {"content": ${JSON.stringify(preInfo.text)}}}]}`;
+		console.log('响应结束,总的输出内容：',data)
+		res.send(data)
 
 	}
 	catch (error) {
