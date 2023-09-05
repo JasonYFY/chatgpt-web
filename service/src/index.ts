@@ -201,7 +201,14 @@ router.post('/chat/completions', [ auth, limiter], async (req, res) => {
 })
 
 router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
+	const headers: { [key: string]: string } = {
+		'Cache-Control': 'no-cache',
+		'Connection': 'keep-alive',
+		'Content-Type': 'application/json',
+		'Access-Control-Allow-Origin': '*',
+	}
 
+	res.writeHead(200, headers)
 	try {
 		//获取请求的用户
 		let userip = req.socket.remoteAddress;
