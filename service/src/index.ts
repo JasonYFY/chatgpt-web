@@ -11,6 +11,7 @@ import {
 	extractLastUserContent,
 	extractSystemContent
 } from "./chatgpt/apiToToken";
+import {sleep} from "./utils";
 
 const app = express()
 const router = express.Router()
@@ -227,7 +228,7 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 			}
 		}
 		console.log('请求的lastContext：', lastContext);
-		const chatResponse = await chatReplyProcess({
+		await chatReplyProcess({
 			message: sysMsg + ':' + msg,
 			clientIP: userip,
 			lastContext: lastContext,
@@ -237,15 +238,20 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 			}
 		})
 		console.log('响应结束的preInfo：',preInfo)
-		console.log('响应结束的chatResponse：',chatResponse)
+		for (let i = 0; i < 60; i++) {
+			if (preInfo) break;
+			await sleep(1000);
+		}
+		if (!preInfo){
+			throw new Error("服务器未响应，请稍后再试！");
+		}
 		//保存下输出的内容，用于中断后可“继续”回复后续内容
 		apiContextCache.set(userip,preInfo);
 		const data = `{"choices": [{"message": {"content": ${JSON.stringify(preInfo.text)}}}]}`;
 		console.log('响应结束,总的输出内容：',data)
 		res.send(data)
 
-	}
-	catch (error) {
+	} catch (error) {
 		console.error('v1/chat/completions报错了：',error);
 		const errorData = `{"choices": [{"message": {"content": ${JSON.stringify(error)}}}]}`;
 		res.send(errorData)
