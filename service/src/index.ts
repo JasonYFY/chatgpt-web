@@ -231,19 +231,12 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 			message: sysMsg + ':' + msg,
 			clientIP: userip,
 			lastContext: lastContext,
-			process: (chat: ChatMessage) => {
+			process: async (chat: ChatMessage) => {
 				console.log('chat响应的信息：',chat)
 				preInfo = chat;
 			}
 		})
 		console.log('响应结束的preInfo：',preInfo)
-		for (let i = 0; i < 60; i++) {
-			if (preInfo) break;
-			await sleep(1000);
-		}
-		if (!preInfo){
-			throw new Error("服务器未响应，请稍后再试！");
-		}
 		//保存下输出的内容，用于中断后可“继续”回复后续内容
 		apiContextCache.set(userip,preInfo);
 		const data = `{"choices": [{"message": {"content": ${JSON.stringify(preInfo.text)}}}]}`;
