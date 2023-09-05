@@ -201,14 +201,6 @@ router.post('/chat/completions', [ auth, limiter], async (req, res) => {
 })
 
 router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
-	const headers: { [key: string]: string } = {
-		'Cache-Control': 'no-cache',
-		'Connection': 'keep-alive',
-		'Content-Type': 'application/json',
-		'Access-Control-Allow-Origin': '*',
-	}
-
-	res.writeHead(200, headers)
 	try {
 		//获取请求的用户
 		let userip = req.socket.remoteAddress;
@@ -217,9 +209,9 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 		const {messages} = req.body;
 		//获取询问的内容,取最后一个角色为user的用户内容
 		const msg = extractLastUserContent(messages);
-		//console.log('询问的内容：',msg)
+		console.log('询问的内容：',msg)
 		const sysMsg = extractSystemContent(messages);
-		//console.log('sys的信息：',sysMsg)
+		console.log('sys的信息：',sysMsg)
 
 		//记录最后一次输出的信息
 		let preInfo;
