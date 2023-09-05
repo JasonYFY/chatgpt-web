@@ -209,9 +209,9 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 		const {messages} = req.body;
 		//获取询问的内容,取最后一个角色为user的用户内容
 		const msg = extractLastUserContent(messages);
-		console.log('询问的内容：',msg)
+		//console.log('询问的内容：',msg)
 		const sysMsg = extractSystemContent(messages);
-		console.log('sys的信息：',sysMsg)
+		//console.log('sys的信息：',sysMsg)
 
 		//记录最后一次输出的信息
 		let preInfo;
@@ -220,11 +220,8 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 
 		let lastContext;
 		if(lastInfo){
-			let lastAssContext = extractLastAssistantContent(messages);
-			if(lastAssContext){
-				//请求的信息有连续提问信息时，才用原来的会话id
-				lastContext = {conversationId:lastInfo.conversationId,parentMessageId:lastInfo.id}
-			}
+			//请求的信息有连续提问信息时，才用原来的会话id
+			lastContext = {conversationId:lastInfo.conversationId,parentMessageId:lastInfo.id}
 		}
 		console.log('请求的lastContext：', lastContext);
 		await chatReplyProcess({
@@ -232,11 +229,11 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 			clientIP: userip,
 			lastContext: lastContext,
 			process: async (chat: ChatMessage) => {
-				console.log('chat响应的信息：',chat)
+				//console.log('chat响应的信息：',chat)
 				preInfo = chat;
 			}
 		})
-		console.log('响应结束的preInfo：',preInfo)
+		//console.log('响应结束的preInfo：',preInfo)
 		//保存下输出的内容，用于中断后可“继续”回复后续内容
 		apiContextCache.set(userip,preInfo);
 		const data = `{"choices": [{"message": {"content": ${JSON.stringify(preInfo.text)}}}]}`;
