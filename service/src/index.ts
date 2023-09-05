@@ -227,7 +227,7 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 			}
 		}
 		console.log('请求的lastContext：', lastContext);
-		await chatReplyProcess({
+		const chatResponse = await chatReplyProcess({
 			message: sysMsg + ':' + msg,
 			clientIP: userip,
 			lastContext: lastContext,
@@ -237,6 +237,7 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 			}
 		})
 		console.log('响应结束的preInfo：',preInfo)
+		console.log('响应结束的chatResponse：',chatResponse)
 		//保存下输出的内容，用于中断后可“继续”回复后续内容
 		apiContextCache.set(userip,preInfo);
 		const data = `{"choices": [{"message": {"content": ${JSON.stringify(preInfo.text)}}}]}`;
