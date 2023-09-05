@@ -235,6 +235,7 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 				preInfo = chat;
 			}
 		})
+		console.log('响应结束的preInfo：',preInfo)
 		//保存下输出的内容，用于中断后可“继续”回复后续内容
 		apiContextCache.set(userip,preInfo);
 		const data = `{"choices": [{"message": {"content": ${JSON.stringify(preInfo.text)}}}]}`;
