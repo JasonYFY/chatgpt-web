@@ -232,6 +232,7 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 			clientIP: userip,
 			lastContext: lastContext,
 			process: (chat: ChatMessage) => {
+				console.log('chat响应的信息：',chat)
 				preInfo = chat;
 			}
 		})
