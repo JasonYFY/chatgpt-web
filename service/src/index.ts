@@ -226,7 +226,7 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 				lastContext = {conversationId:lastInfo.conversationId,parentMessageId:lastInfo.id}
 			}
 		}
-		//console.log('请求的lastContext：', lastContext);
+		console.log('请求的lastContext：', lastContext);
 		await chatReplyProcess({
 			message: sysMsg + ':' + msg,
 			clientIP: userip,
