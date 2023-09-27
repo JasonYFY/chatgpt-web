@@ -122,7 +122,7 @@ async function onConversation() {
     +uuid,
     {
       dateTime: new Date().toLocaleString(),
-      text: '',
+      text: '思考中',
       loading: true,
       inversion: false,
       error: false,
@@ -246,6 +246,7 @@ async function onRegenerate(index: number,dateTime:string) {
   if (requestOptions.options)
     options = { ...requestOptions.options }
 
+	loading.value = true
 
   updateChat(
     +uuid,
@@ -497,6 +498,7 @@ onUnmounted(() => {
       :using-context="usingContext"
       @export="handleExport"
       @toggle-using-context="toggleUsingContext"
+      @handle-clear="handleClear"
     />
     <main class="flex-1 overflow-hidden">
       <div id="scrollRef" ref="scrollRef" class="h-full overflow-hidden overflow-y-auto">
@@ -533,7 +535,7 @@ onUnmounted(() => {
                   <template #icon>
                     <SvgIcon icon="ri:stop-circle-line" />
                   </template>
-                  停止响应
+                  {{ t('common.stopResponding') }}
                 </NButton>
               </div>
             </div>
