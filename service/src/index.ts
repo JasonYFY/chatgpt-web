@@ -48,15 +48,15 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 				//console.log('chat响应的信息：',chat)
 				if(firstChunk && chat.text===prompt){
 					//console.log('chat响应的信息是提问的问题',prompt)
-					return;
-				}
-				if(chat.text.length>previousContent.length){
-					let currentContent = chat.text.substring(previousContent.length);
-					previousContent = chat.text;
-					chat.text = currentContent;
-					//console.log('chat响应的信息：',chat)
-					res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
-					firstChunk = false;
+				}else{
+					if(chat.text.length>previousContent.length){
+						let currentContent = chat.text.substring(previousContent.length);
+						previousContent = chat.text;
+						chat.text = currentContent;
+						//console.log('chat响应的信息：',chat)
+						res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
+						firstChunk = false;
+					}
 				}
       },
       systemMessage,
