@@ -208,7 +208,7 @@ async function chatReplyProcess(options: RequestOptions) {
 					response = undefined
 				}
 			}
-			console.log('响应的消息：',response);
+			//console.log('响应的消息：',response);
 			return sendResponse({ type: 'Success', data: response })
 		}
 
