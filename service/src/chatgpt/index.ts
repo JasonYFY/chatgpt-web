@@ -56,7 +56,7 @@ let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 
 let accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
 let nextBalancer =  loadBalancer(accessTokens)
-export { ipCache,accessTokens };
+export { ipCache,accessTokens,apiModel };
 export function setAccessTokens(newTokens) {
 	accessTokens = newTokens;
 	nextBalancer =  loadBalancer(accessTokens);
@@ -202,6 +202,10 @@ async function chatReplyProcess(options: RequestOptions) {
 				if(!response){
 					console.log('等待：',retryIntervalMs);
 					await sleep(retryIntervalMs);
+				}
+				if (!response.text.trim()){
+					console.log('响应为空字符串：',response);
+					response = undefined
 				}
 			}
 			console.log('响应的消息：',response);
