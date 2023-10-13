@@ -166,10 +166,11 @@ async function chatReplyProcess(options: RequestOptions) {
 				if (!ipToken || retryNextToken) {
 					//没有在缓存里,获取一个新的保存
 					ipToken = nextBalancer();
-					ipCache.set(clientIP, ipToken);
 					console.log('新ip保存下token。(是否为重新获取：',retryNextToken);
 					retryNextToken = false;
 				}
+				//让数据保存久点
+				ipCache.set(clientIP, ipToken);
 
 				//重新赋值
 				(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken;
