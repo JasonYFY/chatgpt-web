@@ -45,7 +45,7 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 			clientIP: clientIP,
       lastContext: options,
       process: (chat: ChatMessage) => {
-				console.log('chat响应的信息：',chat)
+				//console.log('chat响应的信息：',chat)
 				if(firstChunk && chat.text===prompt){
 					//console.log('chat响应的信息是提问的问题',prompt)
 				}else{
