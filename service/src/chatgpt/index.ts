@@ -13,7 +13,7 @@ import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConf
 import LRUMap from 'lru-cache'
 import type { RequestOptions, SetProxyOptions, UsageResponse } from './types'
 import {initCron} from "../utils/checkCron";
-import {chatBardProcess} from "../bard/bardApi";
+import {chatBardProcess, replaceImageTags} from "../bard/bardApi";
 
 const originalLog = console.log;
 
@@ -137,10 +137,20 @@ async function chatReplyProcess(options: RequestOptions) {
 				conversationIdBard = lastContext.conversationId
 			}
 			const respOfBard = await chatBardProcess(message,conversationIdBard);
+
+			let respMsg = respOfBard.msg
 			if(respOfBard){
-				//只能这样了
+				if (respOfBard.imageLinks){
+					//把图片嵌入文字中
+					console.log('respOfBard.imageLinks:', respOfBard.imageLinks.length);
+					for (let i = 0; i < respOfBard.imageLinks.length; i++) {
+						const imageLink = respOfBard.imageLinks[i];
+						respMsg = replaceImageTags(respMsg,imageLink,respOfBard.imageLinks[i+1]);
+						i = i+2;
+					}
+				}
 				return sendResponse({ type: 'Bard',message:message
-					, data: {id:conversationIdBard,conversationId:conversationIdBard,text:respOfBard.msg}})
+					, data: {id:generateUUID(),conversationId:conversationIdBard,text:respMsg}})
 			}
 		}
 

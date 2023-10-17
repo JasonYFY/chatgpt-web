@@ -12,3 +12,8 @@ export async function chatBardProcess(ask: string,conversationId:string) {
 	console.log('bard响应参数：',resp);
 	return resp;
 }
+
+export function replaceImageTags(inputString: string, replacementURL: string,sourceURL: string): string {
+	const regex = /\[Image of (.+?)\]/;
+	return inputString.replace(regex, `[![$1](${replacementURL})](${sourceURL})`);
+}
