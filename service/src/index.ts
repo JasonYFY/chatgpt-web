@@ -29,7 +29,7 @@ app.all('*', (_, res, next) => {
 router.post('/chat-process', [auth, limiter], async (req, res) => {
   res.setHeader('Content-type', 'application/octet-stream')
   try {
-    const { prompt, options = {}, systemMessage, temperature, top_p } = req.body as RequestProps
+    const { prompt, options = {}, systemMessage, temperature, top_p,model } = req.body as RequestProps
 
 		//获取客户端ip
 		let clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress
@@ -45,7 +45,7 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 			clientIP: clientIP,
       lastContext: options,
       process: (chat: ChatMessage) => {
-				//console.log('chat响应的信息：',chat)
+				console.log('chat响应的信息：',chat)
 				if(firstChunk && chat.text===prompt){
 					//console.log('chat响应的信息是提问的问题',prompt)
 				}else{
@@ -62,6 +62,7 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
       systemMessage,
       temperature,
       top_p,
+			model,
     })
   }
   catch (error) {

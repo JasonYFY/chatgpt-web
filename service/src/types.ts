@@ -6,7 +6,7 @@ export interface RequestProps {
   systemMessage: string
   temperature?: number
   top_p?: number
-	usingGpt4: boolean
+	model?: string
 }
 
 export interface ChatContext {

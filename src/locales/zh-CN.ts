@@ -53,6 +53,7 @@ export default {
     clearHistoryConfirm: '确定清空记录?',
     preview: '预览',
     showRawText: '显示原文',
+		switchModel: '已成功切换，切换后不携带之前的聊天记录',
   },
   setting: {
     setting: '设置',

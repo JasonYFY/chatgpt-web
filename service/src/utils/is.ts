@@ -17,3 +17,11 @@ export function isBoolean<T extends boolean>(value: T | unknown): value is boole
 export function isFunction<T extends (...args: any[]) => any | void | never>(value: T | unknown): value is T {
   return Object.prototype.toString.call(value) === '[object Function]'
 }
+
+export function generateUUID() {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		const r = Math.random() * 16 | 0;
+		const v = c === 'x' ? r : (r & 0x3 | 0x8);
+		return v.toString(16);
+	});
+}

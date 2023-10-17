@@ -3,7 +3,7 @@ import type { Ref } from 'vue'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { NAutoComplete, NButton, NInput, useDialog, useMessage } from 'naive-ui'
+import { NAutoComplete, NButton, NInput, useDialog, useMessage,NSelect } from 'naive-ui'
 import html2canvas from 'html2canvas'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
@@ -57,11 +57,18 @@ function handleSubmit() {
   onConversation()
 }
 function parseResponseText(responseText:any) {
+
 	let lastLineObject;
   let combinedText = '';
 	try {
 		// 将字符串按行拆分
 		const lines = responseText.split('\n');
+		if(lines.length===1){
+			const obj = JSON.parse(lines);
+			if(obj.status==='Bard'){
+				return obj.data;
+			}
+		}
 		// 获取最后一行的文本内容
 		const lastLine = lines[lines.length - 1];
 		lastLineObject = JSON.parse(lastLine); // 将最后一行解析为对象
@@ -140,6 +147,7 @@ async function onConversation() {
       await fetchChatAPIProcess<Chat.ConversationResponse>({
         prompt: message,
         options,
+        model: modelValue.value,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
           const xhr = event.target
@@ -268,6 +276,7 @@ async function onRegenerate(index: number,dateTime:string) {
       await fetchChatAPIProcess<Chat.ConversationResponse>({
         prompt: message,
         options,
+        model: modelValue.value,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
           const xhr = event.target
@@ -489,6 +498,29 @@ onUnmounted(() => {
   if (loading.value)
     controller.abort()
 })
+let modelValue = ref<string>('gpt-3.5-turbo')
+const model = computed({
+  get() {
+    return modelValue.value
+  },
+  set(value: string) {
+  	console.log('set设置了')
+  },
+})
+
+const modelOptions: { label: string; value: string }[] = [
+  { label: 'GPT3',value: 'gpt-3.5-turbo' },
+  { label: 'Bard',value: 'bard' },
+]
+
+function setModel(model: string) {
+	let lastModel = modelValue.value
+	modelValue.value = model
+	if (lastModel !== model) {
+		ms.success(t('chat.switchModel'))
+	}
+
+}
 </script>
 
 <template>
@@ -512,7 +544,7 @@ onUnmounted(() => {
               <SvgIcon icon="ri:bubble-chart-fill" class="mr-2 text-3xl" />
               <span style="text-align: left;">
 								<p>1.此网站对接ChatGPT,知识截止于2021年9月</p>
-								<p>2.想体验实时知识和画图，可以访问<a href="https://newbing.jasonyu.eu.org" target="_blank">https://newbing.jasonyu.eu.org</a></p>
+								<p>2.想体验实时知识，可以切换Bard模型</p>
 							</span>
             </div>
           </template>
@@ -561,6 +593,12 @@ onUnmounted(() => {
               <SvgIcon icon="ri:chat-history-line" />
             </span>
           </HoverButton>
+					<NSelect
+						style="width: 104px"
+						:value="model"
+						:options="modelOptions"
+						@update-value="value => setModel(value)"
+					/>
           <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
             <template #default="{ handleInput, handleBlur, handleFocus }">
               <NInput

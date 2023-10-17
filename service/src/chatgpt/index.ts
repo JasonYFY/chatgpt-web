@@ -5,14 +5,15 @@ import { ChatGPTAPI, ChatGPTUnofficialProxyAPI } from 'chatgpt'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import httpsProxyAgent from 'https-proxy-agent'
 import fetch from 'node-fetch'
-import { sendResponse,loadBalancer, parseKeys,sleep } from '../utils'
-import { isNotEmptyString } from '../utils/is'
+import {sendResponse, loadBalancer, parseKeys, sleep} from '../utils'
+import {generateUUID, isNotEmptyString} from '../utils/is'
 import jwt_decode from 'jwt-decode'
 import dayjs from 'dayjs'
 import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig,JWT } from '../types'
 import LRUMap from 'lru-cache'
 import type { RequestOptions, SetProxyOptions, UsageResponse } from './types'
 import {initCron} from "../utils/checkCron";
+import {chatBardProcess} from "../bard/bardApi";
 
 const originalLog = console.log;
 
@@ -121,8 +122,28 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
 })()
 
 async function chatReplyProcess(options: RequestOptions) {
-  const { message, lastContext, process, systemMessage,clientIP, temperature, top_p,usingGpt4 } = options
+  const { message, lastContext, process, systemMessage
+		,clientIP, temperature, top_p,model } = options
   try {
+
+		console.log('Client IP:', clientIP); // 打印客户端IP地址
+		console.log('model:', model);
+		if (model&&model==='bard'){
+			//访问bard
+			let conversationIdBard
+			if (!lastContext || !lastContext.conversationId){
+				conversationIdBard = generateUUID()
+			}else{
+				conversationIdBard = lastContext.conversationId
+			}
+			const respOfBard = await chatBardProcess(message,conversationIdBard);
+			if(respOfBard){
+				//只能这样了
+				return sendResponse({ type: 'Bard',message:message
+					, data: {id:conversationIdBard,conversationId:conversationIdBard,text:respOfBard.msg}})
+			}
+		}
+
 
     let options: SendMessageOptions = { timeoutMs }
 
@@ -156,8 +177,6 @@ async function chatReplyProcess(options: RequestOptions) {
 				options.onProgress = process
 			let retryCount = 0
 			let response: ChatMessage | void
-
-			console.log('Client IP:', clientIP); // 打印客户端IP地址
 
 			//定义重试时是否需要重新获取token
 			let retryNextToken = false;

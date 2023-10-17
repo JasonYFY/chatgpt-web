@@ -51,6 +51,7 @@ export default {
     clearHistoryConfirm: 'Are you sure to clear chat history?',
     preview: 'Preview',
     showRawText: 'Show as raw text',
+		switchModel: 'The switch has been successful. Chat history will not be carried over after the switch',
   },
   setting: {
     setting: 'Setting',

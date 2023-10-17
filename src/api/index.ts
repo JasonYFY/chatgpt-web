@@ -24,6 +24,7 @@ export function fetchChatAPIProcess<T = any>(
   params: {
     prompt: string,
     options?: { conversationId?: string; parentMessageId?: string }
+		model:string,
     signal?: GenericAbortSignal
     onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void },
 ) {
@@ -33,6 +34,7 @@ export function fetchChatAPIProcess<T = any>(
   let data: Record<string, any> = {
     prompt: params.prompt,
     options: params.options,
+		model:params.model
   }
 
   if (authStore.isChatGPTAPI) {
@@ -40,7 +42,8 @@ export function fetchChatAPIProcess<T = any>(
       ...data,
       systemMessage: settingStore.systemMessage,
       temperature: settingStore.temperature,
-      top_p: settingStore.top_p
+      top_p: settingStore.top_p,
+			model:params.model
     }
   }
 

@@ -96,7 +96,7 @@ function getCurrentDatePlusTwoDay(): string {
 	return nextDay.format('YYYY-MM-DD');
 }
 
-async function postData(url: string, data: Record<string, any>) {
+export async function postData(url: string, data: Record<string, any>) {
 	try {
 		const response = await fetch(url, {
 			method: 'POST',

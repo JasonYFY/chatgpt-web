@@ -1,5 +1,5 @@
 interface SendResponseOptions<T = any> {
-  type: 'Success' | 'Fail'
+  type: 'Success' | 'Fail'| 'Bard'
   message?: string
   data?: T
 }
