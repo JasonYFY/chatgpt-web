@@ -233,7 +233,7 @@ async function chatReplyProcess(options: RequestOptions) {
 					console.log('等待：',retryIntervalMs);
 					await sleep(retryIntervalMs);
 				}
-				if (!response.text.trim()){
+				if (response && !response.text.trim()){
 					console.log('响应为空字符串：',response);
 					response = undefined
 				}
