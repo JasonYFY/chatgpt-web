@@ -204,8 +204,8 @@ async function chatReplyProcess(options: RequestOptions) {
 				//重新赋值
 				(api as ChatGPTUnofficialProxyAPI).accessToken = ipToken;
 				response = await api.sendMessage(message, options).catch((error: any) => {
-					if (error.statusCode === 404){
-						console.log('报错了404',error);
+					if (error.statusCode === 404 || error.statusCode === 403){
+						console.log('报错了404或者403，',error);
 						const { conversationId, parentMessageId, ...rest } = options;
 						options = { ...rest };
 						console.log('准备重新新执行retryCount：',retryCount);
