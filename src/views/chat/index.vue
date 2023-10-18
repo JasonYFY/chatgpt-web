@@ -34,6 +34,7 @@ const { usingContext, toggleUsingContext } = useUsingContext()
 const { uuid } = route.params as { uuid: string }
 
 const dataSources = computed(() => chatStore.getChatByUuid(+uuid))
+const modelValue = computed(() => chatStore.getModelByUuid(+uuid))
 const conversationList = computed(() => dataSources.value.filter(item => (!item.inversion && !!item.conversationOptions)))
 
 const prompt = ref<string>('')
@@ -498,7 +499,7 @@ onUnmounted(() => {
   if (loading.value)
     controller.abort()
 })
-let modelValue = ref<string>('gpt-3.5-turbo')
+
 const model = computed({
   get() {
     return modelValue.value
@@ -515,7 +516,7 @@ const modelOptions: { label: string; value: string }[] = [
 
 function setModel(model: string) {
 	let lastModel = modelValue.value
-	modelValue.value = model
+	chatStore.setModelValue(model,+uuid)
 	if (lastModel !== model) {
 		ms.success(t('chat.switchModel'))
 	}
@@ -536,7 +537,7 @@ function setModel(model: string) {
       <div id="scrollRef" ref="scrollRef" class="h-full overflow-hidden overflow-y-auto">
         <div
           id="image-wrapper"
-          class="w-full max-w-screen-xl m-auto dark:bg-[#101014]"
+          class="w-full m-auto dark:bg-[#101014]"
           :class="[isMobile ? 'p-2' : 'p-4']"
         >
           <template v-if="!dataSources.length">
@@ -576,7 +577,7 @@ function setModel(model: string) {
       </div>
     </main>
     <footer :class="footerClass">
-      <div class="w-full max-w-screen-xl m-auto">
+      <div class="w-full m-auto">
         <div class="flex items-center justify-between space-x-2">
           <HoverButton @click="handleClear">
             <span class="text-xl text-[#4f555e] dark:text-white">

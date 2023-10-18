@@ -20,6 +20,13 @@ export const useChatStore = defineStore('chat-store', {
         return state.chat.find(item => item.uuid === state.active)?.data ?? []
       }
     },
+		getModelByUuid(state: Chat.ChatState) {
+			return (uuid?: number) => {
+				if (uuid)
+					return state.chat.find(item => item.uuid === uuid)?.modelValue ?? 'gpt-3.5-turbo'
+				return state.chat.find(item => item.uuid === state.active)?.modelValue ?? 'gpt-3.5-turbo'
+			}
+		},
   },
 
   actions: {
@@ -28,9 +35,17 @@ export const useChatStore = defineStore('chat-store', {
       this.recordState()
     },
 
+		setModelValue(context: string,uuid:number) {
+			const chatD = this.chat.find(item => item.uuid === uuid)
+			if (chatD){
+				chatD.modelValue = context
+			}
+			this.recordState()
+		},
+
     addHistory(history: Chat.History, chatData: Chat.Chat[] = []) {
       this.history.unshift(history)
-      this.chat.unshift({ uuid: history.uuid, data: chatData })
+      this.chat.unshift({ uuid: history.uuid, data: chatData,modelValue:'gpt-3.5-turbo' })
       this.active = history.uuid
       this.reloadRoute(history.uuid)
     },
