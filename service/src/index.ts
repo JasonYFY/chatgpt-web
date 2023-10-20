@@ -85,7 +85,7 @@ router.post('/config', auth, async (req, res) => {
 
 router.post('/session', async (req, res) => {
   try {
-		console.log('user-agent的信息：',req.headers['user-agent'])
+		// console.log('user-agent的信息：',req.headers['user-agent'])
     const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY
     const hasAuth = isNotEmptyString(AUTH_SECRET_KEY)
     res.send({ status: 'Success', message: '', data: { auth: hasAuth, model: currentModel() } })
