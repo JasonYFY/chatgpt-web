@@ -169,7 +169,7 @@ async function onConversation() {
               },
             )
 
-            if (openLongReply && data.detail.choices[0].finish_reason === 'length') {
+            if (openLongReply && data.detail && data.detail.choices[0].finish_reason === 'length') {
               options.parentMessageId = data.id
               lastText = data.text
               message = ''
@@ -298,7 +298,7 @@ async function onRegenerate(index: number,dateTime:string) {
               },
             )
 
-            if (openLongReply && data.detail.choices[0].finish_reason === 'length') {
+            if (openLongReply && data.detail && data.detail.choices[0].finish_reason === 'length') {
               options.parentMessageId = data.id
               lastText = data.text
               message = ''
