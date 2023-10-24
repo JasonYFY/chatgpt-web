@@ -149,7 +149,7 @@ async function chatReplyProcess(options: RequestOptions) {
 						i = i+2;
 					}
 				}
-				return sendResponse({ type: 'Bard',message:message
+				return sendResponse({ type: 'Bard'
 					, data: {id:generateUUID(),conversationId:conversationIdBard,text:respMsg}})
 			}
 		}
