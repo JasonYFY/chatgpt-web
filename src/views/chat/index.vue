@@ -61,11 +61,13 @@ function parseResponseText(responseText:any) {
 
 	let lastLineObject;
   let combinedText = '';
+  let lineError = ''
 	try {
 		// 将字符串按行拆分
 		const lines = responseText.split('\n');
 		if(lines.length===1){
-			const obj = JSON.parse(lines);
+		  lineError = lines[0];
+			const obj = JSON.parse(lines[0]);
 			if(obj.status==='Bard'){
 				return obj.data;
 			}
@@ -76,14 +78,18 @@ function parseResponseText(responseText:any) {
 
 		// 将所有行的文本内容合并在一起
 		for (let i = 0; i < lines.length; i++) {
-			const line = lines[i];
+			let line = lines[i];
 			if(line.trim() === '') continue;
+			lineError = line;
 			const obj = JSON.parse(line);
 			combinedText += obj.text;
 		}
 	}catch (error) {
 		 // 捕获异常并向上抛出
-		 throw error;
+		 console.log('lineError的信息：',lineError);
+		 console.log('parseResponseText方法报错了',error);
+		 //不抛出了
+		 //throw error;
   }
 
 	// 更新最后一行对象的 text 属性
