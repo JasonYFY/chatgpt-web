@@ -86,6 +86,7 @@ function parseResponseText(responseText:any) {
 		}
 	}catch (error) {
 		 // 捕获异常并向上抛出
+		 console.log('responseText的信息：',responseText);
 		 console.log('lineError的信息：',lineError);
 		 console.log('parseResponseText方法报错了',error);
 		 //不抛出了
