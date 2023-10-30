@@ -55,11 +55,11 @@ async function checkTokenExpires() {
 				if(userInfo){
 					var accessToken;
 					if(userInfo.type){
-						console.log('[微软方式]准备登录获取token,username:',email);
+						console.log('[浏览器方式]准备登录获取token,username:',email);
 						const resp = await postData(loginUrlOfMicros, userInfo);
 						console.log('响应参数：',resp);
 						if(!resp || resp.status!=='success'){
-							console.error('[微软方式] 报错：',resp.message)
+							console.error('[浏览器方式] 报错：',resp.message)
 						}
 						accessToken = resp.data;
 					}else{
