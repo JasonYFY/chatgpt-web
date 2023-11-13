@@ -633,7 +633,7 @@ function handlePaste(event: ClipboardEvent)
 			break;
 		}
 	}
-	if (file) {
+	if (file && modelValue.value === 'bard') {
 		//debugger;
 		imageFileList.value = [
 			{
@@ -734,6 +734,7 @@ function handlePaste(event: ClipboardEvent)
 						@update-value="value => setModel(value)"
 					/>
 					<NUpload
+					v-if="modelValue === 'bard'"
 					style="font-size: 10px;"
 					ref="uploadRef"
 					list-type="image-card"

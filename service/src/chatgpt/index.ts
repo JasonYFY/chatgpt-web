@@ -137,7 +137,7 @@ async function chatReplyProcess(options: RequestOptions) {
 			}else{
 				conversationIdBard = lastContext.conversationId
 			}
-			const respOfBard = await chatBardProcess(message,conversationIdBard);
+			const respOfBard = await chatBardProcess(message,conversationIdBard,imageFileName);
 
 			let respMsg = respOfBard.msg
 			if(respOfBard){
