@@ -36,8 +36,6 @@
     "socks-proxy-agent": "^7.0.0",
 		"date-fns-tz": "v2.0.0",
 		"date-fns": "v2.0.0",
-		"mindsdb-js-sdk": "v2.2.1",
-		"mysql": "v2.18.1",
 		"dayjs": "^1.11.7",
 		"jwt-decode": "^3.1.2",
 		"node-cron": "^3.0.2",
