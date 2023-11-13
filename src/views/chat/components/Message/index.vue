@@ -15,6 +15,8 @@ interface Props {
   inversion?: boolean
   error?: boolean
   loading?: boolean
+	imageLink?: string
+	imageFileName?: string
 }
 
 interface Emit {
@@ -128,6 +130,8 @@ async function handleCopy() {
           :error="error"
           :text="text"
           :loading="loading"
+          :imageLink="imageLink"
+          :imageFileName="imageFileName"
           :as-raw-text="asRawText"
         />
         <div class="flex flex-col">

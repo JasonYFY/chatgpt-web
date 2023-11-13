@@ -24,7 +24,8 @@ export function fetchChatAPIProcess<T = any>(
   params: {
     prompt: string,
     options?: { conversationId?: string; parentMessageId?: string }
-		model:string,
+		model?:string,
+		imageFileName:string,
     signal?: GenericAbortSignal
     onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void },
 ) {
@@ -34,7 +35,8 @@ export function fetchChatAPIProcess<T = any>(
   let data: Record<string, any> = {
     prompt: params.prompt,
     options: params.options,
-		model:params.model
+		model:params.model,
+		imageFileName:params.imageFileName
   }
 
   if (authStore.isChatGPTAPI) {

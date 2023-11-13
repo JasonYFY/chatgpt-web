@@ -6,6 +6,8 @@ declare namespace Chat {
 		inversion?: boolean
 		error?: boolean
 		loading?: boolean
+		imageLink?: string
+		imageFileName?: string
 		conversationOptions?: ConversationRequest | null
 		requestOptions: { prompt: string; options?: ConversationRequest | null }
 	}

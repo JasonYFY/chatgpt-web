@@ -14,6 +14,8 @@ interface Props {
   text?: string
   loading?: boolean
   asRawText?: boolean
+	imageLink?: string
+	imageFileName?: string
 }
 
 const props = defineProps<Props>()
@@ -110,7 +112,10 @@ onUnmounted(() => {
         <div v-if="!asRawText" class="markdown-body" :class="{ 'markdown-body-generate': loading }" v-html="text" />
         <div v-else class="whitespace-pre-wrap" v-text="text" />
       </div>
-      <div v-else class="whitespace-pre-wrap" v-text="text" />
+      <div v-else class="whitespace-pre-wrap"  >
+				<img v-if="imageLink" :src="imageLink" />
+				<div class="whitespace-pre-wrap" v-text="text" />
+			</div>
     </div>
   </div>
 </template>

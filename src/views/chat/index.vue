@@ -3,7 +3,7 @@ import type { Ref } from 'vue'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { NAutoComplete, NButton, NInput, useDialog, useMessage,NSelect } from 'naive-ui'
+import { NAutoComplete, NButton, NInput, useDialog, useMessage,NSelect,NUpload,UploadFileInfo } from 'naive-ui'
 import html2canvas from 'html2canvas'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
@@ -15,6 +15,7 @@ import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useChatStore, usePromptStore } from '@/store'
 import { fetchChatAPIProcess } from '@/api'
 import { t } from '@/locales'
+import request from '@/utils/request/axios'
 
 let controller = new AbortController()
 
@@ -36,6 +37,7 @@ const { uuid } = route.params as { uuid: string }
 const dataSources = computed(() => chatStore.getChatByUuid(+uuid))
 const modelValue = computed(() => chatStore.getModelByUuid(+uuid))
 const conversationList = computed(() => dataSources.value.filter(item => (!item.inversion && !!item.conversationOptions)))
+
 
 const prompt = ref<string>('')
 const loading = ref<boolean>(false)
@@ -87,7 +89,7 @@ function parseResponseText(responseText:any) {
 	}catch (error) {
 		 // 捕获异常并向上抛出
 		 console.log('responseText的信息：',responseText);
-		 console.log('lineError的信息：',lineError);
+		 //console.log('lineError的信息：',lineError);
 		 console.log('parseResponseText方法报错了',error);
 		 //不抛出了
 		 //throw error;
@@ -116,6 +118,8 @@ async function onConversation() {
 			dateTime: new Date().toLocaleString(),
 			text: message,
 			inversion: true,
+			imageLink: imageFileList.value?.imageLink,
+			imageFileName:imageFileList.value?.imageFileName,
 			error: false,
 			conversationOptions: null,
 			requestOptions: { prompt: message, options: null },
@@ -126,6 +130,9 @@ async function onConversation() {
 
   loading.value = true
   prompt.value = ''
+  const imageName = imageFileList.value?.imageFileName
+  //清空上传的文件
+  imageFileList.value=[]
 
   let options: Chat.ConversationRequest = {}
   const lastContext = conversationList.value[conversationList.value.length - 1]?.conversationOptions
@@ -140,12 +147,14 @@ async function onConversation() {
       text: '',
       loading: true,
       inversion: false,
+      imageFileName:imageName,
       error: false,
       conversationOptions: null,
       requestOptions: { prompt: message, options: { ...options } },
     },
   )
   scrollToBottom()
+
 	let indexTemp = dataSources.value.length - 1;
 
   try {
@@ -156,6 +165,7 @@ async function onConversation() {
         prompt: message,
         options,
         model: modelValue.value,
+        imageFileName:imageName,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
           const xhr = event.target
@@ -247,15 +257,16 @@ async function onConversation() {
   }
 }
 
-async function onRegenerate(index: number,dateTime:string) {
+async function onRegenerate(index: number) {
   if (loading.value)
     return
 
   controller = new AbortController()
 
-  const { requestOptions } = dataSources.value[index]
+  const { requestOptions,imageFileName } = dataSources.value[index]
 
   let message = requestOptions?.prompt ?? ''
+
 
   let options: Chat.ConversationRequest = {}
 
@@ -273,6 +284,7 @@ async function onRegenerate(index: number,dateTime:string) {
       inversion: false,
       error: false,
       loading: true,
+      imageFileName: imageFileName,
       conversationOptions: null,
       requestOptions: { prompt: message, options: { ...options } },
     },
@@ -285,6 +297,7 @@ async function onRegenerate(index: number,dateTime:string) {
         prompt: message,
         options,
         model: modelValue.value,
+        imageFileName:imageFileName,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
           const xhr = event.target
@@ -529,6 +542,111 @@ function setModel(model: string) {
 	}
 
 }
+
+// 重点是onFinish，文件上传结束的回调，可以修改传入的 UploadFileInfo 或者返回一个新的 UploadFileInfo。
+//注意：file 将会下一次事件循环中被置为 null
+const uploadRef = ref();  // 添加 ref
+let imageFileList = ref();  // 添加 ref
+
+const Upload = ({ file,data,headers,withCredentials,action,onFinish,onError,onProgress}) => {
+
+  // 后端需要的参数
+  const requestData = {
+    type: 'BSCL',
+    file: imageFileList.value[0].file,
+  }
+
+  // 接口请求
+  request({
+    url: '/upload',
+    method: 'post',
+    data:requestData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      ...headers,
+    },
+    onUploadProgress: (progressEvent) => {
+			const percentd = Math.round((progressEvent.loaded / progressEvent.total) * 100, 2);
+			console.log(percentd);
+			//onProgress({ percent: percentd })
+			imageFileList.value[0].percentage=percentd
+		},
+    withCredentials: withCredentials || false,
+  })
+    .then((res) => {
+      console.log(res)
+      imageFileList.value.imageFileName = res.data.file.filename
+      // 通过 FileReader 将文件转换为 base64 字符串
+			const reader = new FileReader();
+			reader.onload = (event) => {
+				// 将 base64 字符串保存到数据属性中
+				imageFileList.value.imageLink = event.target.result;
+			};
+			// 读取文件内容
+			// 创建一个新的 Blob 对象
+			const blob = new Blob([imageFileList.value[0].file]);
+			reader.readAsDataURL(blob);
+			ms.success('success')
+      // 注意清空，要不接口会重复调用
+      //onFinish()
+      imageFileList.value[0].status="finished"
+    })
+    .catch((err) => {
+    	//console.log(err)
+      ms.error(err.message ?? 'error')
+			imageFileList.value[0].status="error"
+      //onError()
+    })
+}
+
+
+const beforeUpload = (data: {
+              file: UploadFileInfo
+              fileList: UploadFileInfo[]
+            })=>{
+	if (data.file.file?.type !== 'image/png' && data.file.file.type !== 'image/jpeg') {
+		ms.error('只能上传图片文件，请重新上传')
+		return false
+	}
+	return true
+}
+
+// 监听粘贴操作
+function handlePaste(event)
+{
+	const items = (event.clipboardData || window.clipboardData).items;
+	let file = null;
+	if (!items || items.length === 0) {
+		ms.error("当前浏览器不支持本地");
+		return;
+	}
+	// 搜索剪切板items
+	for (let i = 0; i < items.length; i++) {
+		if (items[i].type.indexOf("image") !== -1) {
+			file = items[i].getAsFile();
+			break;
+		}
+	}
+	if (file) {
+		//debugger;
+		imageFileList.value = [
+			{
+				id: '1',
+				name: file.name,
+				status: 'uploading',
+				type: file.type,
+				file:file
+			},
+		]
+		//uploadRef.value.submit()
+		Upload(file)
+		//ms.error("粘贴内容图片");
+		// 取消默认动作
+		//event.preventDefault();
+		return;
+	}
+}
+
 </script>
 
 <template>
@@ -566,8 +684,10 @@ function setModel(model: string) {
                 :inversion="item.inversion"
                 :error="item.error"
                 :loading="item.loading"
+                :imageLink="item.imageLink"
+                :imageFileName="item.imageFileName"
                 @quote="quoteText(item.text)"
-                @regenerate="onRegenerate(index,item.dateTime)"
+                @regenerate="onRegenerate(index)"
                 @delete="handleDelete(index)"
               />
               <div class="sticky bottom-0 left-0 flex justify-center">
@@ -607,6 +727,20 @@ function setModel(model: string) {
 						:options="modelOptions"
 						@update-value="value => setModel(value)"
 					/>
+					<NUpload
+					style="font-size: 10px;"
+					ref="uploadRef"
+					list-type="image-card"
+					action=""
+					maxSize="10mb"
+					accept="image/png, image/jpeg"
+					@before-upload="beforeUpload"
+					:custom-request="Upload"
+					v-model:file-list="imageFileList"
+					:max="1"
+					>
+					图片上传
+					</NUpload>
           <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
             <template #default="{ handleInput, handleBlur, handleFocus }">
               <NInput
@@ -619,6 +753,7 @@ function setModel(model: string) {
                 @focus="handleFocus"
                 @blur="handleBlur"
                 @keypress="handleEnter"
+								v-on:paste="handlePaste"
               />
             </template>
           </NAutoComplete>
@@ -634,3 +769,9 @@ function setModel(model: string) {
     </footer>
   </div>
 </template>
+<style lang="less">
+.n-upload-trigger.n-upload-trigger--image-card,.n-upload,.n-upload-file-list .n-upload-file.n-upload-file--image-card-type{
+	width: 50px;
+	height: 40px;
+}
+</style>
