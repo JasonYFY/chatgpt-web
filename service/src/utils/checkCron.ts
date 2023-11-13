@@ -9,6 +9,7 @@ import fetch from 'node-fetch';
 import {updateEnvFile} from "./operateEnv";
 import * as dotenv from 'dotenv'
 import * as fs from 'fs'
+import * as path from 'path';
 
 dotenv.config();
 // 设定定时任务的执行规律
@@ -30,7 +31,7 @@ export async function initCron(){
 				userInfoMap.set(username, userInfo);
 			});
 			cron.schedule(schedule, checkTokenExpires);
-			cron.schedule(schedule, deleteFilesBeforeYesterday);
+			cron.schedule(schedule, deleteAllFiles);
 		}
 
 	} catch(error) {
@@ -39,33 +40,35 @@ export async function initCron(){
 }
 
 
-async function deleteFilesBeforeYesterday() {
+function deleteAllFiles(): void {
+	const directoryPath = "./uploads"
 	console.log('定时任务开始--删除所有的文件');
-	// 获取当前日期
-	const now = new Date();
-	const yesterday = new Date(now.getTime() - (24 * 60 * 60 * 1000 * 2));
+	try {
+		// 确保路径存在
+		if (!fs.existsSync(directoryPath)) {
+			console.error('Directory does not exist:', directoryPath);
+			return;
+		}
 
-	const path="./uploads"
-	// 获取指定路径下的所有文件
-	const files = fs.readdirSync(path);
-
-	// 遍历所有文件
-	for (const file of files) {
-		/*// 获取文件的创建时间
-		const stat = fs.statSync(path + "/" + file);
-
-		// 如果文件的创建时间小于昨天，则删除
-		if (stat.ctime < yesterday) {
-			console.log('定时任务开始--删除的文件：',file);
-			fs.unlinkSync(path + "/" + file);
-		}*/
+		// 获取指定路径下的所有文件
+		const files = fs.readdirSync(directoryPath);
 
 		// 遍历所有文件
 		for (const file of files) {
+			// 获取文件路径
+			const filePath = path.join(directoryPath, file);
+
+			// 检查是否为文件
+			const isFile = fs.statSync(filePath).isFile();
+
 			// 删除文件
-			console.log('定时任务开始--删除的文件：',file);
-			fs.unlinkSync(path + file);
+			if (isFile) {
+				fs.unlinkSync(filePath);
+				console.log(`Deleted file: ${filePath}`);
+			}
 		}
+	} catch (err) {
+		console.error('Error deleting files:', err);
 	}
 }
 
