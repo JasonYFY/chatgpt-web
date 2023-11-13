@@ -45,6 +45,7 @@ async function deleteFilesBeforeYesterday() {
 	const now = new Date();
 	const yesterday = new Date(now.getTime() - (24 * 60 * 60 * 1000 * 2));
 
+	const path="./uploads"
 	// 获取指定路径下的所有文件
 	const files = fs.readdirSync(path);
 
@@ -63,7 +64,7 @@ async function deleteFilesBeforeYesterday() {
 		for (const file of files) {
 			// 删除文件
 			console.log('定时任务开始--删除的文件：',file);
-			fs.unlinkSync("./uploads" + file);
+			fs.unlinkSync(path + file);
 		}
 	}
 }
