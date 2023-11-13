@@ -577,14 +577,14 @@ const Upload = ({
     },
     onUploadProgress: (progressEvent) => {
 			const percentd = Math.round((progressEvent.loaded / progressEvent.total!) * 100);
-			console.log(percentd);
+			//console.log(percentd);
 			//onProgress({ percent: percentd })
 			imageFileList.value[0].percentage=percentd
 		},
     withCredentials: withCredentials || false,
   })
     .then((res) => {
-      console.log(res)
+      //console.log(res)
       imageFileList.value.imageFileName = res.data.file.filename
       // 通过 FileReader 将文件转换为 base64 字符串
 			const reader = new FileReader();
@@ -716,7 +716,7 @@ function handlePaste(event: ClipboardEvent)
     <footer :class="footerClass">
       <div class="w-full m-auto">
         <div class="flex items-center justify-between space-x-2">
-          <HoverButton @click="handleClear">
+          <HoverButton v-if="!isMobile" @click="handleClear">
             <span class="text-xl text-[#4f555e] dark:text-white">
               <SvgIcon icon="ri:delete-bin-line" />
             </span>

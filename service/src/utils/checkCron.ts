@@ -8,6 +8,7 @@ import {ipCache,accessTokens,setAccessTokens} from "../chatgpt";
 import fetch from 'node-fetch';
 import {updateEnvFile} from "./operateEnv";
 import * as dotenv from 'dotenv'
+import * as fs from 'fs'
 
 dotenv.config();
 // 设定定时任务的执行规律
@@ -29,6 +30,7 @@ export async function initCron(){
 				userInfoMap.set(username, userInfo);
 			});
 			cron.schedule(schedule, checkTokenExpires);
+			cron.schedule(schedule, deleteFilesBeforeYesterday);
 		}
 
 	} catch(error) {
@@ -36,6 +38,35 @@ export async function initCron(){
 	}
 }
 
+
+async function deleteFilesBeforeYesterday() {
+	console.log('定时任务开始--删除所有的文件');
+	// 获取当前日期
+	const now = new Date();
+	const yesterday = new Date(now.getTime() - (24 * 60 * 60 * 1000 * 2));
+
+	// 获取指定路径下的所有文件
+	const files = fs.readdirSync(path);
+
+	// 遍历所有文件
+	for (const file of files) {
+		/*// 获取文件的创建时间
+		const stat = fs.statSync(path + "/" + file);
+
+		// 如果文件的创建时间小于昨天，则删除
+		if (stat.ctime < yesterday) {
+			console.log('定时任务开始--删除的文件：',file);
+			fs.unlinkSync(path + "/" + file);
+		}*/
+
+		// 遍历所有文件
+		for (const file of files) {
+			// 删除文件
+			console.log('定时任务开始--删除的文件：',file);
+			fs.unlinkSync("./uploads" + file);
+		}
+	}
+}
 
 
 async function checkTokenExpires() {
