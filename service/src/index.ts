@@ -270,7 +270,7 @@ const upload = multer({ storage: storage });
 
 
 // 处理文件上传的路由
-app.post('/upload',auth, upload.single('file'), (req, res) => {
+router.post('/upload',auth, upload.single('file'), (req, res) => {
 	// 在 req.file 中可以获取到上传的文件信息
 	if (req.file) {
 		res.json({ message: 'File uploaded successfully!', file: req.file });
