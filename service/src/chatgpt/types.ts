@@ -10,6 +10,7 @@ export interface RequestOptions {
   temperature?: number
   top_p?: number
 	model?:string
+	imageFileName?:string
 }
 
 export interface SetProxyOptions {

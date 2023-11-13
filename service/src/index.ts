@@ -4,14 +4,16 @@ import type { ChatMessage } from './chatgpt'
 import { chatConfig, chatReplyProcess, currentModel } from './chatgpt'
 import { auth } from './middleware/auth'
 import { limiter } from './middleware/limiter'
-import { isNotEmptyString } from './utils/is'
+import {generateUUID, isNotEmptyString} from './utils/is'
 import {
 	apiContextCache,
 	extractLastAssistantContent,
 	extractLastUserContent,
 	extractSystemContent
 } from "./chatgpt/apiToToken";
-import {sleep} from "./utils";
+import multer from 'multer'
+import * as path from "path";
+import * as console from "console";
 
 const app = express()
 const router = express.Router()
@@ -29,7 +31,8 @@ app.all('*', (_, res, next) => {
 router.post('/chat-process', [auth, limiter], async (req, res) => {
   res.setHeader('Content-type', 'application/octet-stream')
   try {
-    const { prompt, options = {}, systemMessage, temperature, top_p,model } = req.body as RequestProps
+    const { prompt, options = {}, systemMessage, temperature
+			, top_p,model,imageFileName } = req.body as RequestProps
 
 		//获取客户端ip
 		let clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress
@@ -63,6 +66,7 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
       temperature,
       top_p,
 			model,
+			imageFileName,
     })
   }
   catch (error) {
@@ -249,6 +253,31 @@ router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
 	}
 })
 
+
+// 配置 Multer 中间件，指定文件上传目录等
+const storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		cb(null, 'uploads/');
+	},
+	filename: function (req, file, cb) {
+		console.log('上传文件成功,文件名：',file.originalname)
+		const uniqueFileName = `${generateUUID()}-${file.originalname}`;
+		cb(null, uniqueFileName);
+	},
+});
+
+const upload = multer({ storage: storage });
+
+
+// 处理文件上传的路由
+app.post('/upload',auth, upload.single('file'), (req, res) => {
+	// 在 req.file 中可以获取到上传的文件信息
+	if (req.file) {
+		res.json({ message: 'File uploaded successfully!', file: req.file });
+	} else {
+		res.status(400).json({ message: 'No file uploaded.' });
+	}
+});
 
 
 app.use('', router)

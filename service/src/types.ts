@@ -7,6 +7,7 @@ export interface RequestProps {
   temperature?: number
   top_p?: number
 	model?: string
+	imageFileName?: string
 }
 
 export interface ChatContext {

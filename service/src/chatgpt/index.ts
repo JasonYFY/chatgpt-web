@@ -123,11 +123,12 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
 
 async function chatReplyProcess(options: RequestOptions) {
   const { message, lastContext, process, systemMessage
-		,clientIP, temperature, top_p,model } = options
+		,clientIP, temperature, top_p,model,imageFileName } = options
   try {
 
 		console.log('Client IP:', clientIP); // 打印客户端IP地址
 		console.log('model:', model);
+		console.log('文件名称:', imageFileName);
 		if (model&&model==='bard'){
 			//访问bard
 			let conversationIdBard
