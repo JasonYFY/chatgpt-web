@@ -3,7 +3,7 @@ import type { Ref } from 'vue'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { NAutoComplete, NButton, NInput, useDialog, useMessage,NSelect,NUpload,UploadFileInfo } from 'naive-ui'
+import { NAutoComplete, NButton, NInput, useDialog, useMessage,NSelect,NUpload,UploadFileInfo,UploadCustomRequestOptions } from 'naive-ui'
 import html2canvas from 'html2canvas'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
@@ -63,12 +63,10 @@ function parseResponseText(responseText:any) {
 
 	let lastLineObject;
   let combinedText = '';
-  let lineError = ''
 	try {
 		// 将字符串按行拆分
 		const lines = responseText.split('\n');
 		if(lines.length===1){
-		  lineError = lines[0];
 			const obj = JSON.parse(lines[0]);
 			if(obj.status==='Bard'){
 				return obj.data;
@@ -82,7 +80,6 @@ function parseResponseText(responseText:any) {
 		for (let i = 0; i < lines.length; i++) {
 			let line = lines[i];
 			if(line.trim() === '') continue;
-			lineError = line;
 			const obj = JSON.parse(line);
 			combinedText += obj.text;
 		}
@@ -548,7 +545,16 @@ function setModel(model: string) {
 const uploadRef = ref();  // 添加 ref
 let imageFileList = ref();  // 添加 ref
 
-const Upload = ({ file,data,headers,withCredentials,action,onFinish,onError,onProgress}) => {
+const Upload = ({
+                     file,
+                     data,
+                     headers,
+                     withCredentials,
+                     action,
+                     onFinish,
+                     onError,
+                     onProgress
+                   }: UploadCustomRequestOptions) => {
 
   // 后端需要的参数
   const requestData = {
@@ -566,7 +572,7 @@ const Upload = ({ file,data,headers,withCredentials,action,onFinish,onError,onPr
       ...headers,
     },
     onUploadProgress: (progressEvent) => {
-			const percentd = Math.round((progressEvent.loaded / progressEvent.total) * 100, 2);
+			const percentd = Math.round((progressEvent.loaded / progressEvent.total!) * 100);
 			console.log(percentd);
 			//onProgress({ percent: percentd })
 			imageFileList.value[0].percentage=percentd
@@ -580,7 +586,7 @@ const Upload = ({ file,data,headers,withCredentials,action,onFinish,onError,onPr
 			const reader = new FileReader();
 			reader.onload = (event) => {
 				// 将 base64 字符串保存到数据属性中
-				imageFileList.value.imageLink = event.target.result;
+				imageFileList.value.imageLink = event.target?.result;
 			};
 			// 读取文件内容
 			// 创建一个新的 Blob 对象
@@ -604,7 +610,7 @@ const beforeUpload = (data: {
               file: UploadFileInfo
               fileList: UploadFileInfo[]
             })=>{
-	if (data.file.file?.type !== 'image/png' && data.file.file.type !== 'image/jpeg') {
+	if (data.file.file?.type !== 'image/png' && data.file.file?.type !== 'image/jpeg') {
 		ms.error('只能上传图片文件，请重新上传')
 		return false
 	}
@@ -612,9 +618,9 @@ const beforeUpload = (data: {
 }
 
 // 监听粘贴操作
-function handlePaste(event)
+function handlePaste(event: ClipboardEvent)
 {
-	const items = (event.clipboardData || window.clipboardData).items;
+	const items = (event.clipboardData || (window as any).clipboardData).items;
 	let file = null;
 	if (!items || items.length === 0) {
 		ms.error("当前浏览器不支持本地");

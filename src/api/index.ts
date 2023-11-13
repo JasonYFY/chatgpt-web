@@ -25,7 +25,7 @@ export function fetchChatAPIProcess<T = any>(
     prompt: string,
     options?: { conversationId?: string; parentMessageId?: string }
 		model?:string,
-		imageFileName:string,
+		imageFileName?:string,
     signal?: GenericAbortSignal
     onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void },
 ) {
