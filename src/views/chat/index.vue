@@ -587,17 +587,31 @@ const Upload = ({
     .then((res) => {
       //console.log(res)
       imageFileList.value.imageFileName = res.data.file.filename
-      // 通过 FileReader 将文件转换为 base64 字符串
-			const reader = new FileReader();
-			reader.onload = (event) => {
-				// 将 base64 字符串保存到数据属性中
-				imageFileList.value.imageLink = event.target?.result;
-			};
-			// 读取文件内容
-			// 创建一个新的 Blob 对象
-			const blob = new Blob([imageFileList.value[0].file]);
-			reader.readAsDataURL(blob);
-			ms.success('success')
+
+			// 定义1兆字节的字节数
+			const oneMegabyte = 1024 * 1024;
+			// 判断文件大小是否超过1M
+			if (imageFileList.value[0].file.size > oneMegabyte) {
+				console.log('文件大小超过1M');
+				// 创建 Blob URL
+				const blobUrl = URL.createObjectURL(imageFileList.value[0].file);
+				// 在控制台输出 Blob URL
+				console.log('Blob URL:', blobUrl);
+				imageFileList.value.imageLink = blobUrl
+			}else{
+				// 通过 FileReader 将文件转换为 base64 字符串
+				const reader = new FileReader();
+				reader.onload = (event) => {
+					// 将 base64 字符串保存到数据属性中
+					imageFileList.value.imageLink = event.target?.result;
+				};
+				// 读取文件内容
+				// 创建一个新的 Blob 对象
+				const blob = new Blob([imageFileList.value[0].file]);
+				reader.readAsDataURL(blob);
+			}
+
+			ms.success('上传成功!')
       // 注意清空，要不接口会重复调用
       //onFinish()
       imageFileList.value[0].status="finished"
