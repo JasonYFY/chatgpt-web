@@ -129,7 +129,7 @@ async function onConversation() {
   prompt.value = ''
   const imageName = imageFileList.value?.imageFileName
   //清空上传的文件
-  imageFileList.value.clear()
+  //imageFileList.value.clear()
   imageFileList.value=[]
 
   let options: Chat.ConversationRequest = {}
