@@ -43,7 +43,7 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
 				},
 				{
 					name:"highlight.js",
-					var:"highlight.js",
+					var:"hljs",
 					path:["https://lib.baomitu.com/highlight.js/11.7.0/highlight.min.js",
 						"https://lib.baomitu.com/highlight.js/11.7.0/languages/mathematica.min.js",
 					],
