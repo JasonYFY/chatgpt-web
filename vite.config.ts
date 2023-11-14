@@ -26,31 +26,31 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
 					var:"html2canvas",
 					path:"https://lib.baomitu.com/html2canvas/1.4.1/html2canvas.js",
 				},
-				{
+				/*{
 					name:"highlight.js",
 					var:"highlight.js",
-					path:"https://lib.baomitu.com/highlight.js/11.7.0/es/highlight.min.js",
-				},
-				{
+					path:"https://lib.baomitu.com/highlight.js/11.9.0/es/core.min.js",
+				},*/
+				/*{
 					name:"vue-router",
 					var:"vue-router",
 					path:"https://lib.baomitu.com/vue-router/4.1.6/vue-router.cjs.min.js",
-				},
-				{
+				},*/
+				/*{
 					name:"vue",
 					var:"vue",
 					path:"https://lib.baomitu.com/vue/3.2.47/vue.cjs.min.js",
-				},
-				{
+				},*/
+				/*{
 					name:"vue-i18n",
 					var:"vue-i18n",
 					path:"https://lib.baomitu.com/vue-i18n/9.2.2/vue-i18n.esm-bundler.min.js",
-				},
-				{
+				},*/
+				/*{
 					name:"naive-ui",
 					var:"naive-ui",
 					path:"https://lib.baomitu.com/naive-ui/2.34.4/index.min.js",
-				},
+				},*/
 			]
 		}),
     env.VITE_GLOB_APP_PWA === 'true' && VitePWA({
