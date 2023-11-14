@@ -12,9 +12,24 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
   return [
     vue(),
 		//visualizer({ open: true }),
-		/*https://cdn.baomitu.com/*/
+		/*360cdn: https://cdn.baomitu.com/*/
 		importToCDN({
 			modules: [
+				{
+					name:"vue",
+					var:"Vue",
+					path:"https://lib.baomitu.com/vue/3.2.47/vue.global.prod.min.js",
+				},
+				{
+					name: "vue-demi",
+					var: "VueDemi",
+					path: "https://lib.baomitu.com/vue-demi/0.13.11/index.iife.min.js",
+				},
+				/*{
+					name:"naive-ui",
+					var:"naive-ui",
+					path:"https://cdn.staticfile.org/naive-ui/2.34.3/index.prod.min.js",
+				},*/
 				{
 					name:"katex",
 					var:"katex",
@@ -26,30 +41,22 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
 					var:"html2canvas",
 					path:"https://lib.baomitu.com/html2canvas/1.4.1/html2canvas.js",
 				},
-				/*{
+				{
 					name:"highlight.js",
 					var:"highlight.js",
-					path:"https://lib.baomitu.com/highlight.js/11.9.0/es/core.min.js",
-				},*/
-				/*{
+					path:["https://lib.baomitu.com/highlight.js/11.7.0/highlight.min.js",
+						"https://lib.baomitu.com/highlight.js/11.7.0/languages/mathematica.min.js",
+					],
+				},
+				{
 					name:"vue-router",
-					var:"vue-router",
-					path:"https://lib.baomitu.com/vue-router/4.1.6/vue-router.cjs.min.js",
-				},*/
-				/*{
-					name:"vue",
-					var:"vue",
-					path:"https://lib.baomitu.com/vue/3.2.47/vue.cjs.min.js",
-				},*/
+					var:"VueRouter",
+					path:"https://lib.baomitu.com/vue-router/4.1.6/vue-router.global.min.js",
+				},
 				/*{
 					name:"vue-i18n",
-					var:"vue-i18n",
+					var:"VueI18n",
 					path:"https://lib.baomitu.com/vue-i18n/9.2.2/vue-i18n.esm-bundler.min.js",
-				},*/
-				/*{
-					name:"naive-ui",
-					var:"naive-ui",
-					path:"https://lib.baomitu.com/naive-ui/2.34.4/index.min.js",
 				},*/
 			]
 		}),
