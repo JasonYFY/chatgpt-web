@@ -5,9 +5,14 @@ import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 import importToCDN from 'vite-plugin-cdn-import'
 
+// 插件-用于查看打包后的体积信息
+//import { visualizer } from 'rollup-plugin-visualizer';
+
 function setupPlugins(env: ImportMetaEnv): PluginOption[] {
   return [
     vue(),
+		//visualizer({ open: true }),
+		/*https://cdn.baomitu.com/*/
 		importToCDN({
 			modules: [
 				{
@@ -20,6 +25,31 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
 					name:"html2canvas",
 					var:"html2canvas",
 					path:"https://lib.baomitu.com/html2canvas/1.4.1/html2canvas.js",
+				},
+				{
+					name:"highlight.js",
+					var:"highlight.js",
+					path:"https://lib.baomitu.com/highlight.js/11.7.0/es/highlight.min.js",
+				},
+				{
+					name:"vue-router",
+					var:"vue-router",
+					path:"https://lib.baomitu.com/vue-router/4.1.6/vue-router.cjs.min.js",
+				},
+				{
+					name:"vue",
+					var:"vue",
+					path:"https://lib.baomitu.com/vue/3.2.47/vue.cjs.min.js",
+				},
+				{
+					name:"vue-i18n",
+					var:"vue-i18n",
+					path:"https://lib.baomitu.com/vue-i18n/9.2.2/vue-i18n.esm-bundler.min.js",
+				},
+				{
+					name:"naive-ui",
+					var:"naive-ui",
+					path:"https://lib.baomitu.com/naive-ui/2.34.4/index.min.js",
 				},
 			]
 		}),
