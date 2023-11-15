@@ -107,7 +107,7 @@ export default defineConfig((env) => {
       commonjsOptions: {
         ignoreTryCatch: false,
       },
-			rollupOptions: {
+			/*rollupOptions: {
 				output: {
 					// 最小化拆分包
 					manualChunks(id) {
@@ -135,7 +135,7 @@ export default defineConfig((env) => {
 					// 设置静态资源文件的文件名格式
 					assetFileNames: "[ext]/[name].[hash:4].[ext]",
 				},
-			},
+			},*/
     },
 		plugins: setupPlugins(viteEnv),
   }
