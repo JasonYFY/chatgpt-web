@@ -100,7 +100,7 @@ function parseResponseText(responseText:any) {
 async function onConversation() {
   let message = prompt.value
 
-  if (loading.value){
+  if (loading.value || uploading.value){
     return
   }
 
@@ -501,7 +501,7 @@ const placeholder = computed(() => {
 })
 
 const buttonDisabled = computed(() => {
-  return loading.value || !prompt.value || prompt.value.trim() === ''
+  return loading.value || !prompt.value || prompt.value.trim() === '' || uploading.value
 })
 
 const footerClass = computed(() => {
@@ -549,6 +549,7 @@ function setModel(model: string) {
 //注意：file 将会下一次事件循环中被置为 null
 const uploadRef = ref();  // 添加 ref
 let imageFileList = ref();  // 添加 ref
+const uploading = ref<boolean>(false)
 
 const Upload = ({
                      file,
@@ -566,7 +567,7 @@ const Upload = ({
     type: 'BSCL',
     file: imageFileList.value[0].file,
   }
-
+	uploading.value = true;
   // 接口请求
   request({
     url: '/upload',
@@ -585,6 +586,7 @@ const Upload = ({
     withCredentials: withCredentials || false,
   })
     .then((res) => {
+    	uploading.value = false;
       //console.log(res)
       imageFileList.value.imageFileName = res.data.file.filename
 
@@ -617,6 +619,7 @@ const Upload = ({
       imageFileList.value[0].status="finished"
     })
     .catch((err) => {
+    	uploading.value = false;
     	//console.log(err)
       ms.error(err.message ?? 'error')
 			imageFileList.value[0].status="error"
