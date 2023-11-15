@@ -53,11 +53,16 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
 					var:"VueRouter",
 					path:"https://lib.baomitu.com/vue-router/4.1.6/vue-router.global.min.js",
 				},
-				/*{
+				{
 					name:"vue-i18n",
 					var:"VueI18n",
-					path:"https://lib.baomitu.com/vue-i18n/9.2.2/vue-i18n.esm-bundler.min.js",
-				},*/
+					path:"https://lib.baomitu.com/vue-i18n/9.2.2/vue-i18n.global.prod.min.js",
+				},
+				{
+					name:"axios",
+					var:"axios",
+					path:"https://lib.baomitu.com/axios/1.3.4/axios.min.js",
+				},
 			]
 		}),
     env.VITE_GLOB_APP_PWA === 'true' && VitePWA({
@@ -102,6 +107,35 @@ export default defineConfig((env) => {
       commonjsOptions: {
         ignoreTryCatch: false,
       },
+			rollupOptions: {
+				output: {
+					// 最小化拆分包
+					manualChunks(id) {
+						if (id.includes("node_modules")) {
+							// 通过拆分包的方式将所有来自node_modules的模块打包到单独的chunk中
+							return id
+								.toString()
+								.split("node_modules/")[1]
+								.split("/")[0]
+								.toString();
+						}
+					},
+					// 设置chunk的文件名格式
+					chunkFileNames: (chunkInfo) => {
+						const facadeModuleId = chunkInfo.facadeModuleId
+							? chunkInfo.facadeModuleId.split("/")
+							: [];
+						const fileName1 =
+							facadeModuleId[facadeModuleId.length - 2] || "[name]";
+						// 根据chunk的facadeModuleId（入口模块的相对路径）生成chunk的文件名
+						return `js/${fileName1}/[name].[hash].js`;
+					},
+					// 设置入口文件的文件名格式
+					entryFileNames: "js/[name].[hash].js",
+					// 设置静态资源文件的文件名格式
+					assetFileNames: "[ext]/[name].[hash:4].[ext]",
+				},
+			},
     },
 		plugins: setupPlugins(viteEnv),
   }
