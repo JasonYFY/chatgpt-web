@@ -113,7 +113,7 @@ onUnmounted(() => {
         <div v-else class="whitespace-pre-wrap" v-text="text" />
       </div>
       <div v-else class="whitespace-pre-wrap"  >
-				<img v-if="imageLink" :src="imageLink" />
+				<img v-if="imageLink" :src="imageLink" class="upload-img" />
 				<div class="whitespace-pre-wrap" v-text="text" />
 			</div>
     </div>
@@ -122,4 +122,8 @@ onUnmounted(() => {
 
 <style lang="less">
 @import url(./style.less);
+.upload-img {
+  width: auto; /* 保持宽度自动调整以保持比例 */
+  max-height: 300px; /* 设置最大高度 */
+}
 </style>
