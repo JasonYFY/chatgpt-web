@@ -83,6 +83,7 @@ function parseResponseText(responseText:any) {
 				lastLineObject = JSON.parse(lastLine); // 将最后一行解析为对象
 			}catch (error) {
 				 console.log('最后',backwards,'行没法转成json：',error);
+				 console.log('lines的信息：',lines);
 				 backwards++;
 			}
 		}
