@@ -71,13 +71,24 @@ function parseResponseText(responseText:any) {
 			if(obj.status==='Bard'){
 				return obj.data;
 			}
+			return obj;
 		}
-		// 获取最后一行的文本内容
-		const lastLine = lines[lines.length - 1];
-		lastLineObject = JSON.parse(lastLine); // 将最后一行解析为对象
+
+		//读取倒数第几行，默认第一行
+		let backwards = 1;
+		for (let i = 0; i < 3; i++) {
+			try{
+				// 获取最后一行的文本内容  这里有可能会报错，因为
+				const lastLine = lines[lines.length - backwards];
+				lastLineObject = JSON.parse(lastLine); // 将最后一行解析为对象
+			}catch (error) {
+				 console.log('最后',backwards,'行没法转成json：',error);
+				 backwards++;
+			}
+		}
 
 		// 将所有行的文本内容合并在一起
-		for (let i = 0; i < lines.length; i++) {
+		for (let i = 0; i <= lines.length-backwards; i++) {
 			let line = lines[i];
 			if(line.trim() === '') continue;
 			const obj = JSON.parse(line);
