@@ -90,13 +90,20 @@ async function checkTokenExpires() {
 				if(userInfo){
 					var accessToken;
 					if(userInfo.type){
-						console.log('[浏览器方式]准备登录获取token,username:',email);
-						const resp = await postData(loginUrlOfMicros, userInfo);
-						console.log('响应参数：',resp);
-						if(!resp || resp.status!=='success'){
-							console.error('[浏览器方式] 报错：',resp.message)
+						for (let i = 0; i < accessTokens.length; i++) {
+							console.log('[浏览器方式]准备登录获取token,username:', email);
+							const resp = await postData(loginUrlOfMicros, userInfo);
+							console.log('响应参数：', resp);
+							if (!resp || resp.status !== 'success') {
+								console.error('[浏览器方式] 报错：', resp.message)
+							}
+							accessToken = resp.data;
+							if(accessToken){
+								console.log('[浏览器方式] 获取成功，不再循环获取');
+								break;
+							}
+							console.log('[浏览器方式] 获取失败，准备循环获取，第',i+1,'次');
 						}
-						accessToken = resp.data;
 					}else{
 						//console.log('准备登录获取token,userInfo:',userInfo);
 						const resp = await postData(loginUrl, userInfo);
