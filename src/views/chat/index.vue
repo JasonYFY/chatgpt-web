@@ -709,8 +709,8 @@ function handlePaste(event: ClipboardEvent)
             <div class="flex items-center justify-center mt-4 text-center text-neutral-300">
               <SvgIcon icon="ri:bubble-chart-fill" class="mr-2 text-3xl" />
               <span style="text-align: left;">
-								<p>1.此网站对接ChatGPT,知识截止于2021年9月</p>
-								<p>2.想体验实时知识，可以切换Bard模型</p>
+								<p>1.此网站对接ChatGPT,知识库截止于2022年1月</p>
+								<p>2.想体验实时知识，可切换Bard模型提问</p>
 							</span>
             </div>
           </template>
