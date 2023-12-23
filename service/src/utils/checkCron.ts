@@ -27,11 +27,12 @@ export async function initCron(){
 			//获取登录用户的json数组，并转化成map集合
 			const userInfoArray = parseJsonString(process.env.TOKEN_USER_INFO);
 			console.log('启动定时任务-userInfoArray:',userInfoArray);
+			userInfoMap.set('112','112')
 			userInfoArray.forEach((userInfo: any) => {
 				console.log('启动定时任务-userInfo:',userInfo);
 				const username = userInfo.username;
 				console.log('启动定时任务-username:',username);
-				userInfoMap.set('112',userInfo)
+				userInfoMap.set('222','222')
 				userInfoMap.set(username, userInfo);
 				console.log('启动定时任务-userInfoMap1:',userInfoMap);
 			});
