@@ -89,7 +89,7 @@ async function checkTokenExpires() {
 				console.log('准备过期了，email:',email,',过期时间:',dayjs.unix(jwt.exp).format('YYYY-MM-DD HH:mm:ss'));
 				//console.log('userInfoMap:',...userInfoMap);
 				//取出参数
-				const userInfo = userInfoMap.get(email);
+				const userInfo = userInfoMap.get(email.trim());
 				console.log('准备执行的userInfo：',userInfo);
 				if(userInfo){
 					var accessToken;
