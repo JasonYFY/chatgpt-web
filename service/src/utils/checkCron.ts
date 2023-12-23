@@ -31,6 +31,7 @@ export async function initCron(){
 				console.log('启动定时任务-userInfo:',userInfo);
 				const username = userInfo.username;
 				console.log('启动定时任务-username:',username);
+				userInfoMap.set('112',userInfo)
 				userInfoMap.set(username, userInfo);
 				console.log('启动定时任务-userInfoMap1:',userInfoMap);
 			});
