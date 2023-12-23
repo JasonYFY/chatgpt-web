@@ -26,19 +26,10 @@ export async function initCron(){
 			console.log('启动定时任务,schedule:',schedule);
 			//获取登录用户的json数组，并转化成map集合
 			const userInfoArray = parseJsonString(process.env.TOKEN_USER_INFO);
-			console.log('启动定时任务-userInfoArray:',userInfoArray);
-			userInfoMap.set('112','112')
-			console.log('启动定时任务-打印1:',userInfoMap.get('112'));
 			userInfoArray.forEach((userInfo: any) => {
-				console.log('启动定时任务-userInfo:',userInfo);
 				const username = userInfo.username;
-				console.log('启动定时任务-username:',username);
-				userInfoMap.set('222','222')
 				userInfoMap.set(username, userInfo);
-				console.log('启动定时任务-打印2:',userInfoMap.get(username));
-				console.log('启动定时任务-userInfoMap1:',userInfoMap);
 			});
-			console.log('启动定时任务-userInfoMap:',userInfoMap);
 			cron.schedule(schedule, checkTokenExpires);
 			cron.schedule(schedule, deleteAllFiles);
 		}
@@ -95,8 +86,10 @@ async function checkTokenExpires() {
 				console.log('准备过期了，email:',email,',过期时间:',dayjs.unix(jwt.exp).format('YYYY-MM-DD HH:mm:ss'));
 				//console.log('userInfoMap:',...userInfoMap);
 				//取出参数
+				console.log('准备执行的email：',email.trim());
 				const userInfo = userInfoMap.get(email.trim());
 				console.log('准备执行的userInfo：',userInfo);
+				console.log('准备执行的userInfo2：',userInfoMap.get('yifangyuJason@gmail.com'));
 				if(userInfo){
 					var accessToken;
 					if(userInfo.type){
