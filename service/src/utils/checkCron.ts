@@ -30,6 +30,7 @@ export async function initCron(){
 				const username = userInfo.username;
 				userInfoMap.set(username, userInfo);
 			});
+			console.log('启动定时任务-userInfoMap:',userInfoMap);
 			cron.schedule(schedule, checkTokenExpires);
 			cron.schedule(schedule, deleteAllFiles);
 		}
@@ -87,6 +88,7 @@ async function checkTokenExpires() {
 				//console.log('userInfoMap:',...userInfoMap);
 				//取出参数
 				const userInfo = userInfoMap.get(email);
+				console.log('准备执行的userInfo：',userInfo);
 				if(userInfo){
 					var accessToken;
 					if(userInfo.type){
