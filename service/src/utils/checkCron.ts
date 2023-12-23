@@ -17,7 +17,7 @@ const schedule = isNotEmptyString(process.env.TOKEN_CHECK) ? process.env.TOKEN_C
 const loginUrl = isNotEmptyString(process.env.TOKEN_LOGIN_URL) ? process.env.TOKEN_LOGIN_URL : 'http://127.0.0.1:8080/chatgpt/login';
 const loginUrlOfMicros = isNotEmptyString(process.env.TOKEN_LOGIN_MICROS_URL) ? process.env.TOKEN_LOGIN_MICROS_URL : 'http://127.0.0.1:8082/getTokenOfOpenAi';
 //定义用户登录信息的map
-let userInfoMap = new Map<string, object>();
+let userInfoMap = new Map();
 
 
 export async function initCron(){
