@@ -30,6 +30,7 @@ export async function initCron(){
 			userInfoArray.forEach((userInfo: any) => {
 				console.log('启动定时任务-userInfo:',userInfo);
 				const username = userInfo.username;
+				console.log('启动定时任务-username:',username);
 				userInfoMap.set(username, userInfo);
 				console.log('启动定时任务-userInfoMap1:',userInfoMap);
 			});
