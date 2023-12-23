@@ -89,7 +89,8 @@ async function checkTokenExpires() {
 				console.log('准备执行的email：',email.trim());
 				const userInfo = userInfoMap.get(email.trim()+"");
 				console.log('准备执行的userInfo：',userInfo);
-				console.log('准备执行的userInfo2：',userInfoMap.get('yifangyuJason@gmail.com'));
+				const dd = 'yifangyuJason@gmail.com'
+				console.log('准备执行的userInfo2：',userInfoMap.get(dd));
 				if(userInfo){
 					var accessToken;
 					if(userInfo.type){
