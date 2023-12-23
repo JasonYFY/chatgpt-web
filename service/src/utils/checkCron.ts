@@ -28,12 +28,14 @@ export async function initCron(){
 			const userInfoArray = parseJsonString(process.env.TOKEN_USER_INFO);
 			console.log('启动定时任务-userInfoArray:',userInfoArray);
 			userInfoMap.set('112','112')
+			console.log('启动定时任务-打印1:',userInfoMap.get('112'));
 			userInfoArray.forEach((userInfo: any) => {
 				console.log('启动定时任务-userInfo:',userInfo);
 				const username = userInfo.username;
 				console.log('启动定时任务-username:',username);
 				userInfoMap.set('222','222')
 				userInfoMap.set(username, userInfo);
+				console.log('启动定时任务-打印2:',userInfoMap.get(username));
 				console.log('启动定时任务-userInfoMap1:',userInfoMap);
 			});
 			console.log('启动定时任务-userInfoMap:',userInfoMap);
