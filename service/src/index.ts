@@ -12,7 +12,6 @@ import {
 	extractSystemContent
 } from "./chatgpt/apiToToken";
 import multer from 'multer'
-import * as path from "path";
 import * as console from "console";
 
 const app = express()
@@ -203,53 +202,6 @@ router.post('/chat/completions', [ auth, limiter], async (req, res) => {
 		res.write(`data: ${errorData}\n\n`);
 	}finally {
 		res.end()
-	}
-})
-
-router.post('/v1/chat/completions', [ auth, limiter], async (req, res) => {
-	try {
-		//获取请求的用户
-		let userip = req.socket.remoteAddress;
-		console.log('请求的用户ip：',userip);
-		console.log('请求的内容：',req.body);
-		const {messages} = req.body;
-		//获取询问的内容,取最后一个角色为user的用户内容
-		const msg = extractLastUserContent(messages);
-		//console.log('询问的内容：',msg)
-		const sysMsg = extractSystemContent(messages);
-		//console.log('sys的信息：',sysMsg)
-
-		//记录最后一次输出的信息
-		let preInfo;
-
-		const lastInfo = apiContextCache.get(userip);
-
-		let lastContext;
-		if(lastInfo){
-			//请求的信息有连续提问信息时，才用原来的会话id
-			lastContext = {conversationId:lastInfo.conversationId,parentMessageId:lastInfo.id}
-		}
-		console.log('请求的lastContext：', lastContext);
-		await chatReplyProcess({
-			message: sysMsg + ':' + msg,
-			clientIP: userip,
-			lastContext: lastContext,
-			process: async (chat: ChatMessage) => {
-				//console.log('chat响应的信息：',chat)
-				preInfo = chat;
-			}
-		})
-		//console.log('响应结束的preInfo：',preInfo)
-		//保存下输出的内容，用于中断后可“继续”回复后续内容
-		apiContextCache.set(userip,preInfo);
-		const data = `{"choices": [{"message": {"content": ${JSON.stringify(preInfo.text)}}}]}`;
-		console.log('响应结束,总的输出内容：',data)
-		res.send(data)
-
-	} catch (error) {
-		console.error('v1/chat/completions报错了：',error);
-		const errorData = `{"choices": [{"message": {"content": ${JSON.stringify(error)}}}]}`;
-		res.send(errorData)
 	}
 })
 
