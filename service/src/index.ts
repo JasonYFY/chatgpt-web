@@ -37,7 +37,12 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 		let clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress
 		if(clientIP){
 			//改造下，由于获取不了真实ip,所以需加上用户代理信息（包含了用户代理信息，它提供了关于客户端使用的浏览器、操作系统和设备的详细信息）作为key
-			clientIP = clientIP+req.headers['user-agent'];
+			const userAgent = req.headers['user-agent']
+			if (userAgent && userAgent.includes('Mobile')){
+				console.log('手机请求的，不用加上userAgent：',userAgent);
+			}else{
+				clientIP = clientIP+userAgent;
+			}
 		}
 		let firstChunk = true
 		//记录上一次输出的内容
