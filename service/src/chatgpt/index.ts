@@ -1,7 +1,10 @@
 import * as dotenv from 'dotenv'
 import 'isomorphic-fetch'
-import type { ChatGPTAPIOptions, ChatMessage, SendMessageOptions } from 'chatgpt'
-import { ChatGPTAPI, ChatGPTUnofficialProxyAPI } from 'chatgpt'
+// import type { ChatGPTAPIOptions, ChatMessage, SendMessageOptions } from 'chatgpt'
+// import { ChatGPTAPI, ChatGPTUnofficialProxyAPI } from 'chatgpt'
+import type { ChatGPTAPIOptions, ChatMessage, SendMessageOptions } from '../chatgptProxy'
+import { ChatGPTAPI,ChatGPTUnofficialProxyAPI } from '../chatgptProxy'
+
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import httpsProxyAgent from 'https-proxy-agent'
 import fetch from 'node-fetch'
@@ -12,8 +15,9 @@ import dayjs from 'dayjs'
 import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig,JWT } from '../types'
 import LRUMap from 'lru-cache'
 import type { RequestOptions, SetProxyOptions, UsageResponse } from './types'
-import {initCron} from "../utils/checkCron";
+import {getCurrentDate, initCron, postData} from "../utils/checkCron";
 import {chatBardProcess, replaceImageTags} from "../bard/bardApi";
+import {createChannel, ipChannelCache} from "./coze";
 
 const originalLog = console.log;
 
@@ -29,8 +33,8 @@ console.log = (...args: any[]) => {
 
 const { HttpsProxyAgent } = httpsProxyAgent
 
-// 创建一个LRUMap实例，设置最大容量为1000，过期时间为24小时
-const ipCache = new LRUMap<string, string>({ max: 1000, ttl: 1000 * 60 * 60 * 24});
+// 创建一个LRUMap实例，设置最大容量为200，过期时间为24小时
+const ipCache = new LRUMap<string, string>({ max: 200, ttl: 1000 * 60 * 60 * 24});
 
 
 dotenv.config()
@@ -53,7 +57,9 @@ const model = isNotEmptyString(process.env.OPENAI_API_MODEL) ? process.env.OPENA
 if (!isNotEmptyString(process.env.OPENAI_API_KEY) && !isNotEmptyString(process.env.OPENAI_ACCESS_TOKEN))
   throw new Error('Missing OPENAI_API_KEY or OPENAI_ACCESS_TOKEN environment variable')
 
-let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
+// let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
+let api: ChatGPTUnofficialProxyAPI
+let apiAcess: ChatGPTAPI
 
 let accessTokens = parseKeys(process.env.OPENAI_ACCESS_TOKEN)
 let nextBalancer =  loadBalancer(accessTokens)
@@ -101,24 +107,24 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
 
     setupProxy(options)
 
-    api = new ChatGPTAPI({ ...options })
-    apiModel = 'ChatGPTAPI'
+		apiAcess = new ChatGPTAPI({ ...options })
+    //apiModel = 'ChatGPTAPI'
   }
-  else {
-		//启动定时任务
-		initCron();
-    const options: ChatGPTUnofficialProxyAPIOptions = {
-      accessToken: process.env.OPENAI_ACCESS_TOKEN,
-      apiReverseProxyUrl: isNotEmptyString(process.env.API_REVERSE_PROXY) ? process.env.API_REVERSE_PROXY : 'https://ai.fakeopen.com/api/conversation',
-      model,
-      debug: !disableDebug,
-    }
 
-    setupProxy(options)
+	//启动定时任务
+	initCron();
+	const options: ChatGPTUnofficialProxyAPIOptions = {
+		accessToken: process.env.OPENAI_ACCESS_TOKEN,
+		apiReverseProxyUrl: isNotEmptyString(process.env.API_REVERSE_PROXY) ? process.env.API_REVERSE_PROXY : 'https://ai.fakeopen.com/api/conversation',
+		model,
+		debug: !disableDebug,
+	}
 
-    api = new ChatGPTUnofficialProxyAPI({ ...options })
-    apiModel = 'ChatGPTUnofficialProxyAPI'
-  }
+	setupProxy(options)
+
+	api = new ChatGPTUnofficialProxyAPI({ ...options })
+	apiModel = 'ChatGPTUnofficialProxyAPI'
+
 })()
 
 async function chatReplyProcess(options: RequestOptions) {
@@ -158,11 +164,11 @@ async function chatReplyProcess(options: RequestOptions) {
 
     let options: SendMessageOptions = { timeoutMs }
 
-    if (apiModel === 'ChatGPTAPI') {
+    /*if (apiModel === 'ChatGPTAPI') {
       if (isNotEmptyString(systemMessage))
         options.systemMessage = systemMessage
       options.completionParams = { model, temperature, top_p }
-    }
+    }*/
 
 		//查询ip缓存中是否有token
 		let ipToken = ipCache.get(clientIP);
@@ -182,7 +188,7 @@ async function chatReplyProcess(options: RequestOptions) {
 
     }
 
-		if (apiModel === 'ChatGPTUnofficialProxyAPI') {
+		if (apiModel === 'ChatGPTUnofficialProxyAPI' && model==='gpt-3.5-turbo') {
 			//console.log('Client IP:', clientIP) // 打印客户端IP地址
 			if (process)
 				options.onProgress = process
@@ -244,7 +250,19 @@ async function chatReplyProcess(options: RequestOptions) {
 		}
 
 		//console.log('后端接收到的消息：',message);
-    const response = await api.sendMessage(message, {
+		let channelInfo = ipChannelCache.get(clientIP);
+		if (!channelInfo){
+			console.log('新ip，需要创建频道')
+			const channelData = await createChannel(clientIP)
+			if (channelData){
+				channelInfo: channelInfo = {
+					channelId: channelData.id,
+					createTime: getCurrentDate()
+				};
+				ipChannelCache.set(clientIP,channelInfo);
+			}
+		}
+    const response = await apiAcess.sendMessageCoze(message,channelInfo.channelId, {
       ...options,
       onProgress: (partialResponse) => {
         process?.(partialResponse)

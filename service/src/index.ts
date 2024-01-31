@@ -38,10 +38,15 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 		if(clientIP){
 			//改造下，由于获取不了真实ip,所以需加上用户代理信息（包含了用户代理信息，它提供了关于客户端使用的浏览器、操作系统和设备的详细信息）作为key
 			const userAgent = req.headers['user-agent']
-			if (userAgent && userAgent.includes('Mobile')){
-				console.log('手机请求的，不用加上userAgent：',userAgent);
-			}else{
-				clientIP = clientIP+userAgent;
+			if (userAgent){
+				if (userAgent.includes('Mobile')){
+					console.log('手机请求的，不用加上userAgent：',userAgent);
+				}else{
+					// 按照空格分隔字符串，取最后一个
+					let parts: string[] = userAgent.split(') ');
+					let lastGroup: string = parts[parts.length - 1];
+					clientIP = clientIP+lastGroup;
+				}
 			}
 		}
 		let firstChunk = true
@@ -52,18 +57,25 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 			clientIP: clientIP,
       lastContext: options,
       process: (chat: ChatMessage) => {
-				//console.log('chat响应的信息：',chat)
-				if(firstChunk && chat.text===prompt){
-					//console.log('chat响应的信息是提问的问题',prompt)
-				}else{
-					if(chat.text.length>previousContent.length){
-						let currentContent = chat.text.substring(previousContent.length);
-						previousContent = chat.text;
-						chat.text = currentContent;
-						//console.log('chat响应的信息：',chat)
-						res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
-						firstChunk = false;
+				// console.log('chat响应的信息：',chat)
+				if (model==='bard' || model==='gpt-3.5-turbo'){
+					if(firstChunk && chat.text===prompt){
+						//console.log('chat响应的信息是提问的问题',prompt)
+					}else {
+						if (chat.text.length > previousContent.length) {
+							let currentContent = chat.text.substring(previousContent.length);
+							previousContent = chat.text;
+							chat.text = currentContent;
+							//console.log('chat响应的信息：',chat)
+							res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
+							firstChunk = false;
+						}
 					}
+				}else {
+					delete chat.detail;
+					chat.text = chat.delta
+					res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
+					firstChunk = false
 				}
       },
       systemMessage,

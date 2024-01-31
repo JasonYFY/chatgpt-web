@@ -87,7 +87,6 @@ function parseResponseText(responseText:any) {
 				 backwards++;
 			}
 		}
-
 		// 将所有行的文本内容合并在一起
 		for (let i = 0; i <= lines.length-backwards; i++) {
 			let line = lines[i];
@@ -95,6 +94,7 @@ function parseResponseText(responseText:any) {
 			const obj = JSON.parse(line);
 			combinedText += obj.text;
 		}
+
 	}catch (error) {
 		 // 捕获异常并向上抛出
 		 console.log('responseText的信息：',responseText);
@@ -103,9 +103,9 @@ function parseResponseText(responseText:any) {
 		 //不抛出了
 		 //throw error;
   }
-
 	// 更新最后一行对象的 text 属性
-	lastLineObject.text = combinedText;
+  lastLineObject.text = combinedText;
+
 	return lastLineObject;
 }
 
@@ -546,6 +546,7 @@ const model = computed({
 const modelOptions: { label: string; value: string }[] = [
   { label: 'GPT3',value: 'gpt-3.5-turbo' },
   { label: 'Bard',value: 'bard' },
+  { label: 'GPT4',value: 'gpt4-coze' },
 ]
 
 function setModel(model: string) {

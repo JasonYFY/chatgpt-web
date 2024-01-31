@@ -131,7 +131,7 @@ async function checkTokenExpires() {
 	console.log('定时任务结束--检查token是否快过期');
 }
 
-function getCurrentDate(): string {
+export function getCurrentDate(): string {
 	return dayjs().format('YYYY-MM-DD');
 }
 
@@ -142,10 +142,13 @@ function getCurrentDatePlusTwoDay(): string {
 
 export async function postData(url: string, data: Record<string, any>) {
 	try {
+		const openaiapikey = process.env.OPENAI_API_KEY;
 		const response = await fetch(url, {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'Authorization': openaiapikey,
+				'proxy-secret': openaiapikey
 			},
 			body: JSON.stringify(data)
 		});
