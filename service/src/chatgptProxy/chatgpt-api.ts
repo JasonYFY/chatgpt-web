@@ -386,6 +386,7 @@ export class ChatGPTAPI {
 			role: 'user',
 			content: text
 		})
+		const numTokens = 0
 
 		const result: types.ChatMessage = {
 			role: 'assistant',
