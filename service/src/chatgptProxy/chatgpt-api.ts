@@ -376,10 +376,16 @@ export class ChatGPTAPI {
 
 		const latestQuestion = message
 
-		const { messages, maxTokens, numTokens } = await this._buildMessages(
+		/*const { messages, maxTokens, numTokens } = await this._buildMessages(
 			text,
 			opts
-		)
+		)*/
+
+		let messages: types.openai.ChatCompletionRequestMessage[] = []
+		messages.push({
+			role: 'user',
+			content: text
+		})
 
 		const result: types.ChatMessage = {
 			role: 'assistant',
