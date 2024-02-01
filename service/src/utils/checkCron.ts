@@ -5,11 +5,12 @@ import dayjs from 'dayjs'
 import {parseKeys} from './index'
 import {JWT} from "../types";
 import {ipCache,accessTokens,setAccessTokens} from "../chatgpt";
-import fetch from 'node-fetch';
 import {updateEnvFile} from "./operateEnv";
 import * as dotenv from 'dotenv'
 import * as fs from 'fs'
 import * as path from 'path';
+import {getCurrentDatePlusTwoDay, parseJsonString, postData} from "./commUtils";
+import {vindicateChannelCategoryCron} from "../chatgpt/coze";
 
 dotenv.config();
 // 设定定时任务的执行规律
@@ -41,6 +42,9 @@ export async function initCron(){
 
 
 function deleteAllFiles(): void {
+	//维护频道类别--用于每天创建和删除类别
+	vindicateChannelCategoryCron()
+
 	const directoryPath = "./uploads"
 	console.log('定时任务开始--删除所有的文件');
 	try {
@@ -131,39 +135,5 @@ async function checkTokenExpires() {
 	console.log('定时任务结束--检查token是否快过期');
 }
 
-export function getCurrentDate(): string {
-	return dayjs().format('YYYY-MM-DD');
-}
 
-function getCurrentDatePlusTwoDay(): string {
-	const nextDay = dayjs().add(2, 'day');
-	return nextDay.format('YYYY-MM-DD');
-}
 
-export async function postData(url: string, data: Record<string, any>) {
-	try {
-		const openaiapikey = process.env.OPENAI_API_KEY;
-		const response = await fetch(url, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': openaiapikey,
-				'proxy-secret': openaiapikey
-			},
-			body: JSON.stringify(data)
-		});
-
-		return await response.json();
-	} catch (error) {
-		console.error('Error:', error);
-	}
-}
-
-function parseJsonString(jsonString: string): any {
-	try {
-		return JSON.parse(jsonString);
-	} catch (error) {
-		console.error('Error parsing JSON:', error);
-		return null;
-	}
-}

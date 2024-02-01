@@ -20,8 +20,3 @@ export interface SetProxyOptions {
 export interface UsageResponse {
   total_usage: number
 }
-//用于保存频道信息
-export interface channelInfo {
-	channelId: string
-	createTime:string
-}

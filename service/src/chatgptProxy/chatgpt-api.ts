@@ -457,8 +457,12 @@ export class ChatGPTAPI {
 									console.warn('OpenAI stream SEE event unexpected error', err)
 									return reject(err)
 								}
+							},
+							onError: (err) => {
+								reject(err)
 							}
 						},
+
 						this._fetch
 					).catch(reject)
 				} else {

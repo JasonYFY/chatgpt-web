@@ -3,6 +3,7 @@ import { createParser } from 'eventsource-parser'
 import * as types from './types'
 import { fetch as globalFetch } from './fetch'
 import { streamAsyncIterable } from './stream-async-iterable'
+import {ChatGPTError} from "./types";
 
 export async function fetchSSE(
   url: string,
@@ -61,6 +62,16 @@ export async function fetchSSE(
       // don't feed to the event parser
       return
     }
+
+		if (response?.error){
+			const error = new ChatGPTError()
+			error.statusText = response.error.message
+			if (onError) {
+				onError(error)
+			} else {
+				console.error(error)
+			}
+		}
 
     parser.feed(chunk)
   }

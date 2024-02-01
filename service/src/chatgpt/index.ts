@@ -14,10 +14,10 @@ import jwt_decode from 'jwt-decode'
 import dayjs from 'dayjs'
 import type { ApiModel, ChatContext, ChatGPTUnofficialProxyAPIOptions, ModelConfig,JWT } from '../types'
 import LRUMap from 'lru-cache'
-import type { RequestOptions, SetProxyOptions, UsageResponse } from './types'
-import {getCurrentDate, initCron, postData} from "../utils/checkCron";
+import type { RequestOptions, SetProxyOptions } from './types'
+import {initCron} from "../utils/checkCron";
 import {chatBardProcess, replaceImageTags} from "../bard/bardApi";
-import {createChannel, ipChannelCache} from "./coze";
+import {createChannel, initChannelCategory, idChannelCache} from "./coze";
 
 const originalLog = console.log;
 
@@ -109,6 +109,8 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
 
 		apiAcess = new ChatGPTAPI({ ...options })
     //apiModel = 'ChatGPTAPI'
+		//初始化频道类别信息
+		initChannelCategory()
   }
 
 	//启动定时任务
@@ -188,11 +190,11 @@ async function chatReplyProcess(options: RequestOptions) {
 
     }
 
+		let retryCount = 0
 		if (apiModel === 'ChatGPTUnofficialProxyAPI' && model==='gpt-3.5-turbo') {
 			//console.log('Client IP:', clientIP) // 打印客户端IP地址
 			if (process)
 				options.onProgress = process
-			let retryCount = 0
 			let response: ChatMessage | void
 
 			//定义重试时是否需要重新获取token
@@ -232,7 +234,7 @@ async function chatReplyProcess(options: RequestOptions) {
 						//401是由于token过期了，所以需要换一个
 						retryNextToken = true;
 					}else{
-						console.log('未知错误',error);
+						console.error('未知错误',error);
 						throw error
 					}
 				});
@@ -249,27 +251,39 @@ async function chatReplyProcess(options: RequestOptions) {
 			return sendResponse({ type: 'Success', data: response })
 		}
 
-		//console.log('后端接收到的消息：',message);
-		let channelInfo = ipChannelCache.get(clientIP);
-		if (!channelInfo){
-			console.log('新ip，需要创建频道')
-			const channelData = await createChannel(clientIP)
-			if (channelData){
-				channelInfo: channelInfo = {
-					channelId: channelData.id,
-					createTime: getCurrentDate()
-				};
-				ipChannelCache.set(clientIP,channelInfo);
+
+		if(options.conversationId){
+			//创建一个自定义的回话id
+			options.conversationId = generateUUID()
+		}
+
+		//查找是否有对应的频道id
+		let channelId = idChannelCache.get(options.conversationId);
+		if (!channelId){
+			console.log('新conversationId，需要创建频道')
+			channelId = await createChannel(clientIP)
+			if (channelId){
+				idChannelCache.set(options.conversationId,channelId);
 			}
 		}
-    const response = await apiAcess.sendMessageCoze(message,channelInfo.channelId, {
-      ...options,
-      onProgress: (partialResponse) => {
-        process?.(partialResponse)
-      },
-    })
+		let responseApi
+		while (!responseApi && retryCount++ < 2) {
+			responseApi = await apiAcess.sendMessageCoze(message, channelId, {
+				...options,
+				onProgress: (partialResponse) => {
+					process?.(partialResponse)
+				},
+			}).catch(async (error: any) => {
+				console.error('访问Coze报错', error);
+				console.log('有可能是频道有问题，重新获取频道，重新新执行retryCount：', retryCount);
+				channelId = await createChannel(clientIP)
+				if (channelId) {
+					idChannelCache.set(options.conversationId, channelId);
+				}
+			})
+		}
 
-    return sendResponse({ type: 'Success', data: response })
+    return sendResponse({ type: 'Success', data: responseApi })
   }
   catch (error: any) {
     const code = error.statusCode

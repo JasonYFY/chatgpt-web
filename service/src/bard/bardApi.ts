@@ -1,5 +1,5 @@
 import {isNotEmptyString} from "../utils/is";
-import {postData} from "../utils/checkCron";
+import {postData} from "../utils/commUtils";
 
 const bardUrl = isNotEmptyString(process.env.BARD_URL) ? process.env.BARD_URL : 'http://127.0.0.1:8082/getAnswerOfBard';
 
