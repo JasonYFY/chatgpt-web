@@ -178,7 +178,9 @@ async function chatReplyProcess(options: RequestOptions) {
     if (lastContext != null) {
       if (apiModel === 'ChatGPTAPI')
         options.parentMessageId = lastContext.parentMessageId
-      else{
+			else if(model==='gpt4-coze'){
+				options = {...lastContext}
+			}else{
 				if (ipToken) {
 					//有token才赋值上下文
 					if(lastContext && lastContext.conversationId && lastContext.parentMessageId){
@@ -261,7 +263,7 @@ async function chatReplyProcess(options: RequestOptions) {
 		//查找是否有对应的频道id
 		let channelId = idChannelCache.get(options.conversationId);
 		if (!channelId){
-			console.log('新conversationId，需要创建频道')
+			console.log(`新conversationId:${options.conversationId}，需要创建频道`)
 			channelId = await createChannel(clientIP)
 			if (channelId){
 				idChannelCache.set(options.conversationId,channelId);
