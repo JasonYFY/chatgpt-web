@@ -8,17 +8,19 @@ import {
 } from "../utils/commUtils";
 import {updateEnvFile} from "../utils/operateEnv";
 import * as dotenv from "dotenv";
+import cron from 'node-cron';
 
 dotenv.config();
 const cozeUrl = isNotEmptyString(process.env.OPENAI_API_BASE_URL) ? process.env.OPENAI_API_BASE_URL : 'http://127.0.0.1:7077';
 //用于保存回话id和频道的映射缓存
 export const idChannelCache = new Map<string,string>();
-
 //频道类别信息的map
 export const channelParentMap = new Map();
-
 //记录当前频道类别id
 let currentChannelCategoryId = '';
+// 设定定时任务的执行规律
+const schedule = isNotEmptyString(process.env.COZE_CHECK) ? process.env.COZE_CHECK : '08 0 * * *';
+
 
 //创建频道
 export async function createChannel(name: string){
@@ -38,14 +40,14 @@ export async function createChannel(name: string){
 
 
 //创建频道
-export function createChannelCategory(name: string){
+export async function createChannelCategory(name: string) {
 	const data = {
 		"name": name,
 	};
-	const resp = postData(cozeUrl+'/api/channel/createCategory', data);
-	console.log('创建频道类别响应参数：',resp);
+	const resp = await postData(cozeUrl + '/api/channel/createCategory', data);
+	console.log('创建频道类别响应参数：', resp);
 	// @ts-ignore
-	if (resp.success){
+	if (resp.success) {
 		// @ts-ignore
 		return resp.data.id;
 	}
@@ -82,7 +84,8 @@ export async function initChannelCategory(){
 			});
 
 			await createCurrentDateChannelCategory()
-
+			//维护频道类别--用于每天创建和删除类别
+			cron.schedule(schedule, vindicateChannelCategoryCron);
 		}
 	} catch(error) {
 		console.error('初始化频道类别信息报错了：',error);
@@ -95,7 +98,7 @@ async function createCurrentDateChannelCategory() {
 	if(!currentId){
 		//检查是否有当前日期的频道类别，若没有，则创建
 		console.log(`没有当前日期${currentDate}的频道类别，准备创建`)
-		const id = createChannelCategory(currentDate)
+		const id = await createChannelCategory(currentDate)
 		if (id){
 			console.log(`创建频道类别${currentDate}成功`)
 			currentChannelCategoryId = id;

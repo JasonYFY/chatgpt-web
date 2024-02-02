@@ -42,9 +42,6 @@ export async function initCron(){
 
 
 function deleteAllFiles(): void {
-	//维护频道类别--用于每天创建和删除类别
-	vindicateChannelCategoryCron()
-
 	const directoryPath = "./uploads"
 	console.log('定时任务开始--删除所有的文件');
 	try {
