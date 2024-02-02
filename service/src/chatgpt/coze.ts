@@ -83,7 +83,7 @@ export async function initChannelCategory(){
 				channelParentMap.set(channelParentInfo.date, channelParentInfo.channelId);
 			});
 
-			await createCurrentDateChannelCategory()
+			//await createCurrentDateChannelCategory()
 			//维护频道类别--用于每天创建和删除类别
 			cron.schedule(schedule, vindicateChannelCategoryCron);
 		}
