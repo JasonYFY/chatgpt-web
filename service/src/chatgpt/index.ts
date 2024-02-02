@@ -267,7 +267,9 @@ async function chatReplyProcess(options: RequestOptions) {
 			}
 		}
 		let responseApi
-		while (!responseApi && retryCount++ < 2) {
+		//最大的重试次数
+		const maxRetryNum = 2;
+		while (!responseApi && retryCount++ < maxRetryNum) {
 			responseApi = await apiAcess.sendMessageCoze(message, channelId, {
 				...options,
 				onProgress: (partialResponse) => {
@@ -276,9 +278,11 @@ async function chatReplyProcess(options: RequestOptions) {
 			}).catch(async (error: any) => {
 				console.error('访问Coze报错', error);
 				console.log('有可能是频道有问题，重新获取频道，重新新执行retryCount：', retryCount);
-				channelId = await createChannel(clientIP)
-				if (channelId) {
-					idChannelCache.set(options.conversationId, channelId);
+				if (retryCount<maxRetryNum){
+					channelId = await createChannel(clientIP)
+					if (channelId) {
+						idChannelCache.set(options.conversationId, channelId);
+					}
 				}
 			})
 		}
