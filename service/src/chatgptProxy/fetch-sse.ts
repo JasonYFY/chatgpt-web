@@ -3,7 +3,7 @@ import { createParser } from 'eventsource-parser'
 import * as types from './types'
 import { fetch as globalFetch } from './fetch'
 import { streamAsyncIterable } from './stream-async-iterable'
-import {ChatGPTError} from "./types";
+import {ChatCozeError} from "../chatgpt/types";
 
 export async function fetchSSE(
   url: string,
@@ -64,8 +64,9 @@ export async function fetchSSE(
     }
 
 		if (response?.error){
-			const error = new ChatGPTError()
-			error.statusText = response.error.message
+			const error = new ChatCozeError()
+			error.message = response.error.message
+			error.statusCode = response.error.code
 			if (onError) {
 				onError(error)
 			} else {

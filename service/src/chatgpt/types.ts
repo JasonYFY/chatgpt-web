@@ -20,3 +20,8 @@ export interface SetProxyOptions {
 export interface UsageResponse {
   total_usage: number
 }
+
+export class ChatCozeError extends Error {
+	statusCode?: string
+	message?: string
+}

@@ -18,6 +18,7 @@ import type { RequestOptions, SetProxyOptions } from './types'
 import {initCron} from "../utils/checkCron";
 import {chatBardProcess, replaceImageTags} from "../bard/bardApi";
 import {createChannel, initChannelCategory, idChannelCache} from "./coze";
+import {ChatCozeError} from "./types";
 
 const originalLog = console.log;
 
@@ -277,12 +278,14 @@ async function chatReplyProcess(options: RequestOptions) {
 				},
 			}).catch(async (error: any) => {
 				console.error('访问Coze报错', error);
-				console.log('有可能是频道有问题，重新获取频道，重新新执行retryCount：', retryCount);
-				if (retryCount<maxRetryNum){
+				if (retryCount<maxRetryNum && error instanceof ChatCozeError){
+					console.log('有可能是频道有问题，重新获取频道，重新新执行retryCount：', retryCount);
 					channelId = await createChannel(clientIP)
 					if (channelId) {
 						idChannelCache.set(options.conversationId, channelId);
 					}
+				}else{
+					throw error
 				}
 			})
 		}
