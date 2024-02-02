@@ -253,7 +253,7 @@ async function chatReplyProcess(options: RequestOptions) {
 		}
 
 
-		if(options.conversationId){
+		if(!options.conversationId){
 			//创建一个自定义的回话id
 			options.conversationId = generateUUID()
 		}
