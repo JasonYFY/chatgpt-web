@@ -281,6 +281,9 @@ async function chatReplyProcess(options: RequestOptions) {
 			}).catch(async (error: any) => {
 				console.error('访问Coze报错', error);
 				if (retryCount<maxRetryNum && error instanceof ChatCozeError){
+					const errorMessage = error.message;
+					if(errorMessage.concat('prompt已超过限制')) throw error
+
 					console.log('有可能是频道有问题，重新获取频道，重新新执行retryCount：', retryCount);
 					channelId = await createChannel(clientIP)
 					if (channelId) {

@@ -21,6 +21,7 @@ export interface UsageResponse {
   total_usage: number
 }
 
+// @ts-ignore
 export class ChatCozeError extends Error {
 	statusCode?: string
 	message?: string
