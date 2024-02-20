@@ -17,8 +17,9 @@ import LRUMap from 'lru-cache'
 import type { RequestOptions, SetProxyOptions } from './types'
 import {initCron} from "../utils/checkCron";
 import {chatBardProcess, replaceImageTags} from "../bard/bardApi";
-import {createChannel, initChannelCategory, idChannelCache} from "./coze";
+import {createChannel, initChannelCategory, idChannelCache, dateChannelMap} from "./coze";
 import {ChatCozeError} from "./types";
+import {getCurrentDate} from "../utils/commUtils";
 
 const originalLog = console.log;
 
@@ -133,7 +134,8 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
 async function chatReplyProcess(options: RequestOptions) {
   const { message, lastContext, process, systemMessage
 		,clientIP, temperature, top_p,model,imageFileName } = options
-  try {
+
+	try {
 
 		console.log('Client IP:', clientIP); // 打印客户端IP地址
 		console.log('model:', model);
@@ -264,10 +266,7 @@ async function chatReplyProcess(options: RequestOptions) {
 		let channelId = idChannelCache.get(options.conversationId);
 		if (!channelId){
 			console.log(`新conversationId:${options.conversationId}，需要创建频道`)
-			channelId = await createChannel(clientIP)
-			if (channelId){
-				idChannelCache.set(options.conversationId,channelId);
-			}
+			channelId = await creatChannel(clientIP, options);
 		}
 		let responseApi
 		//最大的重试次数
@@ -285,10 +284,7 @@ async function chatReplyProcess(options: RequestOptions) {
 					if(errorMessage.concat('prompt已超过限制')) throw error
 
 					console.log('有可能是频道有问题，重新获取频道，重新新执行retryCount：', retryCount);
-					channelId = await createChannel(clientIP)
-					if (channelId) {
-						idChannelCache.set(options.conversationId, channelId);
-					}
+					channelId = await creatChannel(clientIP, options);
 				}else{
 					throw error
 				}
@@ -304,6 +300,22 @@ async function chatReplyProcess(options: RequestOptions) {
       return sendResponse({ type: 'Fail', message: ErrorCodeMessage[code] })
     return sendResponse({ type: 'Fail', message: error.message ?? 'Please check the back-end console' })
   }
+}
+
+async function creatChannel(clientIP: string, options: SendMessageOptions) {
+	const currentDate = getCurrentDate();
+	let channelId = await createChannel(currentDate,clientIP)
+	if (channelId) {
+		idChannelCache.set(options.conversationId, channelId);
+		//记录日期->频道id的map
+		let channelArray:Array<string> = dateChannelMap.get(currentDate);
+		if (!channelArray){
+			channelArray =  []
+		}
+		channelArray.push(channelId)
+		dateChannelMap.set(currentDate,channelArray);
+	}
+	return channelId;
 }
 
 async function fetchBalance() {

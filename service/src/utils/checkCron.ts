@@ -10,7 +10,6 @@ import * as dotenv from 'dotenv'
 import * as fs from 'fs'
 import * as path from 'path';
 import {getCurrentDatePlusTwoDay, parseJsonString, postData} from "./commUtils";
-import {vindicateChannelCategoryCron} from "../chatgpt/coze";
 
 dotenv.config();
 // 设定定时任务的执行规律
