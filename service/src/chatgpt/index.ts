@@ -184,8 +184,9 @@ async function chatReplyProcess(options: RequestOptions) {
 				options = {...lastContext}
 			}else{
 				if (ipToken) {
-					//有token才赋值上下文
-					if(lastContext && lastContext.conversationId && lastContext.parentMessageId){
+					//有token才赋值上下文 需要判断conversationId是否为coze的，否则不要用
+					if(lastContext && lastContext.conversationId && !lastContext.conversationId.concat('coze')
+						&& lastContext.parentMessageId){
 						// conversationId 和 parentMessageId 都存在时才赋值
 						options = {...lastContext}
 					}
@@ -259,7 +260,7 @@ async function chatReplyProcess(options: RequestOptions) {
 
 		if(!options.conversationId){
 			//创建一个自定义的回话id
-			options.conversationId = generateUUID()
+			options.conversationId = 'coze'+generateUUID()
 		}
 
 		//查找是否有对应的频道id
