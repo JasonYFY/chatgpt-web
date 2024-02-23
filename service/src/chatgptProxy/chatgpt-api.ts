@@ -442,6 +442,12 @@ export class ChatGPTAPI {
 									}*/
 
 									if (response.choices?.length) {
+										const finish_reason = response.choices[0].finish_reason
+										if (finish_reason && finish_reason==='stop'){
+											console.log('响应结束')
+											result.text = result.text.trim()
+											return resolve(result)
+										}
 										const delta = response.choices[0].delta
 										result.delta = delta.content
 										if (delta?.content) result.text += delta.content
