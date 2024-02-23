@@ -248,6 +248,9 @@ router.post('/upload',auth, upload.single('file'), (req, res) => {
 	}
 });
 
+// 设置静态文件服务
+app.use('/uploads', express.static('/home/yifangyujason/chatgpt-web/service/uploads'));
+// app.use('/uploads', express.static('D:\\MyProject\\desktop\\chatgpt-web\\service\\uploads'));
 
 app.use('', router)
 app.use('/api', router)
