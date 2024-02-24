@@ -49,17 +49,19 @@ export async function createChannelCategory(name: string) {
 export async function vindicateChannelCron() {
 	//删除2天之前的频道类别
 	const currentDatePlusTwoDay = getCurrentDateSubTwoDay();
-	console.log(`准备删除${currentDatePlusTwoDay}天及之前的频道类别`);
+	console.log(`准备删除${currentDatePlusTwoDay}天及之前的频道`);
 	// 遍历 Map，并根据条件删除元素
 	dateChannelMap.forEach(async (value, key) => {
 		if (key <= currentDatePlusTwoDay) {
 			console.log(`${key}的频道为2天及之前的，准备删除`);
+			let result=false
 			for (let item of value) {
 				const resp = await fetchData(cozeUrl+'/api/channel/del/'+item);
-				console.log('删除频道类别响应参数：',resp);
+				console.log('删除频道响应参数：',resp);
+				result=resp.success
 			}
-			// @ts-ignore
-			if (resp.success){
+			
+			if (result){
 				dateChannelMap.delete(key);
 			}
 		}
