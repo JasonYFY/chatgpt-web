@@ -282,7 +282,7 @@ async function chatReplyProcess(options: RequestOptions) {
 				},
 			}).catch(async (error: any) => {
 				console.error('访问Coze报错', error);
-				if (retryCount<maxRetryNum && error instanceof ChatCozeError){
+				if (retryCount<maxRetryNum){
 					const errorMessage = error.message;
 					if(errorMessage.concat('prompt已超过限制')) throw error
 
