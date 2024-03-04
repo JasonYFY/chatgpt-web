@@ -763,7 +763,7 @@ function handlePaste(event: ClipboardEvent)
             </span>
           </HoverButton>-->
 					<NSelect
-						style="width: 114px"
+						style="width: 118px"
 						:value="model"
 						:options="modelOptions"
 						@update-value="value => setModel(value)"
