@@ -517,7 +517,7 @@ const buttonDisabled = computed(() => {
 })
 
 const footerClass = computed(() => {
-  let classes = ['p-4']
+  let classes = ['p-4','padding-left-4']
   if (isMobile.value)
     classes = ['sticky', 'left-0', 'bottom-0', 'right-0', 'p-2', 'pr-3', 'overflow-hidden']
   return classes
@@ -611,7 +611,7 @@ const Upload = ({
 				// 创建 Blob URL
 				const blobUrl = URL.createObjectURL(imageFileList.value[0].file);
 				// 在控制台输出 Blob URL
-				console.log('Blob URL:', blobUrl);
+				//console.log('Blob URL:', blobUrl);
 				imageFileList.value.imageLink = blobUrl
 			}else{
 				// 通过 FileReader 将文件转换为 base64 字符串
@@ -763,7 +763,7 @@ function handlePaste(event: ClipboardEvent)
             </span>
           </HoverButton>
 					<NSelect
-						style="width: 104px"
+						style="width: 114px"
 						:value="model"
 						:options="modelOptions"
 						@update-value="value => setModel(value)"
@@ -815,5 +815,8 @@ function handlePaste(event: ClipboardEvent)
 .n-upload-trigger.n-upload-trigger--image-card,.n-upload,.n-upload-file-list .n-upload-file.n-upload-file--image-card-type{
 	width: 50px;
 	height: 40px;
+}
+.padding-left-4{
+	padding-left: 4px;
 }
 </style>
