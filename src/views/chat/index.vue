@@ -711,7 +711,7 @@ function handlePaste(event: ClipboardEvent)
               <SvgIcon icon="ri:bubble-chart-fill" class="mr-2 text-3xl" />
               <span style="text-align: left;">
 								<p>1.此网站对接ChatGPT,知识库截止于2022年1月</p>
-								<p>2.想体验实时知识，可切换Bard模型提问</p>
+								<p>2.想体验实时知识，可切换Bard/GPT4模型提问</p>
 							</span>
             </div>
           </template>
@@ -757,11 +757,11 @@ function handlePaste(event: ClipboardEvent)
               <SvgIcon icon="ri:download-2-line" />
             </span>
           </HoverButton>
-          <HoverButton v-if="!isMobile" @click="toggleUsingContext">
+          <!-- <HoverButton v-if="!isMobile" @click="toggleUsingContext">
             <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
               <SvgIcon icon="ri:chat-history-line" />
             </span>
-          </HoverButton>
+          </HoverButton>-->
 					<NSelect
 						style="width: 114px"
 						:value="model"
