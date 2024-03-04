@@ -199,6 +199,7 @@ export const useChatStore = defineStore('chat-store', {
 
     clearHistory() {
       this.$state = { ...defaultState() }
+			this.reloadRoute()
       this.recordState()
     },
 
