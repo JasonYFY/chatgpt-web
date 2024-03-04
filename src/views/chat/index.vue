@@ -819,4 +819,7 @@ function handlePaste(event: ClipboardEvent)
 .padding-left-4{
 	padding-left: 4px;
 }
+.n-base-select-menu .n-base-select-option.n-base-select-option--show-checkmark {
+    padding-right: 0px;
+}
 </style>
