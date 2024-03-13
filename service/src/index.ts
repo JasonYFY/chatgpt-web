@@ -36,6 +36,8 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 		//获取客户端ip
 		let clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress
 		if(clientIP){
+			//后面发现可能会获取多个ip，并且以逗号分隔，这里只取第一个即可
+			clientIP = clientIP.split(',')[0];
 			//改造下，由于获取不了真实ip,所以需加上用户代理信息（包含了用户代理信息，它提供了关于客户端使用的浏览器、操作系统和设备的详细信息）作为key
 			const userAgent = req.headers['user-agent']
 			if (userAgent){
