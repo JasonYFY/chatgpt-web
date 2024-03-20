@@ -179,11 +179,13 @@ async function chatReplyProcess(options: RequestOptions) {
     }*/
 
 		//查询ip缓存中是否有token
-		let ipToken = ipCache.get(clientIP);
+		let ipToken;
     if (lastContext != null) {
       if (apiModel === 'ChatGPTAPI')
         options.parentMessageId = lastContext.parentMessageId
 			else if(apiModel === 'ChatGPTUnofficialProxyAPI'){
+				//查询ip缓存中是否有token
+				ipToken = ipCache.get(clientIP);
 				if (ipToken) {
 					//有token才赋值上下文 需要判断conversationId是否为coze的，否则不要用
 					if(lastContext && lastContext.conversationId

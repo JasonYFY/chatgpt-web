@@ -1,7 +1,7 @@
 import express from 'express'
 import type { RequestProps } from './types'
 import type { ChatMessage } from './chatgpt'
-import { chatConfig, chatReplyProcess, currentModel } from './chatgpt'
+import {apiModel, chatConfig, chatReplyProcess, currentModel} from './chatgpt'
 import { auth } from './middleware/auth'
 import { limiter } from './middleware/limiter'
 import {generateUUID, isNotEmptyString} from './utils/is'
@@ -60,7 +60,7 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
       lastContext: options,
       process: (chat: ChatMessage) => {
 				// console.log('chat响应的信息：',chat)
-				if (model==='bard' || model==='gpt-3.5-turbo'){
+				if (model==='bard' || (apiModel === 'ChatGPTUnofficialProxyAPI'&& model==='gpt-3.5-turbo')){
 					if(firstChunk && chat.text===prompt){
 						//console.log('chat响应的信息是提问的问题',prompt)
 					}else {
