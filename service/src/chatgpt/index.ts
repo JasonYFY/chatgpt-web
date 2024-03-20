@@ -277,7 +277,7 @@ async function chatReplyProcess(options: RequestOptions) {
 		//最大的重试次数
 		const maxRetryNum = 2;
 		while (!responseApi && retryCount++ < maxRetryNum) {
-			responseApi = await apiAcess.sendMessageCoze(message, channelId, {
+			responseApi = await apiAcess.sendMessageCoze(message, channelId,model, {
 				...options,
 				onProgress: (partialResponse) => {
 					process?.(partialResponse)

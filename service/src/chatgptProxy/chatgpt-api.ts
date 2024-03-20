@@ -346,6 +346,7 @@ export class ChatGPTAPI {
 	async sendMessageCoze(
 		text: string,
 		channelId: string,
+		model: string,
 		opts: types.SendMessageOptions = {}
 	): Promise<types.ChatMessage> {
 		const {
@@ -405,6 +406,7 @@ export class ChatGPTAPI {
 				}
 				const body = {
 					channelId: channelId?channelId:'',
+					model: model,
 					messages,
 					stream
 				}
