@@ -260,20 +260,20 @@ app.set('trust proxy', 1)
 
 
 const port = process.env.SERVICE_PORT || 3002
-app.listen(port, () => globalThis.console.log(`Server is running on port ${port}`))
+const server = app.listen(port, () => globalThis.console.log(`Server is running on port ${port}`))
 
 
-process.on('SIGTERM', () => {
-	console.log('Received SIGTERM signal');
-	// 在这里执行你想要触发的事件
-});
-process.on('SIGINT', () => {
-	console.log('Received SIGINT signal');
-	// 在这里执行你想要触发的事件
-});
-
-// 监听exit事件
+const shutdown = (signal) => {
+	console.log(`收到了${signal}信号`);
+	server.close(() => {
+		console.log('服务器已关闭');
+		// 如有必要，执行额外的清理，例如关闭数据库连接
+		process.exit(0);
+	});
+};
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('exit', (code) => {
-	console.log(`About to exit with code: ${code}`);
+	console.log(`即将退出，代码为：${code}`);
 	// 执行必要的清理操作
 });
