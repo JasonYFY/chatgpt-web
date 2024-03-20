@@ -115,19 +115,21 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
 		initChannelCategory()
   }
 
-	//启动定时任务
-	initCron();
-	const options: ChatGPTUnofficialProxyAPIOptions = {
-		accessToken: process.env.OPENAI_ACCESS_TOKEN,
-		apiReverseProxyUrl: isNotEmptyString(process.env.API_REVERSE_PROXY) ? process.env.API_REVERSE_PROXY : 'https://ai.fakeopen.com/api/conversation',
-		model,
-		debug: !disableDebug,
+	if (isNotEmptyString(process.env.OPENAI_ACCESS_TOKEN)) {
+		//启动定时任务
+		initCron();
+		const options: ChatGPTUnofficialProxyAPIOptions = {
+			accessToken: process.env.OPENAI_ACCESS_TOKEN,
+			apiReverseProxyUrl: isNotEmptyString(process.env.API_REVERSE_PROXY) ? process.env.API_REVERSE_PROXY : 'https://ai.fakeopen.com/api/conversation',
+			model,
+			debug: !disableDebug,
+		}
+
+		setupProxy(options)
+
+		api = new ChatGPTUnofficialProxyAPI({...options})
+		apiModel = 'ChatGPTUnofficialProxyAPI'
 	}
-
-	setupProxy(options)
-
-	api = new ChatGPTUnofficialProxyAPI({ ...options })
-	apiModel = 'ChatGPTUnofficialProxyAPI'
 
 })()
 
