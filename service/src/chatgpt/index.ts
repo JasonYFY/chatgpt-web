@@ -183,9 +183,7 @@ async function chatReplyProcess(options: RequestOptions) {
     if (lastContext != null) {
       if (apiModel === 'ChatGPTAPI')
         options.parentMessageId = lastContext.parentMessageId
-			else if(model==='gpt4-coze'){
-				options = {...lastContext}
-			}else{
+			else if(apiModel === 'ChatGPTUnofficialProxyAPI'){
 				if (ipToken) {
 					//有token才赋值上下文 需要判断conversationId是否为coze的，否则不要用
 					if(lastContext && lastContext.conversationId
@@ -197,6 +195,8 @@ async function chatReplyProcess(options: RequestOptions) {
 					}
 
 				}
+			}else{
+				options = {...lastContext}
 			}
 
     }
