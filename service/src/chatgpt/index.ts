@@ -155,6 +155,7 @@ async function chatReplyProcess(options: RequestOptions) {
 			let respMsg = respOfBard.msg
 			if(respOfBard){
 				if (respOfBard.imageLinks){
+					console.log('bard响应参数：',respOfBard);
 					//把图片嵌入文字中
 					console.log('respOfBard.imageLinks:', respOfBard.imageLinks.length);
 					for (let i = 0; i < respOfBard.imageLinks.length; i++) {

@@ -10,7 +10,7 @@ export async function chatBardProcess(ask: string,conversationId:string,imageFil
 		imageFileName:imageFileName,
 	};
 	const resp = await postData(bardUrl, data);
-	console.log('bard响应参数：',resp);
+	//console.log('bard响应参数：',resp);
 	return resp;
 }
 
