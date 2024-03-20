@@ -17,8 +17,7 @@ import LRUMap from 'lru-cache'
 import type { RequestOptions, SetProxyOptions } from './types'
 import {initCron} from "../utils/checkCron";
 import {chatBardProcess, replaceImageTags} from "../bard/bardApi";
-import {createChannel, initChannelCategory, idChannelCache, dateChannelMap} from "./coze";
-import {ChatCozeError} from "./types";
+import {createChannel, initChannelCategory, idChannelCache} from "./coze";
 import {getCurrentDate} from "../utils/commUtils";
 
 const originalLog = console.log;
@@ -314,14 +313,7 @@ async function creatChannel(clientIP: string, options: SendMessageOptions) {
 	const currentDate = getCurrentDate();
 	let channelId = await createChannel(currentDate,clientIP)
 	if (channelId) {
-		idChannelCache.set(options.conversationId, channelId);
-		//记录日期->频道id的map
-		let channelArray:Array<string> = dateChannelMap.get(currentDate);
-		if (!channelArray){
-			channelArray =  []
-		}
-		channelArray.push(channelId)
-		dateChannelMap.set(currentDate,channelArray);
+		idChannelCache.set(options.conversationId, channelId,currentDate);
 	}
 	return channelId;
 }

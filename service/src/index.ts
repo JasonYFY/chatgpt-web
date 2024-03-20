@@ -258,5 +258,22 @@ app.use('', router)
 app.use('/api', router)
 app.set('trust proxy', 1)
 
+
 const port = process.env.SERVICE_PORT || 3002
 app.listen(port, () => globalThis.console.log(`Server is running on port ${port}`))
+
+
+process.on('SIGTERM', () => {
+	console.log('Received SIGTERM signal');
+	// 在这里执行你想要触发的事件
+});
+process.on('SIGINT', () => {
+	console.log('Received SIGINT signal');
+	// 在这里执行你想要触发的事件
+});
+
+// 监听exit事件
+process.on('exit', (code) => {
+	console.log(`About to exit with code: ${code}`);
+	// 执行必要的清理操作
+});

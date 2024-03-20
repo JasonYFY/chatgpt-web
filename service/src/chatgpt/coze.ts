@@ -1,14 +1,13 @@
 import {isNotEmptyString} from "../utils/is";
-import {fetchData, getCurrentDateSubTwoDay, postData} from "../utils/commUtils";
+import {fetchData, getCurrentDateSubThreeDay, postData} from "../utils/commUtils";
 import * as dotenv from "dotenv";
 import cron from 'node-cron';
+import {CustomMap} from "../utils/CustomMap";
 
 dotenv.config();
 const cozeUrl = isNotEmptyString(process.env.OPENAI_API_BASE_URL) ? process.env.OPENAI_API_BASE_URL : 'http://127.0.0.1:7077';
 //用于保存回话id和频道的映射缓存
-export const idChannelCache = new Map<string,string>();
-//记录日期->频道id的map
-export const dateChannelMap = new Map<string,Array<string>>();
+export const idChannelCache = new CustomMap<string,string,string>();
 // 设定定时任务的执行规律
 const schedule = isNotEmptyString(process.env.COZE_CHECK) ? process.env.COZE_CHECK : '08 0 * * *';
 
@@ -48,21 +47,16 @@ export async function createChannelCategory(name: string) {
 //维护频道--用于每天删除频道
 export async function vindicateChannelCron() {
 	//删除2天之前的频道类别
-	const currentDatePlusTwoDay = getCurrentDateSubTwoDay();
-	console.log(`准备删除${currentDatePlusTwoDay}天及之前的频道`);
+	const currentDatePlusThreeDay = getCurrentDateSubThreeDay();
+	console.log(`准备删除${currentDatePlusThreeDay}天及之前的频道`);
 	// 遍历 Map，并根据条件删除元素
-	dateChannelMap.forEach(async (value, key) => {
-		if (key <= currentDatePlusTwoDay) {
-			console.log(`${key}的频道为2天及之前的，准备删除`);
-			let result=false
-			for (let item of value) {
-				const resp = await fetchData(cozeUrl+'/api/channel/del/'+item);
-				console.log('删除频道响应参数：',resp);
-				result=resp.success
-			}
-			
-			if (result){
-				dateChannelMap.delete(key);
+	idChannelCache.forEach(async (key, value, dateValue) => {
+		if (dateValue <= currentDatePlusThreeDay) {
+			console.log(`${value}的频道为${currentDatePlusThreeDay}天及之前的，准备删除`);
+			const resp = await fetchData(cozeUrl+'/api/channel/del/'+value);
+			console.log('删除频道响应参数：',resp);
+			if (resp.success){
+				idChannelCache.delete(key);
 			}
 		}
 	});

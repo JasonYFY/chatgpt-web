@@ -23,7 +23,7 @@ export function getCurrentDatePlusTwoDay(): string {
 }
 
 //获取3前天的日期
-export function getCurrentDateSubTwoDay(): string {
+export function getCurrentDateSubThreeDay(): string {
 	const nextDay = dayjs().subtract(3, 'day');
 	return nextDay.format('YYYY-MM-DD');
 }
