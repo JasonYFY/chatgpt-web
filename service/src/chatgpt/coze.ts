@@ -3,11 +3,12 @@ import {fetchData, getCurrentDateSubThreeDay, postData} from "../utils/commUtils
 import * as dotenv from "dotenv";
 import cron from 'node-cron';
 import {CustomMap} from "../utils/CustomMap";
+import {updateEnvFile} from "../utils/operateEnv";
 
 dotenv.config();
 const cozeUrl = isNotEmptyString(process.env.OPENAI_API_BASE_URL) ? process.env.OPENAI_API_BASE_URL : 'http://127.0.0.1:7077';
 //用于保存回话id和频道的映射缓存
-export const idChannelCache = new CustomMap<string,string,string>();
+export let idChannelCache = new CustomMap<string,string,string>();
 // 设定定时任务的执行规律
 const schedule = isNotEmptyString(process.env.COZE_CHECK) ? process.env.COZE_CHECK : '08 0 * * *';
 
@@ -62,9 +63,24 @@ export async function vindicateChannelCron() {
 	});
 }
 
+//持久化频道信息--用于退出程序时记录
+export function saveChannelInfo() {
+	if (!idChannelCache.isEmpty()){
+		//频道信息非空时才保存
+		// 序列化CustomMap到JSON
+		updateEnvFile('COZE_CHANNEL_INFO',idChannelCache.toJSON());
+		console.log('保存频道信息成功！');
+	}
+}
+
 //启动频道维护
 export async function initChannelCategory(){
 	//维护频道类别--用于每天删除频道
 	cron.schedule(schedule, vindicateChannelCron);
+	if (isNotEmptyString(process.env.COZE_CHANNEL_INFO)){
+		console.log('加载频道信息:', process.env.COZE_CHANNEL_INFO);
+		//加载频道信息
+		idChannelCache = CustomMap.fromJSON<string, string, string>(process.env.COZE_CHANNEL_INFO);
+	}
 }
 

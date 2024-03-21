@@ -13,6 +13,7 @@ import {
 } from "./chatgpt/apiToToken";
 import multer from 'multer'
 import * as console from "console";
+import {saveChannelInfo} from "./chatgpt/coze";
 
 const app = express()
 const router = express.Router()
@@ -264,10 +265,10 @@ const server = app.listen(port, () => globalThis.console.log(`Server is running 
 
 
 const shutdown = (signal) => {
-	console.log(`收到了${signal}信号`);
+	console.log(`收到了${signal}信号,准备保存频道信息`);
+	saveChannelInfo()
 	server.close(() => {
 		console.log('服务器已关闭');
-		// 如有必要，执行额外的清理，例如关闭数据库连接
 		process.exit(0);
 	});
 };
@@ -275,5 +276,4 @@ process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('exit', (code) => {
 	console.log(`即将退出，代码为：${code}`);
-	// 执行必要的清理操作
 });
