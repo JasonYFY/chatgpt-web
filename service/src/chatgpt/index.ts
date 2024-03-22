@@ -269,11 +269,16 @@ async function chatReplyProcess(options: RequestOptions) {
 			options.conversationId = 'coze-'+generateUUID()
 		}
 
+		//获取当前日期
+		const currentDate = getCurrentDate();
 		//查找是否有对应的频道id
 		let channelId = idChannelCache.get(options.conversationId);
 		if (!channelId){
 			console.log(`新conversationId:${options.conversationId}，需要创建频道`)
-			channelId = await creatChannel(clientIP, options);
+			channelId = await creatChannel(clientIP, options,currentDate);
+		}else{
+			//更新日期
+			idChannelCache.set(options.conversationId,channelId,currentDate)
 		}
 		let responseApi
 		//最大的重试次数
@@ -291,7 +296,7 @@ async function chatReplyProcess(options: RequestOptions) {
 					if(errorMessage.includes('prompt已超过限制')) throw error
 
 					console.log('有可能是频道有问题，重新获取频道，重新新执行retryCount：', retryCount);
-					channelId = await creatChannel(clientIP, options);
+					channelId = await creatChannel(clientIP, options, currentDate);
 				}else{
 					throw error
 				}
@@ -309,8 +314,7 @@ async function chatReplyProcess(options: RequestOptions) {
   }
 }
 
-async function creatChannel(clientIP: string, options: SendMessageOptions) {
-	const currentDate = getCurrentDate();
+async function creatChannel(clientIP: string, options: SendMessageOptions, currentDate: string) {
 	let channelId = await createChannel(currentDate,clientIP)
 	if (channelId) {
 		idChannelCache.set(options.conversationId, channelId,currentDate);
