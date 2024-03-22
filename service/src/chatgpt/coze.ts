@@ -10,7 +10,15 @@ const cozeUrl = isNotEmptyString(process.env.OPENAI_API_BASE_URL) ? process.env.
 //用于保存回话id和频道的映射缓存
 export let idChannelCache = new CustomMap<string,string,string>();
 // 设定定时任务的执行规律
-const schedule = isNotEmptyString(process.env.COZE_CHECK) ? process.env.COZE_CHECK : '08 0 * * *';
+const schedule = isNotEmptyString(process.env.COZE_CHECK) ? process.env.COZE_CHECK : '0 8 * * *';
+//判断是否切换为GPT4-8k，当GPT4-128k使用超限时自动切换
+let USE_GPT4_8K = false;
+export function setUseGPT4_8K(value: boolean) {
+	USE_GPT4_8K = value;
+}
+export function getUseGPT4_8K() {
+	return USE_GPT4_8K;
+}
 
 
 //创建频道
@@ -47,6 +55,9 @@ export async function createChannelCategory(name: string) {
 
 //维护频道--用于每天删除频道
 export async function vindicateChannelCron() {
+	//重置
+	setUseGPT4_8K(false);
+
 	//删除2天之前的频道类别
 	const currentDatePlusThreeDay = getCurrentDateSubThreeDay();
 	console.log(`准备删除${currentDatePlusThreeDay}天及之前的频道`);

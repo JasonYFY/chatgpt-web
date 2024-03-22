@@ -17,7 +17,7 @@ import LRUMap from 'lru-cache'
 import type { RequestOptions, SetProxyOptions } from './types'
 import {initCron} from "../utils/checkCron";
 import {chatBardProcess, replaceImageTags} from "../bard/bardApi";
-import {createChannel, initChannelCategory, idChannelCache} from "./coze";
+import {createChannel, initChannelCategory, idChannelCache, USE_GPT4_8K, setUseGPT4_8K, getUseGPT4_8K} from "./coze";
 import {getCurrentDate} from "../utils/commUtils";
 
 const originalLog = console.log;
@@ -133,7 +133,7 @@ const retryIntervalMs = !isNaN(+process.env.RETRY_INTERVAL_MS) ? +process.env.RE
 })()
 
 async function chatReplyProcess(options: RequestOptions) {
-  const { message, lastContext, process, systemMessage
+  let { message, lastContext, process, systemMessage
 		,clientIP, temperature, top_p,model,imageFileName } = options
 
 	try {
@@ -280,6 +280,13 @@ async function chatReplyProcess(options: RequestOptions) {
 			//更新日期
 			idChannelCache.set(options.conversationId,channelId,currentDate)
 		}
+
+		if (model==="gpt4-coze" && getUseGPT4_8K()){
+			//判断是否使用gpt4-8k模型
+			model = "gpt-4-8k";
+			console.log('使用gpt4-8k模型:', model);
+		}
+
 		let responseApi
 		//最大的重试次数
 		const maxRetryNum = 2;
@@ -294,9 +301,16 @@ async function chatReplyProcess(options: RequestOptions) {
 				if (retryCount<maxRetryNum){
 					const errorMessage = error.message;
 					if(errorMessage.includes('prompt已超过限制')) throw error
+					if(errorMessage.includes('模型响应超时')) throw error
 
-					console.log('有可能是频道有问题，重新获取频道，重新新执行retryCount：', retryCount);
-					channelId = await creatChannel(clientIP, options, currentDate);
+					if(model==="gpt4-coze" && errorMessage.includes('daily limit')){
+						console.log('模型次数限制，换一个');
+						setUseGPT4_8K(true)
+						model = "gpt-4-8k";
+					}else{
+						console.log('有可能是频道有问题，重新获取频道，重新新执行retryCount：', retryCount);
+						channelId = await creatChannel(clientIP, options, currentDate);
+					}
 				}else{
 					throw error
 				}
