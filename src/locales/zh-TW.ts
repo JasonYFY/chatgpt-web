@@ -52,6 +52,7 @@ export default {
     preview: '預覽',
     showRawText: '顯示原文',
 		switchModel: '已成功切換，切換後不攜帶之前的聊天記錄',
+		switchModelSeamless: '已成功切換,並攜帶之前的聊天記錄',
   },
   setting: {
     setting: '設定',

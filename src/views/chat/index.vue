@@ -553,6 +553,11 @@ function setModel(model: string) {
 	let lastModel = modelValue.value
 	chatStore.setModelValue(model,+uuid)
 	if (lastModel !== model) {
+		if ((model=='gpt-3.5-turbo'&& lastModel=='gpt4-coze') ||
+		(lastModel=='gpt-3.5-turbo'&& model=='gpt4-coze')){
+			ms.success(t('chat.switchModelSeamless'))
+    	return
+    }
 		ms.success(t('chat.switchModel'))
 	}
 

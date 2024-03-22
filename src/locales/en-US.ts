@@ -52,6 +52,7 @@ export default {
     preview: 'Preview',
     showRawText: 'Show as raw text',
 		switchModel: 'The switch has been successful. Chat history will not be carried over after the switch',
+		switchModelSeamless: 'The switch has been successful.And carry a chat record.',
   },
   setting: {
     setting: 'Setting',
