@@ -307,10 +307,11 @@ async function chatReplyProcess(options: RequestOptions) {
 						console.log('模型次数限制，换一个');
 						setUseGPT4_8K(true)
 						model = "gpt-4-8k";
-					}else{
-						console.log('有可能是频道有问题，重新获取频道，重新新执行retryCount：', retryCount);
-						channelId = await creatChannel(clientIP, options, currentDate);
 					}
+					//else{
+						//console.log('有可能是频道有问题，重新获取频道，重新新执行retryCount：', retryCount);
+						//channelId = await creatChannel(clientIP, options, currentDate);
+					//}
 				}else{
 					throw error
 				}
