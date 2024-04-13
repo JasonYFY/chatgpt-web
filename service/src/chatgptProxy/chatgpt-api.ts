@@ -467,6 +467,7 @@ export class ChatGPTAPI {
 								}
 							},
 							onError: (err) => {
+								console.warn('OpenAI stream SEE event unexpected error2', err)
 								reject(err)
 							}
 						},

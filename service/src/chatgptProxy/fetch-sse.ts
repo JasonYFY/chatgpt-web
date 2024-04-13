@@ -64,6 +64,7 @@ export async function fetchSSE(
     }
 
 		if (response?.error){
+			console.error('fetch-sse报错了',response)
 			const error = new ChatCozeError()
 			error.message = response.error.message
 			error.statusCode = response.error.code
