@@ -46,7 +46,7 @@ export async function fetchSSE(
     } catch {
       // ignore
     }
-
+		console.log('响应的response：',response)
     if (response?.detail?.type === 'invalid_request_error') {
       const msg = `ChatGPT error ${response.detail.message}: ${response.detail.code} (${response.detail.type})`
       const error = new types.ChatGPTError(msg, { cause: response })
