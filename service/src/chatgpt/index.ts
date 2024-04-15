@@ -308,6 +308,8 @@ async function chatReplyProcess(options: RequestOptions) {
 						setUseGPT4_8K(true)
 						model = "gpt-4-8k";
 					}
+					console.log('准备重新新执行,等待：',retryIntervalMs);
+					await sleep(retryIntervalMs);
 					//else{
 						//console.log('有可能是频道有问题，重新获取频道，重新新执行retryCount：', retryCount);
 						//channelId = await creatChannel(clientIP, options, currentDate);
