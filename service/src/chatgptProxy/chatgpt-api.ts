@@ -465,7 +465,7 @@ export class ChatGPTAPI {
 										onProgress?.(result)
 									}
 								} catch (err) {
-									console.warn('OpenAI stream SEE event unexpected error', err)
+									//console.warn('OpenAI stream SEE event unexpected error', err)
 									return reject(err)
 								}
 							},
