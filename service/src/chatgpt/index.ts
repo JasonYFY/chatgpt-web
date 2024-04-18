@@ -301,7 +301,7 @@ async function chatReplyProcess(options: RequestOptions) {
 				if (retryCount<maxRetryNum){
 					const errorMessage = error.message;
 					if(errorMessage.includes('prompt已超过限制')) throw error
-					if(errorMessage.includes('模型响应超时')) throw error
+					if(errorMessage.includes('图片模型响应超时')) throw error
 
 					if(model==="gpt4-coze" && errorMessage.includes('daily limit')){
 						console.log('模型次数限制，换一个');
