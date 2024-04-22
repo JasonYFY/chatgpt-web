@@ -289,7 +289,7 @@ async function chatReplyProcess(options: RequestOptions) {
 
 		let responseApi
 		//最大的重试次数
-		const maxRetryNum = 2;
+		let maxRetryNum = 2;
 		while (!responseApi && retryCount++ < maxRetryNum) {
 			responseApi = await apiAcess.sendMessageCoze(message, channelId,model, {
 				...options,
@@ -307,6 +307,10 @@ async function chatReplyProcess(options: RequestOptions) {
 						console.log('模型次数限制，换一个');
 						setUseGPT4_8K(true)
 						model = "gpt-4-8k";
+					}
+					if(maxRetryNum===2 && errorMessage.includes('too many users')){
+            //加多两次
+            maxRetryNum=maxRetryNum+2
 					}
 					console.log('准备重新新执行,等待：',retryIntervalMs);
 					await sleep(retryIntervalMs);
