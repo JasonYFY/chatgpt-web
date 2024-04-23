@@ -308,6 +308,10 @@ async function chatReplyProcess(options: RequestOptions) {
 						setUseGPT4_8K(true)
 						model = "gpt-4-8k";
 					}
+					if(model==="gpt4-coze" && errorMessage.includes('模型响应超时')){
+						console.log('模型响应超时，暂时换一个模型去问');
+						model = "gpt-4-8k";
+					}
 					if(maxRetryNum===2 && errorMessage.includes('too many users')){
             //加多两次
             maxRetryNum=maxRetryNum+2
