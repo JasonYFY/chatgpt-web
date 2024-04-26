@@ -35,6 +35,7 @@ const mdi = new MarkdownIt({
     }
     return highlightBlock(hljs.highlightAuto(code).value, '')
   },
+	breaks: true
 })
 
 mdi.use(mila, { attrs: { target: '_blank', rel: 'noopener' } })
