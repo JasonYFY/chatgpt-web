@@ -547,14 +547,15 @@ const modelOptions: { label: string; value: string }[] = [
   { label: 'GPT3',value: 'gpt-3.5-turbo' },
   { label: 'Bard',value: 'bard' },
   { label: 'GPT4',value: 'gpt4-coze' },
+	{ label: 'GPT4o',value: 'gpt4-o' },
 ]
 
 function setModel(model: string) {
 	let lastModel = modelValue.value
 	chatStore.setModelValue(model,+uuid)
 	if (lastModel !== model) {
-		if ((model=='gpt-3.5-turbo'&& lastModel=='gpt4-coze') ||
-		(lastModel=='gpt-3.5-turbo'&& model=='gpt4-coze')){
+		if ((model=='gpt-3.5-turbo'&& lastModel.startsWith('gpt4-coze')) ||
+		(lastModel=='gpt-3.5-turbo'&& model.startsWith('gpt4-coze'))){
 			ms.success(t('chat.switchModelSeamless'))
     	return
     }
@@ -715,8 +716,7 @@ function handlePaste(event: ClipboardEvent)
             <div class="flex items-center justify-center mt-4 text-center text-neutral-300">
               <SvgIcon icon="ri:bubble-chart-fill" class="mr-2 text-3xl" />
               <span style="text-align: left;">
-								<p>1.此网站对接ChatGPT,知识库截止于2022年1月</p>
-								<p>2.想体验实时知识，可切换Bard/GPT4模型提问</p>
+								<p>1.此网站对接coze-ChatGPT</p>
 							</span>
             </div>
           </template>
