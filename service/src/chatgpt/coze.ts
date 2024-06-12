@@ -70,6 +70,9 @@ export async function vindicateChannelCron() {
 			if (resp.success){
 				idChannelCache.delete(key);
 			}
+			if (resp.message && resp.message.includes("Unknown Channel")) {
+			  idChannelCache.delete(key);
+			}
 		}
 	});
 }
