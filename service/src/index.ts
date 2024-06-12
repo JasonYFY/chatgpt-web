@@ -75,9 +75,18 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 						}
 					}
 				}else {
-					delete chat.detail;
-					chat.text = chat.delta
-					res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
+					var text = chat.detail.choices[0].message.content;
+					if (text.length > previousContent.length) {
+							let currentContent = text.substring(previousContent.length);
+							previousContent = text;
+							chat.text = currentContent;
+							//console.log('chat响应的信息：',chat)
+							res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
+							firstChunk = false;
+						}
+					// delete chat.detail;
+					// chat.text = chat.delta
+					// res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
 					firstChunk = false
 				}
       },
