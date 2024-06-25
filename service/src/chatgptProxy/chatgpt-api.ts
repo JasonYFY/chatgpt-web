@@ -450,7 +450,7 @@ export class ChatGPTAPI {
 											result.text = result.text.trim()
 											return resolve(result)
 										}
-										const delta = response.choices[0].delta
+										const delta = response.choices[0].message
 										if (response.object==='chat.error'){
 											throw new Error(delta.content);
 										}
