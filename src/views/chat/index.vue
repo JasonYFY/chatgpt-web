@@ -714,9 +714,8 @@ function handlePaste(event: ClipboardEvent)
             <div class="flex items-center justify-center mt-4 text-center text-neutral-300">
               <SvgIcon icon="ri:bubble-chart-fill" class="mr-2 text-3xl" />
               <span style="text-align: left;">
-								<p>1.此网站对接coze-ChatGPT
-								    2.若想体验更好的功能，请登录https://oaifree.jasonyu.us.kg/并联系我
-								</p>
+								<p>1.此网站对接coze-ChatGPT</p>
+								<p>2.若想体验更好的功能，请登录<a href="https://oaifree.jasonyu.us.kg/" target="_blank">https://oaifree.jasonyu.us.kg/</a>并联系我</p>
 							</span>
             </div>
           </template>
